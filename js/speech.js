@@ -86,7 +86,7 @@ $("#fileInput").submit(function(event) {
 
   var dropdownValue = $("#agentSelect").val();
   console.log(dropdownValue);
-  
+  agentsRequest(dropdownValue);
   //TODO might have problem in spoken part of the API we'll see in the future
   //decide which API it will call (array that way we can call both easily)
   //Ajax function call goes here
