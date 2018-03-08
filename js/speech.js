@@ -117,16 +117,7 @@ function capitalize(s) {
   return s.replace(first_char, function(m) { return m.toUpperCase(); });
 }
 
-function copyButton() {
-  if (recognizing) {
-    recognizing = false;
-    recognition.stop();
-  }
-  copy_button.style.display = 'none';
-  copy_info.style.display = 'inline-block';
-  showInfo('');
-}
-
+ 
 function startButton(event) {
   if (recognizing) {
     recognition.stop();
@@ -173,7 +164,4 @@ function showButtons(style) {
     return;
   }
   current_style = style;
-  copy_button.style.display = style;
-  copy_info.style.display = 'none';
-  submit_button.style.display = style;
 }
