@@ -172,5 +172,6 @@ function showButtons(style) {
   copy_button.style.display = style;
   copy_info.style.display = 'none';
   submit_button.style.display = style;
+  uploadFile_button.style.display = style
 
 }
