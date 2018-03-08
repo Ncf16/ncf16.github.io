@@ -61,7 +61,6 @@ function agentsRequest(flag){
   case 1:
   requestWitAi();
   break;
-  
   case 2:
   console.log("CALLING: "+flag)
   requestDialogFlow();
@@ -71,6 +70,8 @@ function agentsRequest(flag){
   requestDialogFlow();
   requestWitAi();
   break;
+  default:
+   alert("Not working");
   }
 
 }
