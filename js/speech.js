@@ -10,8 +10,12 @@ var langs =
  ['Português',       ['pt-BR', 'Brasil'],
                      ['pt-PT', 'Portugal']],
 ];
- select_language = $("#select_language")[0]
- select_dialect = $("#select_dialect")[0]
+select_language = $("#select_language")[0]
+select_dialect = $("#select_dialect")[0]
+var final_transcript = '';
+var recognizing = false;
+var ignore_onend;
+var start_timestamp;
 for (var i = 0; i < langs.length; i++) {
   select_language.options[i] = new Option(langs[i][0], i);
 }
@@ -19,6 +23,7 @@ select_language.selectedIndex = 0;
 updateCountry();
 select_dialect.selectedIndex = 5;
 showInfo('info_start');
+uploadFile_button.style.display = 'inline-block';
 function updateCountry() {
   for (var i = select_dialect.options.length - 1; i >= 0; i--) {
     select_dialect.remove(i);
@@ -29,10 +34,7 @@ function updateCountry() {
   }
   select_dialect.style.visibility = list[1].length == 1 ? 'hidden' : 'visible';
 }
-var final_transcript = '';
-var recognizing = false;
-var ignore_onend;
-var start_timestamp;
+
 if (!('webkitSpeechRecognition' in window)) {
   upgrade();
 } else {
@@ -172,6 +174,4 @@ function showButtons(style) {
   copy_button.style.display = style;
   copy_info.style.display = 'none';
   submit_button.style.display = style;
-  uploadFile_button.style.display = style
-
 }
