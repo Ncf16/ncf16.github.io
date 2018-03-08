@@ -27,8 +27,9 @@ function handleFileSelect(evt) {
  document.getElementById('uploadFile').addEventListener('change', handleFileSelect, false);
 $("#fileInput").submit(function(event) {
   console.log("SUBMITTING FILES");
+  console.log(final_transcript);
   console.log(fileContent);
-  var voiceInput = $("#final_span")[0].textContent.split("\n");
+  var voiceInput = final_transcript.split("\n");
   console.log(voiceInput);
   finalArray = fileContent.concat(voiceInput);
   console.log(finalArray);
@@ -130,8 +131,8 @@ if (!('webkitSpeechRecognition' in window)) {
       }
     }
     final_transcript = capitalize(final_transcript);
-    final_span.innerHTML = (final_transcript);
-    interim_span.innerHTML = (interim_transcript);
+    final_span.innerHTML = linebreak(final_transcript);
+    interim_span.innerHTML = linebreak(interim_transcript);
     if (final_transcript || interim_transcript) {
       showButtons('inline-block');
     }
