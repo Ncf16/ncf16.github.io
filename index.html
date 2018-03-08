@@ -15,12 +15,7 @@
 		<div id="navbar"></div>
 		<p>The point of this webpage is to write/speak content to train the Agents in Wit.ai and Dialoflow. Said agents are used as an extra to editing, so the commands should be along the line of Move that there, Switch that with this, Duplicate the object with ID BK01</p>
 		<form>
-			<fieldset>
-				<input type="text" x-webkit-speech>
-				<input type="file" id="input">
-				<legend>Input</legend>
-				<a  href="speech.html" target="_blank">Teste</a>
-			</fieldset>
+			<div id="speech"></div>
 		</form>
 		<!-- Optional JavaScript -->
 		<script src="js/speech.js" ></script>
@@ -31,6 +26,7 @@
 		<script> 
 			$(function(){
 			  $("#navbar").load("templates/navbar.html"); 
+			  $("#speech").load("speech.html");
 			});
 		</script> 
 	</body>
