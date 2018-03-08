@@ -56,7 +56,7 @@ function requestWitAi(lines){
   }
 }
 function agentsRequest(flag){
-  console.log(flag);
+  console.log("RANDOM: "+flag);
   switch(flag){
   case 1:
   requestWitAi();
