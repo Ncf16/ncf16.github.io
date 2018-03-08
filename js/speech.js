@@ -21,7 +21,7 @@ function handleFileSelect(evt) {
        reader.onload = function(e) {
             fileContent = reader.result;
             //Here the content has been read successfuly
-            console.log(content.split("\n"));    
+            console.log(fileContent.split("\n"));    
         }
         
       reader.readAsText(f)
