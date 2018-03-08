@@ -28,7 +28,7 @@ function updateCountry() {
   }
   select_dialect.style.visibility = list[1].length == 1 ? 'hidden' : 'visible';
 }
- 
+
 var final_transcript = '';
 var recognizing = false;
 var ignore_onend;
@@ -82,7 +82,6 @@ if (!('webkitSpeechRecognition' in window)) {
       range.selectNode(document.getElementById('final_span'));
       window.getSelection().addRange(range);
     }
-
   };
   recognition.onresult = function(event) {
     var interim_transcript = '';
@@ -124,7 +123,6 @@ function copyButton() {
   copy_info.style.display = 'inline-block';
   showInfo('');
 }
-
 function startButton(event) {
   if (recognizing) {
     recognition.stop();
