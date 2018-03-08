@@ -26,26 +26,13 @@ function handleFileSelect(evt) {
  document.getElementById('uploadFile').addEventListener('change', handleFileSelect, false);
 $("#fileInput").submit(function(event) {
   console.log("SUBMITTING FILES");
-  console.log(event)
-   
-
-  var reader = new FileReader();
-  reader.onload = function(progressEvent){
-    // Entire file
-    console.log(this.result);
-
-    // By lines
-    var lines = this.result.split('\n');
-    for(var line = 0; line < lines.length; line++){
-      console.log(lines[line]);
-    }
-  };
-  //reader.readAsText(file);
-//Prevent the default action of the event: in this case, prevent form from submitting data 
+  //Prevent the default action of the event: in this case, prevent form from submitting data 
   event.preventDefault();
   event.stopPropagation();
-  return false;
-//Other code for click event here
+  //Data will have what has been spoken and what has been sent as text
+  //TODO might have problem in spoken part of the API we'll see in the future
+  //decide which API it will call (array that way we can call both easily)
+  //Ajax function call goes here
 });
 
 select_language = $("#select_language")[0]
