@@ -108,7 +108,8 @@ if (!('webkitSpeechRecognition' in window)) {
       }
     }
     final_transcript = capitalize(final_transcript);
-    final_span.innerHTML = "\n"+linebreak(final_transcript);
+    final_span.innerHTML = linebreak(final_transcript);
+    console.log(final_transcript)
     interim_span.innerHTML = linebreak(interim_transcript);
     if (final_transcript || interim_transcript) {
       showButtons('inline-block');
