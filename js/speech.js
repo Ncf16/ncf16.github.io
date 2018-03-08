@@ -140,6 +140,17 @@ function startButton(event) {
   showButtons('none');
   start_timestamp = event.timeStamp;
 }
+function uploadFile(){
+
+}
+function submit(){
+  if (recognizing) {
+    recognizing = false;
+    recognition.stop();
+  }
+  submit_button.style.display = 'none';
+  showInfo('');
+}
 function showInfo(s) {
   if (s) {
     for (var child = info.firstChild; child; child = child.nextSibling) {
@@ -160,4 +171,6 @@ function showButtons(style) {
   current_style = style;
   copy_button.style.display = style;
   copy_info.style.display = 'none';
+  submit_button.style.display = style;
+
 }
