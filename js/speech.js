@@ -17,7 +17,13 @@ function handleFileSelect(evt) {
     for (var i = 0, f; f = files[i]; i++) {
       console.log("File: "+ f);
       var reader = new FileReader();
-
+       reader.onload = function(e) {
+            var content = reader.result;
+            //Here the content has been read successfuly
+            alert(content);
+        }
+        
+      reader.readAsText(f)
       // Read in the image file as a data URL.
      // reader.readAsDataURL(f);
     }
