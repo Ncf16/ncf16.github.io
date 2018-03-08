@@ -15,9 +15,7 @@ $("#fileInput").submit(function(event) {
   console.log("SUBMITTING FILES");
 //Prevent the default action of the event: in this case, prevent form from submitting data 
   event.preventDefault();
-  console.log(event)
-  event.stopPropagation()
-  throw "ssss"
+  event.stopPropagation();
   return false;
 //Other code for click event here
 });
