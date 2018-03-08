@@ -10,6 +10,10 @@ var langs =
  ['Português',       ['pt-BR', 'Brasil'],
                      ['pt-PT', 'Portugal']],
 ];
+$("#fileInput").submit(function(e){
+    console.log("SUBMITTING FILES");
+    return false;
+});
 select_language = $("#select_language")[0]
 select_dialect = $("#select_dialect")[0]
 var final_transcript = '';
@@ -134,6 +138,7 @@ function startButton(event) {
   showButtons('none');
   start_timestamp = event.timeStamp;
 }
+
 function uploadFile(){
   console.log("clicked 3");
   $("#inputFile").focus();
