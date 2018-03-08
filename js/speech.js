@@ -61,8 +61,8 @@ var langs =
                      ['yue-Hant-HK', '粵語 (香港)']],
  ['日本語',           ['ja-JP']],
  ['Lingua latīna',   ['la']]];
- select_language = $("#select_language")
- select_dialect = $("#select_dialect")
+ select_language = $("#select_language")[0]
+ select_dialect = $("#select_dialect")[0]
 for (var i = 0; i < langs.length; i++) {
   select_language.options[i] = new Option(langs[i][0], i);
 }
