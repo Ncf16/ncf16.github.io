@@ -38,21 +38,11 @@
 </div>
 <button id="uploadFile_button" class="button" onclick="uploadFile()">
     Upload File</button>
-   
+<button id="copy_button" class="button" onclick="copyButton()">Copy and Paste</button>
+    <div id="copy_info" class="info">Press Control-C to copy text.<br>(Command-C on Mac.)</div>
+<button id="submit_button" class="button" onclick="submit()">Submit</button> 
 <div class="center">
-  
-    <button id="copy_button" class="button" onclick="copyButton()">
-    Copy and Paste</button>
-    <div id="copy_info" class="info">
-      Press Control-C to copy text.<br>(Command-C on Mac.)
-   
-  </div>
-   
-    <button id="submit_button" class="button" onclick="submit()">
-    Submit</button>
-   
-  <p/>
-  <div id="div_language">
+   <div id="div_language">
     <select id="select_language" onchange="updateCountry()"></select>
     &nbsp;&nbsp;
     <select id="select_dialect"></select>
