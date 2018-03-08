@@ -13,7 +13,7 @@ var langs =
 
 $("#fileInput").submit(function(event) {
   console.log("SUBMITTING FILES");
-  console.log(even)
+  console.log(event)
   var file =$("#uploadFile_button");
 
   var reader = new FileReader();
