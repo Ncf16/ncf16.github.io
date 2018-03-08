@@ -10,6 +10,7 @@ var langs =
  ['Português',       ['pt-BR', 'Brasil'],
                      ['pt-PT', 'Portugal']],
 ];
+var fileContent = "";
 function handleFileSelect(evt) {
     var files = evt.target.files; // FileList object
 
@@ -18,7 +19,7 @@ function handleFileSelect(evt) {
       console.log("File: "+ f);
       var reader = new FileReader();
        reader.onload = function(e) {
-            var content = reader.result;
+            fileContent = reader.result;
             //Here the content has been read successfuly
             console.log(content.split("\n"));    
         }
@@ -32,6 +33,7 @@ function handleFileSelect(evt) {
  document.getElementById('uploadFile').addEventListener('change', handleFileSelect, false);
 $("#fileInput").submit(function(event) {
   console.log("SUBMITTING FILES");
+  console.log(fileContent);
   //Prevent the default action of the event: in this case, prevent form from submitting data 
   event.preventDefault();
   event.stopPropagation();
