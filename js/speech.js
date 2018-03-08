@@ -10,7 +10,7 @@ var langs =
  ['Português',       ['pt-BR', 'Brasil'],
                      ['pt-PT', 'Portugal']],
 ];
-var fileContent = "";
+var fileContent = [];
 function handleFileSelect(evt) {
     var files = evt.target.files; // FileList object
 
@@ -19,9 +19,8 @@ function handleFileSelect(evt) {
       console.log("File: "+ f);
       var reader = new FileReader();
        reader.onload = function(e) {
-            fileContent = reader.result;
+            fileContent = reader.result.split("\n");
             //Here the content has been read successfuly
-            console.log(fileContent.split("\n"));    
         }
         
       reader.readAsText(f)
@@ -34,6 +33,10 @@ function handleFileSelect(evt) {
 $("#fileInput").submit(function(event) {
   console.log("SUBMITTING FILES");
   console.log(fileContent);
+  var voiceInput = $("#final_span").split("\n");
+  console.log(voiceInput);
+  finalArray = fileContent.concat(voiceInput);
+  console.log(finalArray);
   //Prevent the default action of the event: in this case, prevent form from submitting data 
   event.preventDefault();
   event.stopPropagation();
