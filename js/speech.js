@@ -10,11 +10,24 @@ var langs =
  ['Português',       ['pt-BR', 'Brasil'],
                      ['pt-PT', 'Portugal']],
 ];
+function handleFileSelect(evt) {
+    var files = evt.target.files; // FileList object
 
+    // Loop through the FileList and render image files as thumbnails.
+    for (var i = 0, f; f = files[i]; i++) {
+      console.log("File: "+ i);
+      var reader = new FileReader();
+
+      // Read in the image file as a data URL.
+     // reader.readAsDataURL(f);
+    }
+  }
+
+ document.getElementById('uploadFile').addEventListener('change', handleFileSelect, false);
 $("#fileInput").submit(function(event) {
   console.log("SUBMITTING FILES");
   console.log(event)
-  var file =$("#uploadFile_button");
+   
 
   var reader = new FileReader();
   reader.onload = function(progressEvent){
@@ -27,7 +40,7 @@ $("#fileInput").submit(function(event) {
       console.log(lines[line]);
     }
   };
-  reader.readAsText(file);
+  //reader.readAsText(file);
 //Prevent the default action of the event: in this case, prevent form from submitting data 
   event.preventDefault();
   event.stopPropagation();
@@ -48,7 +61,7 @@ select_language.selectedIndex = 0;
 updateCountry();
 select_dialect.selectedIndex = 5;
 showInfo('info_start');
-uploadFile_button.style.display = 'inline-block';
+uploadFile.style.display = 'inline-block';
 submit_button.style.display = 'inline-block';
 function updateCountry() {
   for (var i = select_dialect.options.length - 1; i >= 0; i--) {
@@ -161,11 +174,6 @@ function startButton(event) {
   showInfo('info_allow');
   showButtons('none');
   start_timestamp = event.timeStamp;
-}
-
-function uploadFile(){
-  console.log("clicked 3");
-  $("#inputFile").focus();
 }
 function submit(){
   if (recognizing) {
