@@ -143,8 +143,8 @@ function startButton(event) {
   start_timestamp = event.timeStamp;
 }
 function uploadFile(){
-  console.log("clicked");
-  $("#inputFile").click();
+  console.log("clicked 2");
+  $("#inputFile").focus();
 }
 function submit(){
   if (recognizing) {
