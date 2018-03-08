@@ -10,10 +10,14 @@ var langs =
  ['Português',       ['pt-BR', 'Brasil'],
                      ['pt-PT', 'Portugal']],
 ];
-$("#fileInput").submit(function(e){
-    console.log("SUBMITTING FILES");
-    return false;
+
+$("#fileInput").submit(function(event) {
+  console.log("SUBMITTING FILES");
+//Prevent the default action of the event: in this case, prevent form from submitting data 
+  event.preventDefault();
+//Other code for click event here
 });
+
 select_language = $("#select_language")[0]
 select_dialect = $("#select_dialect")[0]
 var final_transcript = '';
