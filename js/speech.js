@@ -15,7 +15,7 @@ var langs =
 for (var i = 0; i < langs.length; i++) {
   select_language.options[i] = new Option(langs[i][0], i);
 }
-select_language.selectedIndex = 6;
+select_language.selectedIndex = 0;
 updateCountry();
 select_dialect.selectedIndex = 6;
 showInfo('info_start');
