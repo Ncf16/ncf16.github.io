@@ -32,6 +32,7 @@ function handleErrorDialog(serverError) {
 }
 function requestDialogFlow(lines){
    for(line in lines){
+    console.log(line);
    const promise = client.textRequest(line);
    promise
     .then(handleResponseDialog)
