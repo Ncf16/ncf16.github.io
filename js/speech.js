@@ -24,6 +24,7 @@ updateCountry();
 select_dialect.selectedIndex = 5;
 showInfo('info_start');
 uploadFile_button.style.display = 'inline-block';
+submit_button.style.display = 'inline-block';
 function updateCountry() {
   for (var i = select_dialect.options.length - 1; i >= 0; i--) {
     select_dialect.remove(i);

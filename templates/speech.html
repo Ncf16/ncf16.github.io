@@ -36,11 +36,14 @@
   <div contenteditable="true" id="interim_span" class="interim"></div>
   <p>
 </div>
-<input id="uploadFile_button"  type="file"  accept="text/plain" onclick="uploadFile()">
+<form method="post" enctype="multipart/form-data">
+  <input id="uploadFile_button"  type="file"  accept="text/plain">
+  <button id="submit_button" class="button" onclick="submit()">Submit</button> 
+</form>  
 <input type="file" id="inputFile" style="display: none;">
 <button id="copy_button" class="button" onclick="copyButton()">Copy and Paste</button>
     <div id="copy_info" class="info">Press Control-C to copy text.<br>(Command-C on Mac.)</div>
-<button id="submit_button" class="button" onclick="submit()">Submit</button> 
+ 
 <div class="center">
    <div id="div_language">
     <select id="select_language" onchange="updateCountry()"></select>
