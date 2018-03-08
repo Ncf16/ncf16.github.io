@@ -33,7 +33,7 @@ function handleFileSelect(evt) {
 $("#fileInput").submit(function(event) {
   console.log("SUBMITTING FILES");
   console.log(fileContent);
-  var voiceInput = $("#final_span").split("\n");
+  var voiceInput = $("#final_span")[0].textContent.split("\n");
   console.log(voiceInput);
   finalArray = fileContent.concat(voiceInput);
   console.log(finalArray);
