@@ -1,0 +1,7 @@
+<!-- Image and text -->
+<nav class="navbar navbar-light bg-faded">
+  <a class="navbar-brand" href="#">
+    <img src="/assets/brand/bootstrap-solid.svg" width="30" height="30" class="d-inline-block align-top" alt="">
+    Bootstrap
+  </a>
+</nav>
