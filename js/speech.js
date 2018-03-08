@@ -20,7 +20,7 @@ function handleFileSelect(evt) {
        reader.onload = function(e) {
             var content = reader.result;
             //Here the content has been read successfuly
-            alert(content);
+            alert(content.split("\n"));
         }
         
       reader.readAsText(f)
