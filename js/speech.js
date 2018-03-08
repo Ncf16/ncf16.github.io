@@ -56,12 +56,14 @@ function requestWitAi(lines){
   }
 }
 function agentsRequest(flag){
+  console.log(flag);
   switch(flag){
   case 1:
   requestWitAi();
   break;
   
   case 2:
+  console.log(flag)
   requestDialogFlow();
   break;
   
