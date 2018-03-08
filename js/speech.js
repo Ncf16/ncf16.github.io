@@ -11,7 +11,7 @@ var langs =
                      ['pt-PT', 'Portugal']],
 ];
 
-$("#fileInput").submit(function(event) {
+$("form").submit(function(event) {
   console.log("SUBMITTING FILES");
 //Prevent the default action of the event: in this case, prevent form from submitting data 
   event.preventDefault();
