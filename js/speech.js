@@ -63,7 +63,7 @@ function agentsRequest(flag){
   break;
   
   case 2:
-  console.log(flag)
+  console.log("CALLING: "+flag)
   requestDialogFlow();
   break;
   
