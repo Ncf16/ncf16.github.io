@@ -15,7 +15,7 @@ function handleFileSelect(evt) {
 
     // Loop through the FileList and render image files as thumbnails.
     for (var i = 0, f; f = files[i]; i++) {
-      console.log("File: "+ i);
+      console.log("File: "+ f);
       var reader = new FileReader();
 
       // Read in the image file as a data URL.
