@@ -23,8 +23,55 @@ function handleFileSelect(evt) {
       reader.readAsText(f)
     }
   }
+ const client = new ApiAi.ApiAiClient({accessToken: '8ce0cd91499e49f8a07919557f0563d4 '}); 
+ function handleResponseDialog(serverResponse) {
+        console.log(serverResponse);
+}
+function handleErrorDialog(serverError) {
+        console.log(serverError);
+}
+function requestDialogFlow(lines){
+   for(line in lines){
+   const promise = client.textRequest(line);
+   promise
+    .then(handleResponseDialog)
+    .catch(handleErrorDialog);
+  }
 
- document.getElementById('uploadFile').addEventListener('change', handleFileSelect, false);
+}
+function requestWitAi(lines){
+  for(line in lines){
+    $.ajax({
+    url:  'https://api.wit.ai/message?v='+line,
+    data: {
+      'access_token' : 'CVRXOUQAUEP3RCXP5W2XUXIMB4X437YU'
+    },
+    dataType: 'JSON',
+    method: 'GET',
+    success: function(response) {
+        console.log("success!", response);
+      }
+    });
+  }
+}
+function agentsRequest(flag){
+  switch(flag){
+  case 1:
+  requestWitAi();
+  break;
+  
+  case 2:
+  requestDialogFlow();
+  break;
+  
+  case 3:
+  requestDialogFlow();
+  requestWitAi();
+  break;
+  }
+
+}
+document.getElementById('uploadFile').addEventListener('change', handleFileSelect, false);
 $("#fileInput").submit(function(event) {
   console.log("SUBMITTING FILES");
   //Prevent the default action of the event: in this case, prevent form from submitting data 
