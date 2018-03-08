@@ -13,19 +13,14 @@ var langs =
 var fileContent = [];
 function handleFileSelect(evt) {
     var files = evt.target.files; // FileList object
-
-    // Loop through the FileList and render image files as thumbnails.
+  
     for (var i = 0, f; f = files[i]; i++) {
-      console.log("File: "+ f);
       var reader = new FileReader();
        reader.onload = function(e) {
             fileContent = reader.result.split("\n");
             //Here the content has been read successfuly
         }
-        
       reader.readAsText(f)
-      // Read in the image file as a data URL.
-     // reader.readAsDataURL(f);
     }
   }
 
@@ -135,8 +130,8 @@ if (!('webkitSpeechRecognition' in window)) {
       }
     }
     final_transcript = capitalize(final_transcript);
-    final_span.innerHTML = linebreak(final_transcript);
-    interim_span.innerHTML = linebreak(interim_transcript);
+    final_span.innerHTML = (final_transcript);
+    interim_span.innerHTML = (interim_transcript);
     if (final_transcript || interim_transcript) {
       showButtons('inline-block');
     }
