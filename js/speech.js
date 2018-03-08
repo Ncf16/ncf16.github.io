@@ -27,16 +27,16 @@ function handleFileSelect(evt) {
  document.getElementById('uploadFile').addEventListener('change', handleFileSelect, false);
 $("#fileInput").submit(function(event) {
   console.log("SUBMITTING FILES");
-  console.log(final_transcript);
-  console.log(fileContent);
-  var voiceInput = final_transcript.split("\n");
-  console.log(voiceInput);
-  finalArray = fileContent.concat(voiceInput);
-  console.log(finalArray);
   //Prevent the default action of the event: in this case, prevent form from submitting data 
   event.preventDefault();
   event.stopPropagation();
+  var voiceInput = final_transcript.split("\n");
   //Data will have what has been spoken and what has been sent as text
+  finalArray = fileContent.concat(voiceInput);
+
+  var dropdownValue = $("#agentSelect").val();
+  console.log(dropdownValue);
+  
   //TODO might have problem in spoken part of the API we'll see in the future
   //decide which API it will call (array that way we can call both easily)
   //Ajax function call goes here
