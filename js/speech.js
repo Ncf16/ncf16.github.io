@@ -17,7 +17,7 @@ for (var i = 0; i < langs.length; i++) {
 }
 select_language.selectedIndex = 0;
 updateCountry();
-select_dialect.selectedIndex = 6;
+select_dialect.selectedIndex = 5;
 showInfo('info_start');
 function updateCountry() {
   for (var i = select_dialect.options.length - 1; i >= 0; i--) {
