@@ -85,9 +85,10 @@ $("#fileInput").submit(function(event) {
   //Prevent the default action of the event: in this case, prevent form from submitting data 
   event.preventDefault();
   event.stopPropagation();
-  var voiceInput = $("#final_span")[0].textContent.split("\n");
+  var voiceInput = final_transcript.split("\n");
   //Data will have what has been spoken and what has been sent as text
   finalArray = fileContent.concat(voiceInput);
+
   //decide which API it will call (array that way we can call both easily)
   var dropdownValue = $("#agentSelect").val();
 
@@ -97,7 +98,16 @@ $("#fileInput").submit(function(event) {
   //TODO might have problem in spoken part of the API we'll see in the future
 
 });
+var oldSize = 0;
+$("#final_span") .focusout(function() {
+  var newText = $("#final_span")[0].textContent;
+  var newSize = newText.size();
+  if(newSize == oldSize)
+    return;
 
+  var toAddString =  newText.replace(final_transcript,'');
+  final_transcript += "\n"+toAddString;
+});
 select_language = $("#select_language")[0]
 select_dialect = $("#select_dialect")[0]
 var final_transcript = '';
