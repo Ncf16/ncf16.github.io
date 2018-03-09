@@ -34,26 +34,28 @@ function requestDialogFlow(lines){
   console.log(lines);
    for(line in lines){
     console.log(lines[line]);
-   const promise = client.textRequest(lines[line]);
-   promise
-    .then(handleResponseDialog)
-    .catch(handleErrorDialog);
+    if(lines[line].length >0)
+     const promise = client.textRequest(lines[line]);
+     promise
+      .then(handleResponseDialog)
+      .catch(handleErrorDialog);
   }
 
 }
 function requestWitAi(lines){
   for(line in lines){
-    $.ajax({
-    url:  'https://api.wit.ai/message?v='+lines[line],
-    data: {
-      'access_token' : 'CVRXOUQAUEP3RCXP5W2XUXIMB4X437YU'
-    },
-    dataType: 'JSON',
-    method: 'GET',
-    success: function(response) {
-        console.log("success!", response);
-      }
-    });
+    if(lines[line].length >0)
+      $.ajax({
+      url:  'https://api.wit.ai/message?v='+lines[line],
+      data: {
+        'access_token' : 'CVRXOUQAUEP3RCXP5W2XUXIMB4X437YU'
+      },
+      dataType: 'JSON',
+      method: 'GET',
+      success: function(response) {
+          console.log("success!", response);
+        }
+      });
   }
 }
 function agentsRequest(flag,lines){
@@ -62,6 +64,7 @@ function agentsRequest(flag,lines){
   case 1:
   requestWitAi(lines);
   break;
+  
   case 2:
   console.log("CALLING: "+flag)
   requestDialogFlow(lines);
@@ -71,8 +74,9 @@ function agentsRequest(flag,lines){
   requestDialogFlow(lines);
   requestWitAi(lines);
   break;
+
   default:
-   alert("Not working");
+   console.log("Not working");
   }
 
 }
@@ -82,16 +86,17 @@ $("#fileInput").submit(function(event) {
   //Prevent the default action of the event: in this case, prevent form from submitting data 
   event.preventDefault();
   event.stopPropagation();
-  var voiceInput = final_transcript.split("\n");
+  var voiceInput = $("#final_span")[0].textContent.split("\n");
   //Data will have what has been spoken and what has been sent as text
   finalArray = fileContent.concat(voiceInput);
-
+  //decide which API it will call (array that way we can call both easily)
   var dropdownValue = $("#agentSelect").val();
+
   console.log(dropdownValue);
+  // Will do the Ajax Requests
   agentsRequest(dropdownValue,finalArray);
   //TODO might have problem in spoken part of the API we'll see in the future
-  //decide which API it will call (array that way we can call both easily)
-  //Ajax function call goes here
+
 });
 
 select_language = $("#select_language")[0]
@@ -175,7 +180,7 @@ if (!('webkitSpeechRecognition' in window)) {
     for (var i = event.resultIndex; i < event.results.length; ++i) {
       if (event.results[i].isFinal) {
         if(final_transcript.length > 0 )
-          final_transcript += "\n" + event.results[i][0].transcript;
+          final_transcript += "\r\n" + event.results[i][0].transcript;
         else
           final_transcript += event.results[i][0].transcript;
       } else {
