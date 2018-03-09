@@ -102,7 +102,7 @@ var oldSize = 0;
 //TODO check if this doesn't break the spoken part
 $("#final_span") .focusout(function() {
   var newText = $("#final_span")[0].textContent;
-  var newSize = newText.size();
+  var newSize = newText.length;
   if(newSize == oldSize)
     return;
 
