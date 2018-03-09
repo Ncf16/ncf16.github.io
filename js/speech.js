@@ -59,7 +59,7 @@ function requestWitAi(lines){
 }
 function agentsRequest(flag,lines){
   console.log("RANDOM: "+flag);
-  switch(Number(flag)){
+ /* switch(Number(flag)){
   case 1:
   requestWitAi(lines);
   break;
@@ -76,7 +76,7 @@ function agentsRequest(flag,lines){
 
   default:
    console.log("Not working");
-  }
+  }*/
 
 }
 document.getElementById('uploadFile').addEventListener('change', handleFileSelect, false);
@@ -99,6 +99,7 @@ $("#fileInput").submit(function(event) {
 
 });
 var oldSize = 0;
+//TODO check if this doesn't break the spoken part
 $("#final_span") .focusout(function() {
   var newText = $("#final_span")[0].textContent;
   var newSize = newText.size();
