@@ -108,6 +108,7 @@ $("#final_span") .focusout(function() {
 
   var toAddString =  newText.replace(final_transcript,'');
   final_transcript += "\n"+toAddString;
+  console.log("New Final transcript: "+final_transcript);
 });
 select_language = $("#select_language")[0]
 select_dialect = $("#select_dialect")[0]
