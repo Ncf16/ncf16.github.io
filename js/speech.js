@@ -98,19 +98,6 @@ $("#fileInput").submit(function(event) {
   //TODO might have problem in spoken part of the API we'll see in the future
 
 });
-var oldSize = 0;
-//TODO check if this doesn't break the spoken part
-$("#final_span") .focusout(function() {
-  var newText = $("#final_span")[0].textContent;
-  var newSize = newText.length;
-  if(newSize == oldSize)
-    return;
-
-  var toAddString =  newText.replace(final_transcript,'');
-  console.log(toAddString)
-  final_transcript += "\n"+toAddString;
-  console.log("New Final transcript: "+final_transcript);
-});
 select_language = $("#select_language")[0]
 select_dialect = $("#select_dialect")[0]
 var final_transcript = '';
