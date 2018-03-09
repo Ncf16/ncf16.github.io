@@ -45,14 +45,15 @@ function requestWitAi(lines){
   for(line in lines){
     if(lines[line].length >0)
       $.ajax({
-      url:  'https://api.wit.ai/message?v='+lines[line],
-      data: {
-        'access_token' : 'CVRXOUQAUEP3RCXP5W2XUXIMB4X437YU'
-      },
-      dataType: 'JSON',
-      method: 'GET',
-      success: function(response) {
-          console.log("success!", response);
+        url: 'https://api.wit.ai/message',
+        data: {
+          'q': lines[line],
+          'access_token' : 'CVRXOUQAUEP3RCXP5W2XUXIMB4X437YU'
+        },
+        dataType: 'JSON',
+        method: 'GET',
+        success: function(response) {
+            console.log("success!", response);
         }
       });
   }
