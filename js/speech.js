@@ -33,8 +33,8 @@ function handleErrorDialog(serverError) {
 function requestDialogFlow(lines){
   console.log(lines);
    for(line in lines){
-    console.log(line);
-   const promise = client.textRequest(line);
+    console.log(lines[line]);
+   const promise = client.textRequest(lines[line]);
    promise
     .then(handleResponseDialog)
     .catch(handleErrorDialog);
@@ -44,7 +44,7 @@ function requestDialogFlow(lines){
 function requestWitAi(lines){
   for(line in lines){
     $.ajax({
-    url:  'https://api.wit.ai/message?v='+line,
+    url:  'https://api.wit.ai/message?v='+lines[line],
     data: {
       'access_token' : 'CVRXOUQAUEP3RCXP5W2XUXIMB4X437YU'
     },
