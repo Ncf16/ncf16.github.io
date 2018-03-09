@@ -92,6 +92,7 @@ $("#fileInput").submit(function(event) {
     voiceInput = [];
   //Data will have what has been spoken and what has been sent as text
   finalArray = fileContent.concat(voiceInput);
+  console.log("TESTE: "+ revertLineBreak($("#final_span")[0].textContent))
 
   //decide which API it will call (array that way we can call both easily)
   var dropdownValue = $("#agentSelect").val();
@@ -206,6 +207,9 @@ var two_line = /\n\n/g;
 var one_line = /\n/g;
 function linebreak(s) {
   return s.replace(two_line, '<p></p>').replace(one_line, '<br>');
+}
+function revertLineBreak(s){
+  return  s.replace( '<p></p>',two_line).replace( '<br>',one_line);
 }
 var first_char = /\S/;
 function capitalize(s) {
