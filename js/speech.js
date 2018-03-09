@@ -34,11 +34,10 @@ function requestDialogFlow(lines){
   console.log(lines);
    for(line in lines){
     console.log(lines[line]);
-    if(lines[line].length >0)
-     const promise = client.textRequest(lines[line]);
-     promise
-      .then(handleResponseDialog)
-      .catch(handleErrorDialog);
+    if(lines[line].length >0 ){
+       const promise = client.textRequest(lines[line]);
+       promise.then(handleResponseDialog).catch(handleErrorDialog);
+      }
   }
 
 }
@@ -64,7 +63,7 @@ function agentsRequest(flag,lines){
   case 1:
   requestWitAi(lines);
   break;
-  
+
   case 2:
   console.log("CALLING: "+flag)
   requestDialogFlow(lines);
