@@ -107,6 +107,7 @@ $("#final_span") .focusout(function() {
     return;
 
   var toAddString =  newText.replace(final_transcript,'');
+  console.log(toAddString)
   final_transcript += "\n"+toAddString;
   console.log("New Final transcript: "+final_transcript);
 });
