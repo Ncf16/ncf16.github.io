@@ -55,20 +55,20 @@ function requestWitAi(lines){
     });
   }
 }
-function agentsRequest(flag){
+function agentsRequest(flag,lines){
   console.log("RANDOM: "+flag);
   switch(Number(flag)){
   case 1:
-  requestWitAi();
+  requestWitAi(lines);
   break;
   case 2:
   console.log("CALLING: "+flag)
-  requestDialogFlow();
+  requestDialogFlow(lines);
   break;
   
   case 3:
-  requestDialogFlow();
-  requestWitAi();
+  requestDialogFlow(lines);
+  requestWitAi(lines);
   break;
   default:
    alert("Not working");
@@ -87,7 +87,7 @@ $("#fileInput").submit(function(event) {
 
   var dropdownValue = $("#agentSelect").val();
   console.log(dropdownValue);
-  agentsRequest(dropdownValue);
+  agentsRequest(dropdownValue,finalArray);
   //TODO might have problem in spoken part of the API we'll see in the future
   //decide which API it will call (array that way we can call both easily)
   //Ajax function call goes here
