@@ -87,7 +87,7 @@ $("#fileInput").submit(function(event) {
   event.stopPropagation();
   var voiceInput;
   if (final_transcript.length > 0) 
-    voiceInput =  revertLineBreak($("#final_span")[0].textContent).split("\n");
+    voiceInput = final_transcript.split("\n");
   else
     voiceInput = [];
   //Data will have what has been spoken and what has been sent as text
