@@ -91,7 +91,7 @@ $("#fileInput").submit(function(event) {
 
   //decide which API it will call (array that way we can call both easily)
   var dropdownValue = $("#agentSelect").val();
-
+  console.log(finalArray);
   console.log(dropdownValue);
   // Will do the Ajax Requests
   agentsRequest(dropdownValue,finalArray);
