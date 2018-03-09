@@ -92,7 +92,7 @@ $("#fileInput").submit(function(event) {
     voiceInput = [];
   //Data will have what has been spoken and what has been sent as text
   finalArray = fileContent.concat(voiceInput);
-  console.log("TESTE: "+ revertLineBreak($("#final_span")[0].textContent))
+  console.log("TESTE: "+ revertLineBreak($("#final_span")[0].textContent).split("\n"))
 
   //decide which API it will call (array that way we can call both easily)
   var dropdownValue = $("#agentSelect").val();
