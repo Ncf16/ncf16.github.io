@@ -85,7 +85,11 @@ $("#fileInput").submit(function(event) {
   //Prevent the default action of the event: in this case, prevent form from submitting data 
   event.preventDefault();
   event.stopPropagation();
-  var voiceInput = final_transcript.split("\n");
+  var voiceInput;
+  if (final_transcript.length > 0) 
+    voiceInput = final_transcript.split("\n");
+  else
+    voiceInput = [];
   //Data will have what has been spoken and what has been sent as text
   finalArray = fileContent.concat(voiceInput);
 
