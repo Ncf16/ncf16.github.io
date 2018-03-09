@@ -1,3 +1,5 @@
-kkjbkbkjbkbk
-kbjibkjj
-jibijb
+Move that there
+Switch object with ID GH01
+Rotate that for 25 in x 30 in Y
+Rotate all objects for 30 in x
+Rotate those for 90 in x 360 in Y

@@ -59,7 +59,7 @@ function requestWitAi(lines){
 }
 function agentsRequest(flag,lines){
   console.log("RANDOM: "+flag);
- /* switch(Number(flag)){
+   switch(Number(flag)){
   case 1:
   requestWitAi(lines);
   break;
@@ -76,7 +76,7 @@ function agentsRequest(flag,lines){
 
   default:
    console.log("Not working");
-  }*/
+  } 
 
 }
 document.getElementById('uploadFile').addEventListener('change', handleFileSelect, false);
