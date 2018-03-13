@@ -61,8 +61,10 @@ function requestWitAi(lines){
 }
 function agentsRequest(flag,lines){
   console.log("RANDOM: "+flag);
-  if(lines.length == 0)
+  if(lines.length == 0){
     alert("Do Not submit empty files or commands");
+    return;
+  }
    switch(Number(flag)){
   case 1:
   requestWitAi(lines);
