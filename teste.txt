@@ -1,5 +1,25 @@
-Move that there
-Switch object with ID GH01
-Rotate that for 25 in x 30 in Y
-Rotate all objects for 30 in x
-Rotate those for 90 in x 360 in Y
+Rotate all green doors 85 in z
+Move blue bench next to object with ID TR12
+Duplicate all objects
+Rotate all Objects taller than that 25 in y
+Move that here
+Move origin to there
+Move origin to 25 30 65
+Scale all buildings by 2.3
+Scale all objects by 2
+Scale me by 0.5
+Move user next to that
+Move user there
+Rotate me 36 in x
+Move that to the left of the orange door
+Move that tree next to that building 
+Switch the tank with the helicopter
+Switch TY09 with TY08
+Give me a chair
+Create a conference room
+Create a footbal field
+Create a ball
+Create 23 umbrellas
+Make all umbrellas yellow
+Delete half of the umbrellas
+Create a room with 5 chairs 2 tables 1 computer 1 monitor

@@ -30,6 +30,7 @@ function handleFileSelect(evt) {
 function handleErrorDialog(serverError) {
         console.log(serverError);
 }
+//https://github.com/dialogflow/dialogflow-javascript-client
 function requestDialogFlow(lines){
   console.log(lines);
    for(line in lines){
