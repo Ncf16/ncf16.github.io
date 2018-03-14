@@ -102,7 +102,7 @@ $("#fileInput").submit(function(event) {
   }
 
   //Data will have what has been spoken and what has been sent as text
-  finalArray = fileContent.concat(voiceInput);
+ /* finalArray = fileContent.concat(voiceInput);
 
 
   //decide which API it will call (array that way we can call both easily)
@@ -110,7 +110,7 @@ $("#fileInput").submit(function(event) {
   console.log(finalArray);
   console.log(dropdownValue);
   // Will do the Ajax Requests
-  agentsRequest(dropdownValue,finalArray);
+  agentsRequest(dropdownValue,finalArray);*/
   //TODO might have problem in spoken part of the API we'll see in the future
 
 });
