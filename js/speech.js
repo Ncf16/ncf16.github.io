@@ -1,91 +1,100 @@
-var langs =
-[
- ['English',         ['en-AU', 'Australia'],
-                     ['en-CA', 'Canada'],
-                     ['en-IN', 'India'],
-                     ['en-NZ', 'New Zealand'],
-                     ['en-ZA', 'South Africa'],
-                     ['en-GB', 'United Kingdom'],
-                     ['en-US', 'United States']],
- ['Português',       ['pt-BR', 'Brasil'],
-                     ['pt-PT', 'Portugal']],
+var langs = [
+  ['English', ['en-AU', 'Australia'],
+    ['en-CA', 'Canada'],
+    ['en-IN', 'India'],
+    ['en-NZ', 'New Zealand'],
+    ['en-ZA', 'South Africa'],
+    ['en-GB', 'United Kingdom'],
+    ['en-US', 'United States']
+  ],
+  ['Português', ['pt-BR', 'Brasil'],
+    ['pt-PT', 'Portugal']
+  ],
 ];
 var fileContent = [];
+
 function handleFileSelect(evt) {
-    var files = evt.target.files; // FileList object
-  
-    for (var i = 0, f; f = files[i]; i++) {
-      var reader = new FileReader();
-       reader.onload = function(e) {
-            fileContent = reader.result.split("\n");
-            //Here the content has been read successfuly
-        }
-      reader.readAsText(f)
+  var files = evt.target.files; // FileList object
+
+  for (var i = 0, f; f = files[i]; i++) {
+    var reader = new FileReader();
+    reader.onload = function(e) {
+      fileContent = reader.result.split("\n");
+      //Here the content has been read successfuly
     }
+    reader.readAsText(f)
   }
- const client = new ApiAi.ApiAiClient({accessToken: '8ce0cd91499e49f8a07919557f0563d4 '}); 
- function handleResponseDialog(serverResponse) {
-        console.log(serverResponse);
 }
+const client = new ApiAi.ApiAiClient({
+  accessToken: '8ce0cd91499e49f8a07919557f0563d4 '
+});
+
+function handleResponseDialog(serverResponse) {
+  console.log(serverResponse);
+}
+
 function handleErrorDialog(serverError) {
-        console.log(serverError);
+  console.log(serverError);
 }
 //https://github.com/dialogflow/dialogflow-javascript-client
-function requestDialogFlow(lines){
+function requestDialogFlow(lines) {
   console.log(lines);
-   for(line in lines){
+  for (line in lines) {
     console.log(lines[line]);
-    if(lines[line].length >0 ){
-       const promise = client.textRequest(lines[line]);
-       promise.then(handleResponseDialog).catch(handleErrorDialog);
-      }
+    if (lines[line].length > 0) {
+      const promise = client.textRequest(lines[line]);
+      promise.then(handleResponseDialog).catch(handleErrorDialog);
+    }
   }
 
 }
-function requestWitAi(lines){
-  for(line in lines){
-    if(lines[line].length >0)
+
+function requestWitAi(lines) {
+  for (line in lines) {
+    if (lines[line].length > 0)
       $.ajax({
         url: 'https://api.wit.ai/message',
         data: {
           'q': lines[line],
-          'access_token' : 'CVRXOUQAUEP3RCXP5W2XUXIMB4X437YU'
+          'access_token': 'CVRXOUQAUEP3RCXP5W2XUXIMB4X437YU'
         },
         dataType: 'JSON',
         method: 'GET',
         success: function(response) {
-            console.log("success!", response);
+          console.log("success!", response);
         }
       });
   }
 }
-function agentsRequest(flag,lines){
-  console.log("RANDOM: "+flag);
-  if(lines.length == 0){
+
+function agentsRequest(flag, lines) {
+  console.log("RANDOM: " + flag);
+  if (lines.length == 0) {
     alert("Do Not submit empty files or commands");
     return;
   }
-   switch(Number(flag)){
-  case 1:
-  requestWitAi(lines);
-  break;
+  switch (Number(flag)) {
+    case 1:
+      requestWitAi(lines);
+      break;
 
-  case 2:
-  console.log("CALLING: "+flag)
-  requestDialogFlow(lines);
-  break;
-  
-  case 3:
-  requestDialogFlow(lines);
-  requestWitAi(lines);
-  break;
+    case 2:
+      console.log("CALLING: " + flag)
+      requestDialogFlow(lines);
+      break;
 
-  default:
-   console.log("Not working");
-  } 
+    case 3:
+      requestDialogFlow(lines);
+      requestWitAi(lines);
+      break;
+
+    default:
+      console.log("Not working");
+  }
 
 }
-document.getElementById('uploadFile').addEventListener('change', handleFileSelect, false);
+document.getElementById('uploadFile').addEventListener('change',
+  handleFileSelect, false);
 $("#fileInput").submit(function(event) {
   console.log("SUBMITTING FILES");
   //Prevent the default action of the event: in this case, prevent form from submitting data 
@@ -93,17 +102,16 @@ $("#fileInput").submit(function(event) {
   event.stopPropagation();
   var voiceInput;
   var textInput = $("#final_span")[0].textContent;
-  console.log(revertLineBreak(textInput).split("\n"));
-  console.log(textInput);
-  if (final_transcript.length > 0 && textInput.length > 0) 
-    voiceInput = final_transcript.split("\n");
-  else{
+
+  if (final_transcript.length == 0 || textInput.length == 0) {
     voiceInput = [];
     return;
+  } else {
+    voiceInput = revertLineBreak(textInput).split("\n");
   }
-
+  console.log(voiceInput);
   //Data will have what has been spoken and what has been sent as text
- /* finalArray = fileContent.concat(voiceInput);
+  finalArray = fileContent.concat(voiceInput);
 
 
   //decide which API it will call (array that way we can call both easily)
@@ -111,7 +119,7 @@ $("#fileInput").submit(function(event) {
   console.log(finalArray);
   console.log(dropdownValue);
   // Will do the Ajax Requests
-  agentsRequest(dropdownValue,finalArray);*/
+  agentsRequest(dropdownValue, finalArray);
   //TODO might have problem in spoken part of the API we'll see in the future
 
 });
@@ -130,6 +138,7 @@ select_dialect.selectedIndex = 5;
 showInfo('info_start');
 uploadFile.style.display = 'inline-block';
 submit_button.style.display = 'inline-block';
+
 function updateCountry() {
   for (var i = select_dialect.options.length - 1; i >= 0; i--) {
     select_dialect.remove(i);
@@ -195,7 +204,7 @@ if (!('webkitSpeechRecognition' in window)) {
     var interim_transcript = '';
     for (var i = event.resultIndex; i < event.results.length; ++i) {
       if (event.results[i].isFinal) {
-        if(final_transcript.length > 0 )
+        if (final_transcript.length > 0)
           final_transcript += "\r\n" + event.results[i][0].transcript;
         else
           final_transcript += event.results[i][0].transcript;
@@ -211,24 +220,30 @@ if (!('webkitSpeechRecognition' in window)) {
     }
   };
 }
+
 function upgrade() {
   start_button.style.visibility = 'hidden';
   showInfo('info_upgrade');
 }
 var two_line = /\n\n/g;
 var one_line = /\n/g;
+
 function linebreak(s) {
   return s.replace(two_line, '<p></p>').replace(one_line, '<br>');
 }
-function revertLineBreak(s){  
-  return  s.replace( '<p></p>',two_line).replace( '<br>',one_line);
+
+function revertLineBreak(s) {
+  return s.replace('<p></p>', two_line).replace('<br>', one_line);
 }
 var first_char = /\S/;
+
 function capitalize(s) {
-  return s.replace(first_char, function(m) { return m.toUpperCase(); });
+  return s.replace(first_char, function(m) {
+    return m.toUpperCase();
+  });
 }
 
- 
+
 function startButton(event) {
   if (recognizing) {
     recognition.stop();
@@ -245,7 +260,8 @@ function startButton(event) {
   showButtons('none');
   start_timestamp = event.timeStamp;
 }
-function submit(){
+
+function submit() {
   if (recognizing) {
     recognizing = false;
     recognition.stop();
@@ -253,6 +269,7 @@ function submit(){
   submit_button.style.display = 'none';
   showInfo('');
 }
+
 function showInfo(s) {
   if (s) {
     for (var child = info.firstChild; child; child = child.nextSibling) {
@@ -266,6 +283,7 @@ function showInfo(s) {
   }
 }
 var current_style;
+
 function showButtons(style) {
   if (style == current_style) {
     return;
