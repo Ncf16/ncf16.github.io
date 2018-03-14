@@ -93,6 +93,7 @@ $("#fileInput").submit(function(event) {
   event.stopPropagation();
   var voiceInput;
   var textInput = $("#final_span")[0].textContent;
+  console.log(revertLineBreak(textInput).split("\n"));
   console.log(textInput);
   if (final_transcript.length > 0 && textInput.length > 0) 
     voiceInput = final_transcript.split("\n");
@@ -219,10 +220,8 @@ var one_line = /\n/g;
 function linebreak(s) {
   return s.replace(two_line, '<p></p>').replace(one_line, '<br>');
 }
-function revertLineBreak(s){
-          var test = s.replace('<div>',one_line);
-          test = test.replace('</div>','');
-  return  test.replace( '<p></p>',two_line).replace( '<br>',one_line);
+function revertLineBreak(s){  
+  return  s.replace( '<p></p>',two_line).replace( '<br>',one_line);
 }
 var first_char = /\S/;
 function capitalize(s) {
