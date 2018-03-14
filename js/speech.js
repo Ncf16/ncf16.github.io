@@ -92,10 +92,15 @@ $("#fileInput").submit(function(event) {
   event.preventDefault();
   event.stopPropagation();
   var voiceInput;
-  if (final_transcript.length > 0) 
+  var textInput = $("#final_span")[0].textContent;
+  console.log(textInput);
+  if (final_transcript.length > 0 && textInput.length > 0) 
     voiceInput = final_transcript.split("\n");
-  else
+  else{
     voiceInput = [];
+    return;
+  }
+
   //Data will have what has been spoken and what has been sent as text
   finalArray = fileContent.concat(voiceInput);
 
