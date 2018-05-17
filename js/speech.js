@@ -106,7 +106,7 @@ $("#fileInput").submit(function(event) {
   console.log(textInput.length);
   if (final_transcript.length == 0 && textInput.length == 0) {
     voiceInput = [];
-    return;
+    
   } else {
     voiceInput = revertLineBreak(textInput).split("\n");
   }
