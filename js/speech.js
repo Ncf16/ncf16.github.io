@@ -102,8 +102,9 @@ $("#fileInput").submit(function(event) {
   event.stopPropagation();
   var voiceInput;
   var textInput = $("#final_span")[0].textContent;
-
-  if (final_transcript.length == 0 || textInput.length == 0) {
+  console.log(final_transcript.length);
+  console.log(textInput.length);
+  if (final_transcript.length == 0 && textInput.length == 0) {
     voiceInput = [];
     return;
   } else {
