@@ -330,7 +330,11 @@ function backToMenu() { cart={}; updateCartUI(); showScreen('screen-menu'); }
 
 function toggleChgBar() {
   const b = document.getElementById('chgBar');
-  if (b.classList.toggle('open')) document.getElementById('chgTableSel').value = selectedTable;
+  const opening = b.classList.toggle('open');
+  if (opening) {
+    document.getElementById('chgTableSel').value = selectedTable;
+    syncTableCount(); // refresh silencioso em background
+  }
 }
 
 function resetCartQtys() {
