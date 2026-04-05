@@ -219,24 +219,45 @@ function initFirebase() {
   window._fbReady = true;
 }
 
-// Lê tableCount do Firebase e atualiza os dropdowns
+// Lê tableCount — usa localStorage imediatamente, depois sincroniza com Firebase
 async function syncTableCount() {
   const cfg = getCfg();
-  if (cfg.backendType !== 'firebase') return;
+
+  // Aplica valor local imediatamente para não bloquear o UI
+  const localCount = cfg.tableCount || 12;
+  applyTableCount(localCount);
+
+  // Tenta sincronizar com Firebase em background
+  if (cfg.backendType !== 'firebase' || !cfg.fbUrl || !cfg.fbKey) return;
   try {
     initFirebase();
     const snap = await firebase.database().ref('config/tableCount').once('value');
     const count = snap.val();
-    if (count && typeof count === 'number') {
-      TABLES = Array.from({length:count},(_,i)=>`Mesa ${i+1}`);
-      // Repopula os dropdowns com o novo número de mesas
-      ['landTableSel','chgTableSel','cartTableSel'].forEach(id=>{
-        const s=document.getElementById(id);
-        s.innerHTML=id==='landTableSel'?'<option value="">— Escolhe a mesa —</option>':'';
-        TABLES.forEach((t,i)=>{const o=document.createElement('option');o.value=i;o.textContent=t;s.appendChild(o);});
-      });
+    if (count && typeof count === 'number' && count > 0 && count !== localCount) {
+      applyTableCount(count);
+      // Guarda localmente para próxima vez
+      const updated = getCfg();
+      updated.tableCount = count;
+      localStorage.setItem('barCfg', JSON.stringify(updated));
     }
-  } catch(e) { console.warn('Erro ao ler tableCount:', e); }
+  } catch(e) {
+    // Firebase não disponível — fica com o valor local, sem erro visível
+  }
+}
+
+function applyTableCount(count) {
+  TABLES = Array.from({length:count}, (_,i) => `Mesa ${i+1}`);
+  ['landTableSel','chgTableSel','cartTableSel'].forEach(id => {
+    const s = document.getElementById(id);
+    if (!s) return;
+    const prev = s.value;
+    s.innerHTML = id === 'landTableSel' ? '<option value="">— Escolhe a mesa —</option>' : '';
+    TABLES.forEach((t,i) => {
+      const o = document.createElement('option');
+      o.value = i; o.textContent = t; s.appendChild(o);
+    });
+    if (prev !== '') s.value = prev;
+  });
 }
 
 async function getNextOrderNum() {

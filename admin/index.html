@@ -382,13 +382,14 @@ async function testFirebase(){
   el.className='test-result';el.textContent='A testar…';el.style.display='block';
   try{
     const url=document.getElementById('fbUrl').value.trim().replace(/\/+$/,'');
-    const key=document.getElementById('fbKey').value.trim();
-    if(!url||!key) throw new Error('Preenche o URL e a API Key primeiro');
-    // Firebase REST: GET /.json sem auth funciona se as regras tiverem .read:true
-    const res=await fetch(`${url}/.json?shallow=true`);
-    if(res.status===401||res.status===403) throw new Error('Sem permissão — verifica as regras do Firebase (necessitas .read:true em /)');
+    if(!url) throw new Error('Preenche o URL da base de dados primeiro');
+    // Lê config/tableCount — tem .read:true nas regras
+    const res=await fetch(`${url}/config/tableCount.json`);
+    if(res.status===401||res.status===403) throw new Error('Sem permissão — verifica as regras do Firebase');
     if(!res.ok) throw new Error('HTTP '+res.status);
-    el.className='test-result test-ok';el.textContent='✓ Ligação bem-sucedida!';
+    const val=await res.json();
+    const msg=val!==null?`✓ Ligação OK — tableCount: ${val}`:'✓ Ligação OK — (tableCount ainda não definido)';
+    el.className='test-result test-ok';el.textContent=msg;
   }catch(e){el.className='test-result test-err';el.textContent='✗ '+e.message;}
 }
 
