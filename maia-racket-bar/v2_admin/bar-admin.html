@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Maia Racket Center — Gestão do Bar</title>
+<script src="https://cdn.jsdelivr.net/npm/firebase@10.12.0/firebase-app-compat.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/firebase@10.12.0/firebase-database-compat.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+<style>
+  :root{--green:#787B63;--green-d:#5a5c49;--green-l:#C4C8B0;--green-ll:#E8EAE0;--dark:#2A2A2A;--sand:#D8D5C8;--gray:#8A8A8A;--red:#C0392B;--amber:#D97706;--ok:#3D7A45;}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'DM Sans',sans-serif;background:#1a1a1a;color:#eee;min-height:100vh;display:flex;flex-direction:column;}
+  .topbar{background:var(--dark);padding:.85rem 1.3rem;display:flex;align-items:center;justify-content:space-between;border-bottom:2px solid var(--green);flex-shrink:0;}
+  .topbar-brand{font-family:'DM Serif Display',serif;color:white;font-size:1.15rem;}
+  .topbar-brand span{color:var(--green-l);font-size:.72rem;font-family:'DM Sans',sans-serif;display:block;font-weight:400;}
+  .topbar-right{display:flex;align-items:center;gap:.75rem;}
+  .stats{display:flex;gap:.75rem;}
+  .stat{text-align:right;}
+  .stat-val{color:white;font-weight:700;font-size:1.1rem;line-height:1;}
+  .stat-label{color:var(--gray);font-size:.65rem;text-transform:uppercase;letter-spacing:.05em;}
+  .btn-cfg{background:transparent;border:1.5px solid #444;color:var(--gray);border-radius:8px;padding:.4rem .75rem;font-family:'DM Sans',sans-serif;font-size:.78rem;cursor:pointer;}
+  .btn-cfg:hover{border-color:var(--green-l);color:var(--green-l);}
+  .conn-bar{padding:.5rem 1.3rem;display:flex;align-items:center;gap:.5rem;font-size:.75rem;border-bottom:1px solid #2a2a2a;flex-shrink:0;}
+  .conn-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+  .conn-ok .conn-dot{background:#6EE7B7;box-shadow:0 0 6px #6EE7B7;}
+  .conn-err .conn-dot{background:#fca5a5;}
+  .conn-none .conn-dot{background:#555;}
+  .conn-ok{color:#6EE7B7;}.conn-err{color:#fca5a5;}.conn-none{color:var(--gray);}
+  .filters{display:flex;gap:.5rem;padding:.8rem 1.3rem;background:var(--dark);border-bottom:1px solid #333;overflow-x:auto;scrollbar-width:none;flex-shrink:0;}
+  .filters::-webkit-scrollbar{display:none;}
+  .filter-btn{flex-shrink:0;padding:.3rem .8rem;border-radius:999px;border:1.5px solid #444;background:transparent;color:var(--gray);font-family:'DM Sans',sans-serif;font-size:.75rem;cursor:pointer;transition:all .15s;}
+  .filter-btn.active{border-color:var(--green);background:var(--green);color:white;}
+  .orders{flex:1;overflow-y:auto;padding:1rem 1.3rem;display:flex;flex-direction:column;gap:.8rem;}
+  .order-card{background:#242424;border-radius:14px;overflow:hidden;border-left:4px solid var(--green);}
+  .order-card.status-preparing{border-left-color:var(--amber);}
+  .order-card.status-delivered{border-left-color:var(--ok);opacity:.5;}
+  .order-head{display:flex;align-items:center;justify-content:space-between;padding:.8rem 1rem .5rem;}
+  .order-num{font-family:'DM Serif Display',serif;color:white;font-size:1.1rem;}
+  .order-time{font-size:.72rem;color:var(--gray);}
+  .badge{padding:.25rem .65rem;border-radius:999px;font-size:.72rem;font-weight:600;}
+  .badge-new{background:rgba(120,123,99,.25);color:var(--green-l);}
+  .badge-preparing{background:rgba(217,119,6,.2);color:#FCD34D;}
+  .badge-delivered{background:rgba(61,122,69,.2);color:#6EE7B7;}
+  .order-items{padding:0 1rem .5rem;border-bottom:1px solid #333;}
+  .order-item-line{display:flex;justify-content:space-between;font-size:.82rem;padding:.25rem 0;}
+  .order-item-name{color:#ccc;}.order-item-qty{color:var(--green-l);font-weight:600;}
+  .order-note{padding:.4rem 1rem;font-size:.76rem;color:#FCD34D;font-style:italic;}
+  .order-foot{display:flex;align-items:center;justify-content:space-between;padding:.65rem 1rem;}
+  .order-total{color:white;font-weight:700;font-size:.95rem;}
+  .order-actions{display:flex;gap:.5rem;}
+  .act-btn{padding:.35rem .75rem;border-radius:8px;border:none;font-family:'DM Sans',sans-serif;font-size:.75rem;font-weight:600;cursor:pointer;transition:all .15s;}
+  .act-prepare{background:rgba(217,119,6,.2);color:#FCD34D;}.act-prepare:hover{background:rgba(217,119,6,.4);}
+  .act-deliver{background:rgba(61,122,69,.25);color:#6EE7B7;}.act-deliver:hover{background:rgba(61,122,69,.4);}
+  .act-undo{background:#333;color:var(--gray);}.act-undo:hover{background:#444;}
+  .empty{text-align:center;padding:3rem 1rem;color:var(--gray);}
+  .empty-icon{font-size:2.5rem;margin-bottom:.5rem;}
+  .toast{position:fixed;top:70px;left:50%;transform:translateX(-50%) translateY(-80px);background:var(--green);color:white;border-radius:12px;padding:.6rem 1.2rem;font-weight:600;font-size:.85rem;z-index:500;transition:transform .3s;white-space:nowrap;box-shadow:0 4px 16px rgba(0,0,0,.3);}
+  .toast.show{transform:translateX(-50%) translateY(0);}
+  .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:400;display:none;align-items:flex-end;justify-content:center;}
+  .modal-overlay.open{display:flex;}
+  .modal-box{background:#1e1e1e;border-radius:20px 20px 0 0;width:100%;max-width:540px;padding:1.5rem 1.3rem 2.5rem;max-height:92vh;overflow-y:auto;}
+  .modal-handle{width:40px;height:4px;background:#444;border-radius:2px;margin:0 auto 1.2rem;}
+  .modal-title{font-family:'DM Serif Display',serif;color:white;font-size:1.25rem;margin-bottom:.3rem;}
+  .modal-sub{color:var(--gray);font-size:.8rem;margin-bottom:1.2rem;line-height:1.5;}
+  .backend-toggle{display:flex;gap:.5rem;margin-bottom:1.2rem;}
+  .back-btn{flex:1;padding:.55rem;border-radius:10px;border:1.5px solid #444;background:transparent;color:var(--gray);font-family:'DM Sans',sans-serif;font-size:.82rem;font-weight:600;cursor:pointer;text-align:center;}
+  .back-btn.active{background:var(--green);border-color:var(--green);color:white;}
+  .modal-sec{margin-bottom:1rem;}
+  .modal-sec-title{color:var(--green-l);font-size:.72rem;text-transform:uppercase;letter-spacing:.07em;margin-bottom:.6rem;font-weight:700;}
+  .modal-field{display:flex;flex-direction:column;gap:.35rem;margin-bottom:.7rem;}
+  .modal-field label{color:#aaa;font-size:.73rem;}
+  .modal-input{background:#2a2a2a;border:1.5px solid #444;border-radius:10px;color:white;font-family:'DM Sans',sans-serif;font-size:.85rem;padding:.6rem .85rem;outline:none;width:100%;}
+  .modal-input:focus{border-color:var(--green);}
+  .modal-input::placeholder{color:#555;}
+  .modal-hint{font-size:.72rem;color:#555;margin-top:.2rem;line-height:1.4;}
+  .modal-hint code{background:#333;padding:1px 4px;border-radius:4px;font-size:.7rem;color:var(--green-l);}
+  .modal-divider{height:1px;background:#2e2e2e;margin:1rem 0;}
+  .modal-actions{display:flex;gap:.7rem;margin-top:.5rem;}
+  .btn-save{flex:1;background:var(--green);color:white;border:none;border-radius:10px;padding:.75rem;font-family:'DM Sans',sans-serif;font-weight:700;font-size:.9rem;cursor:pointer;}
+  .btn-save:hover{background:var(--green-d);}
+  .btn-cancel{background:#333;color:var(--gray);border:none;border-radius:10px;padding:.75rem 1rem;font-family:'DM Sans',sans-serif;font-size:.9rem;cursor:pointer;}
+  .guide-toggle{color:var(--green-l);font-size:.78rem;cursor:pointer;margin-bottom:.5rem;}
+  .guide-body{display:none;background:#111;border-radius:10px;padding:.85rem;font-size:.73rem;color:#aaa;line-height:1.7;}
+  .guide-body.open{display:block;}
+  .guide-body pre{background:#0a0a0a;border-radius:8px;padding:.75rem;margin:.5rem 0;overflow-x:auto;font-size:.68rem;color:#6EE7B7;white-space:pre-wrap;}
+  .guide-body b{color:var(--green-l);}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div class="topbar-brand">🎾 Bar Dashboard<span>Maia Racket Center</span></div>
+  <div class="topbar-right">
+    <div class="stats"><div class="stat"><div class="stat-val" id="statPending">0</div><div class="stat-label">Pendentes</div></div><div class="stat"><div class="stat-val" id="statToday">0</div><div class="stat-label">Hoje</div></div></div>
+    <button class="btn-cfg" onclick="openCfg()">⚙️ Config</button>
+  </div>
+</div>
+<div class="conn-bar conn-none" id="connBar"><div class="conn-dot"></div><span id="connLabel">Não configurado</span></div>
+<div class="filters">
+  <button class="filter-btn active" onclick="setFilter('all',this)">Todos</button>
+  <button class="filter-btn" onclick="setFilter('new',this)">🔴 Novos</button>
+  <button class="filter-btn" onclick="setFilter('preparing',this)">🟡 Em preparação</button>
+  <button class="filter-btn" onclick="setFilter('delivered',this)">🟢 Entregues</button>
+</div>
+<div class="orders" id="ordersList"></div>
+<div class="toast" id="toast">🔔 Novo pedido!</div>
+<div class="modal-overlay" id="cfgModal">
+  <div class="modal-box">
+    <div class="modal-handle"></div>
+    <div class="modal-title">⚙️ Configuração</div>
+    <div class="modal-sub">Escolhe o backend para sincronização de pedidos em tempo real.</div>
+    <div class="backend-toggle"><button class="back-btn active" id="btnFb" onclick="selBackend('firebase')">🔥 Firebase</button><button class="back-btn" id="btnSh" onclick="selBackend('sheets')">📊 Google Sheets</button></div>
+    <div id="fbFields">
+      <div class="modal-sec">
+        <div class="modal-sec-title">🔥 Firebase Realtime Database</div>
+        <div class="modal-field"><label>URL da base de dados</label><input class="modal-input" id="fbUrl" placeholder="https://SEU-PROJETO-default-rtdb.europe-west1.firebasedatabase.app"/><div class="modal-hint">Firebase Console → Realtime Database → copiar URL.</div></div>
+        <div class="modal-field"><label>API Key</label><input class="modal-input" id="fbKey" placeholder="AIzaSy..."/><div class="modal-hint">Firebase Console → Definições → Aplicações web → <code>apiKey</code>.</div></div>
+      </div>
+    </div>
+    <div id="shFields" style="display:none;">
+      <div class="modal-sec">
+        <div class="modal-sec-title">📊 Google Sheets — Apps Script</div>
+        <div class="modal-field"><label>URL do Web App</label><input class="modal-input" id="scriptUrl" placeholder="https://script.google.com/macros/s/.../exec"/></div>
+      </div>
+      <div class="guide-toggle" onclick="toggleGuide()">📋 Como configurar o Apps Script ▾</div>
+      <div class="guide-body" id="guideBody">
+        <b>1.</b> Abre a tua Google Sheet → <b>Extensões → Apps Script</b><br>
+        <b>2.</b> Cola o código abaixo:<br>
+        <pre>const SHEET_NAME = 'Pedidos';
+function doPost(e) {
+  try {
+    const data = JSON.parse(e.postData.contents);
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    let sheet = ss.getSheetByName(SHEET_NAME);
+    if (!sheet) { sheet = ss.insertSheet(SHEET_NAME); sheet.appendRow(['num','table','items','total','note','status','time']); }
+    if (data.action === 'add') { sheet.appendRow([data.num,data.table,JSON.stringify(data.items),data.total,data.note||'','new',data.time]); }
+    if (data.action === 'update') { const vals=sheet.getDataRange().getValues(); for(let i=1;i<vals.length;i++){if(vals[i][0]==data.num){sheet.getRange(i+1,6).setValue(data.status);break;}} }
+    return ContentService.createTextOutput(JSON.stringify({ok:true})).setMimeType(ContentService.MimeType.JSON);
+  } catch(err) { return ContentService.createTextOutput(JSON.stringify({ok:false,error:err.message})).setMimeType(ContentService.MimeType.JSON); }
+}
+function doGet(e) {
+  const ss=SpreadsheetApp.getActiveSpreadsheet(); const sheet=ss.getSheetByName(SHEET_NAME);
+  if(!sheet)return ContentService.createTextOutput(JSON.stringify([])).setMimeType(ContentService.MimeType.JSON);
+  const vals=sheet.getDataRange().getValues();
+  const rows=vals.slice(1).map(r=>({num:r[0],table:r[1],items:JSON.parse(r[2]||'[]'),total:r[3],note:r[4],status:r[5],time:r[6]}));
+  return ContentService.createTextOutput(JSON.stringify(rows)).setMimeType(ContentService.MimeType.JSON);
+}</pre>
+        <b>3.</b> Implementar → Nova implementação → Aplicação Web<br>
+        <b>4.</b> Executar como: <b>Eu</b> · Acesso: <b>Qualquer pessoa</b><br>
+        <b>5.</b> Copia o URL e cola acima.
+      </div>
+    </div>
+    <div class="modal-divider"></div>
+    <div class="modal-sec">
+      <div class="modal-sec-title">📋 Google Sheet do Menu</div>
+      <div class="modal-field"><label>ID da Sheet</label><input class="modal-input" id="menuSheetId" placeholder="1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgVE2upms"/><div class="modal-hint">URL: docs.google.com/spreadsheets/d/<code>ID</code>/edit</div></div>
+      <div class="modal-field"><label>Nome do separador</label><input class="modal-input" id="menuSheetName" placeholder="Menu" value="Menu"/></div>
+    </div>
+    <div class="modal-divider"></div>
+    <div class="modal-sec">
+      <div class="modal-sec-title">🪑 Número de mesas</div>
+      <div class="modal-field"><label>Total de mesas</label><input class="modal-input" id="tableCount" type="number" min="1" max="50" placeholder="12"/></div>
+    </div>
+    <div class="modal-actions"><button class="btn-cancel" onclick="closeCfg()">Cancelar</button><button class="btn-save" onclick="saveCfg()">Guardar & Ligar</button></div>
+  </div>
+</div>
+<script>
+const TABLES_DEFAULT=12;
+let orders=[],barFilter='all',pollInterval=null,selectedBackend='firebase';
+function getCfg(){try{return JSON.parse(localStorage.getItem('barCfg')||'{}')}catch(e){return{}}}
+function setCfg(c){localStorage.setItem('barCfg',JSON.stringify(c));}
+function tables(){const cfg=getCfg();return Array.from({length:cfg.tableCount||TABLES_DEFAULT},(_,i)=>`Mesa ${i+1}`);}
+function init(){const cfg=getCfg();if(cfg.backendType)startBackend(cfg);else setConn('none','Não configurado — clica em ⚙️ Config');renderOrders();}
+function setConn(type,label){const bar=document.getElementById('connBar');bar.className='conn-bar conn-'+type;document.getElementById('connLabel').textContent=label;}
+function startBackend(cfg){stopBackend();if(cfg.backendType==='firebase')startFirebase(cfg);else if(cfg.backendType==='sheets')startSheets(cfg);}
+function stopBackend(){if(pollInterval){clearInterval(pollInterval);pollInterval=null;}if(window._fbRef){window._fbRef.off();window._fbRef=null;}}
+async function startFirebase(cfg){
+  setConn('none','A ligar ao Firebase…');
+  try{
+    if(typeof firebase==='undefined')throw new Error('Firebase SDK não carregado — abre via http://');
+    if(!window._fbLoaded){window._fbLoaded=true;const projectId=cfg.fbUrl.replace('https://','').split('-default-rtdb')[0];firebase.initializeApp({apiKey:cfg.fbKey,databaseURL:cfg.fbUrl,projectId});}
+    const db=firebase.database();const ref=db.ref('orders');window._fbRef=ref;let firstLoad=true;
+    ref.on('value',snap=>{const val=snap.val();const prev=orders.length;orders=val?Object.values(val).map(o=>({...o,items:typeof o.items==='string'?JSON.parse(o.items):o.items,time:new Date(o.time)})).sort((a,b)=>b.num-a.num):[];if(!firstLoad&&orders.length>prev)showToast();firstLoad=false;renderOrders();setConn('ok',`Firebase — ${orders.length} pedidos hoje`);},err=>{setConn('err','Erro Firebase: '+err.message);});
+  }catch(e){setConn('err','Erro ao ligar: '+e.message);}
+}
+async function patchFirebase(num,status){const cfg=getCfg();if(!window._fbLoaded)return;firebase.database().ref('orders/'+num+'/status').set(status);}
+function startSheets(cfg){
+  setConn('none','A ligar ao Google Sheets…');let lastCount=0;
+  async function poll(){try{const res=await fetch(cfg.scriptUrl+'?t='+Date.now());if(!res.ok)throw new Error('HTTP '+res.status);const rows=await res.json();if(!Array.isArray(rows))throw new Error('Resposta inválida');const parsed=rows.map(r=>({...r,items:typeof r.items==='string'?JSON.parse(r.items):r.items,time:new Date(r.time)})).sort((a,b)=>b.num-a.num);if(parsed.length>lastCount&&lastCount>0)showToast();lastCount=parsed.length;orders=parsed;renderOrders();setConn('ok',`Google Sheets — ${new Date().toLocaleTimeString('pt',{hour:'2-digit',minute:'2-digit'})}`);}catch(e){setConn('err','Erro: '+e.message);}}
+  poll();pollInterval=setInterval(poll,5000);
+}
+async function patchSheets(num,status){const cfg=getCfg();const o=orders.find(o=>o.num===num);if(o){o.status=status;renderOrders();}try{await fetch(cfg.scriptUrl,{method:'POST',body:JSON.stringify({action:'update',num,status})});}catch(e){}}
+async function setStatus(num,status){const cfg=getCfg();if(cfg.backendType==='firebase')await patchFirebase(num,status);else if(cfg.backendType==='sheets')await patchSheets(num,status);else{const o=orders.find(o=>o.num===num);if(o){o.status=status;renderOrders();}}}
+function setFilter(f,btn){barFilter=f;document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');renderOrders();}
+function renderOrders(){
+  const T=tables();const c=document.getElementById('ordersList');const filtered=orders.filter(o=>barFilter==='all'||o.status===barFilter);
+  document.getElementById('statPending').textContent=orders.filter(o=>o.status==='new').length;document.getElementById('statToday').textContent=orders.length;c.innerHTML='';
+  if(!filtered.length){c.innerHTML=`<div class="empty"><div class="empty-icon">☕</div>Sem pedidos${barFilter!=='all'?' nesta categoria':''}.</div>`;return;}
+  filtered.forEach(o=>{
+    const card=document.createElement('div');card.className=`order-card status-${o.status}`;
+    const bC={new:'badge-new',preparing:'badge-preparing',delivered:'badge-delivered'}[o.status]||'badge-new';
+    const bL={new:'🔴 Novo',preparing:'🟡 Em preparação',delivered:'🟢 Entregue'}[o.status]||'🔴 Novo';
+    const t=o.time instanceof Date?o.time.toLocaleTimeString('pt',{hour:'2-digit',minute:'2-digit'}):String(o.time).slice(11,16);
+    const tableName=T[o.table]||`Mesa ${o.table+1}`;
+    const ih=(o.items||[]).map(i=>`<div class="order-item-line"><span class="order-item-name">${i.name}</span><span class="order-item-qty">×${i.qty}</span></div>`).join('');
+    let a='';
+    if(o.status==='new')a=`<button class="act-btn act-prepare" onclick="setStatus(${o.num},'preparing')">Em preparação</button><button class="act-btn act-deliver" onclick="setStatus(${o.num},'delivered')">Entregue ✓</button>`;
+    else if(o.status==='preparing')a=`<button class="act-btn act-deliver" onclick="setStatus(${o.num},'delivered')">Entregue ✓</button><button class="act-btn act-undo" onclick="setStatus(${o.num},'new')">Repor</button>`;
+    else a=`<button class="act-btn act-undo" onclick="setStatus(${o.num},'preparing')">Repor</button>`;
+    card.innerHTML=`<div class="order-head"><div><div class="order-num">${tableName} · #${o.num}</div><div class="order-time">${t}</div></div><div class="badge ${bC}">${bL}</div></div><div class="order-items">${ih}</div>${o.note?`<div class="order-note">📝 ${o.note}</div>`:''}<div class="order-foot"><div class="order-total">${fmt(o.total)}</div><div class="order-actions">${a}</div></div>`;
+    c.appendChild(card);
+  });
+}
+function openCfg(){const cfg=getCfg();selBackend(cfg.backendType||'firebase');document.getElementById('fbUrl').value=cfg.fbUrl||'';document.getElementById('fbKey').value=cfg.fbKey||'';document.getElementById('scriptUrl').value=cfg.scriptUrl||'';document.getElementById('menuSheetId').value=cfg.sheetId||'';document.getElementById('menuSheetName').value=cfg.sheetName||'Menu';document.getElementById('tableCount').value=cfg.tableCount||TABLES_DEFAULT;document.getElementById('cfgModal').classList.add('open');}
+function closeCfg(){document.getElementById('cfgModal').classList.remove('open');}
+function selBackend(type){selectedBackend=type;document.getElementById('btnFb').classList.toggle('active',type==='firebase');document.getElementById('btnSh').classList.toggle('active',type==='sheets');document.getElementById('fbFields').style.display=type==='firebase'?'block':'none';document.getElementById('shFields').style.display=type==='sheets'?'block':'none';}
+function toggleGuide(){document.getElementById('guideBody').classList.toggle('open');}
+function saveCfg(){if(selectedBackend==='firebase'){if(!document.getElementById('fbUrl').value.trim()||!document.getElementById('fbKey').value.trim()){alert('Preenche o URL e a API Key do Firebase.');return;}}if(selectedBackend==='sheets'){if(!document.getElementById('scriptUrl').value.trim()){alert('Preenche o URL do Apps Script.');return;}}const cfg={backendType:selectedBackend,fbUrl:document.getElementById('fbUrl').value.trim(),fbKey:document.getElementById('fbKey').value.trim(),scriptUrl:document.getElementById('scriptUrl').value.trim(),sheetId:document.getElementById('menuSheetId').value.trim(),sheetName:document.getElementById('menuSheetName').value.trim()||'Menu',tableCount:parseInt(document.getElementById('tableCount').value)||TABLES_DEFAULT};setCfg(cfg);closeCfg();stopBackend();startBackend(cfg);}
+function showToast(){const t=document.getElementById('toast');t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3500);}
+function fmt(n){return(+n||0).toFixed(2).replace('.',',')+' €';}
+init();
+</script>
+</body>
+</html>
