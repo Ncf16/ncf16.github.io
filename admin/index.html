@@ -312,10 +312,9 @@ function startBackend(cfg){
 
 function stopBackend(){
   if(pollInterval){clearInterval(pollInterval);pollInterval=null;}
-  if(window._fbRef){window._fbRef.off();window._fbRef=null;}
-  // Reset Firebase so it can be re-initialized with new credentials
+  if(window._fbRef){try{window._fbRef.off();}catch(_){} window._fbRef=null;}
   if(window._fbReady){
-    try{ firebase.app().delete(); }catch(e){}
+    try{firebase.app().delete();}catch(_){}
     window._fbReady=false;
   }
 }
@@ -373,8 +372,12 @@ async function startFirebase(cfg){
 
 async function patchFirebase(num,status){
   const cfg=getCfg();
-  initFirebase(cfg);
-  await firebase.database().ref('orders/'+num+'/status').set(status);
+  try{
+    initFirebase(cfg);
+    await firebase.database().ref('orders/'+num+'/status').set(status);
+  }catch(e){
+    throw new Error('Erro ao atualizar Firebase: '+e.message);
+  }
 }
 
 async function testFirebase(){
@@ -383,28 +386,29 @@ async function testFirebase(){
   const url=document.getElementById('fbUrl').value.trim().replace(/\/+$/,'');
   const key=document.getElementById('fbKey').value.trim();
   if(!url||!key){el.className='test-result test-err';el.textContent='✗ Preenche o URL e a API Key primeiro';return;}
+  let testApp=null;
   try{
-    // Usa o SDK para testar — mais fiável que REST, trata CORS automaticamente
-    // Reinicia o Firebase se as credenciais mudaram
-    if(window._fbReady){
-      try{await firebase.app().delete();}catch(e){}
-      window._fbReady=false;
-    }
     const projectId=url.replace('https://','').split('-default-rtdb')[0];
-    firebase.initializeApp({apiKey:key,databaseURL:url,projectId});
-    window._fbReady=true;
-    // Tenta ler config/tableCount — tem .read:true nas regras
-    const snap=await firebase.database().ref('config/tableCount').once('value');
+    testApp=firebase.initializeApp({apiKey:key,databaseURL:url,projectId},'test-'+Date.now());
+    const snap=await testApp.database().ref('config/tableCount').once('value');
     const val=snap.val();
-    const msg=val!==null?`✓ Ligação OK — ${val} mesas configuradas`:'✓ Ligação OK — (guarda a config para definir o nº de mesas)';
-    el.className='test-result test-ok';el.textContent=msg;
+    el.className='test-result test-ok';
+    el.textContent=val!==null?`✓ Ligação OK — ${val} mesas configuradas`:'✓ Ligação OK — a ligar…';
+    // Teste bem-sucedido — elimina o app de teste e liga o principal
+    await testApp.delete(); testApp=null;
+    const cfg=getCfg();
+    cfg.fbUrl=url; cfg.fbKey=key;
+    setCfg(cfg);
+    stopBackend();
+    startBackend(cfg);
+    el.textContent=val!==null?`✓ Ligado — ${val} mesas configuradas`:'✓ Ligado ao Firebase';
   }catch(e){
-    // Limpa estado Firebase para não ficar preso
-    try{if(window._fbReady){await firebase.app().delete();window._fbReady=false;}}catch(_){}
     const msg=e.code==='PERMISSION_DENIED'
-      ? '✗ Sem permissão — adiciona .read:true ao nó config nas regras do Firebase'
-      : '✗ '+( e.message||e.code||'Erro desconhecido');
+      ?'✗ Sem permissão — adiciona .read:true ao nó config nas regras do Firebase'
+      :'✗ '+(e.message||e.code||'Erro desconhecido');
     el.className='test-result test-err';el.textContent=msg;
+  }finally{
+    if(testApp) try{await testApp.delete();}catch(_){}
   }
 }
 
@@ -643,10 +647,13 @@ function saveCfg(){
   startBackend(cfg);
   // Escreve tableCount no Firebase para sincronizar com a app do cliente
   if(cfg.backendType==='firebase'){
-    try{
-      initFirebase(cfg);
-      firebase.database().ref('config/tableCount').set(tableCount);
-    }catch(e){console.warn('Erro ao guardar tableCount no Firebase:',e);}
+    // startBackend já inicializou o Firebase — aguarda um tick para garantir
+    setTimeout(()=>{
+      try{
+        if(window._fbReady)
+          firebase.database().ref('config/tableCount').set(tableCount);
+      }catch(e){console.warn('Erro ao guardar tableCount:',e.message);}
+    },500);
   }
 }
 
