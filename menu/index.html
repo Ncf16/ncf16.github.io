@@ -156,30 +156,7 @@ function init(){
   if(cfg.sheetId)loadMenu(cfg.sheetId,cfg.sheetName||'Menu');else renderMenu();
 }
 function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');}
-function goToMenu(){const s=document.getElementById('landTableSel');if(s.value===''){s.style.borderColor='var(--red)';setTimeout(()=>s.style.borderColor='',1500);return;}selectedTable=parseInt(s.value);updateLabels();showScreen('screen-menu');updateCartUI();const cfg=<script type="module">
-  // Import the functions you need from the SDKs you need
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
-  import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-analytics.js";
-  // TODO: Add SDKs for Firebase products that you want to use
-  // https://firebase.google.com/docs/web/setup#available-libraries
-
-  // Your web app's Firebase configuration
-  // For Firebase JS SDK v7.20.0 and later, measurementId is optional
-  const firebaseConfig = {
-    apiKey: "AIzaSyCibZFX_qs38QLl3M61hmjgWDVd8_xJbzo",
-    authDomain: "testar-bar.firebaseapp.com",
-    databaseURL: "https://testar-bar-default-rtdb.europe-west1.firebasedatabase.app",
-    projectId: "testar-bar",
-    storageBucket: "testar-bar.firebasestorage.app",
-    messagingSenderId: "557238214619",
-    appId: "1:557238214619:web:4949438726b254c0fd51fe",
-    measurementId: "G-TX9KDXPMZC"
-  };
-  // Initialize Firebase
-  const app = initializeApp(firebaseConfig);
-console.log(app);
-  const analytics = getAnalytics(app);
-</script>();if(cfg.sheetId)loadMenu(cfg.sheetId,cfg.sheetName||'Menu');}
+function goToMenu(){const s=document.getElementById('landTableSel');if(s.value===''){s.style.borderColor='var(--red)';setTimeout(()=>s.style.borderColor='',1500);return;}selectedTable=parseInt(s.value);updateLabels();showScreen('screen-menu');updateCartUI();const cfg=getCfg();if(cfg.sheetId)loadMenu(cfg.sheetId,cfg.sheetName||'Menu');}
 function updateLabels(){const n=TABLES[selectedTable];document.getElementById('tableLabel').textContent=n;document.getElementById('heroTable').textContent=n;document.getElementById('cartTableSel').value=selectedTable;document.getElementById('chgTableSel').value=selectedTable;}
 function backToMenu(){cart={};updateCartUI();showScreen('screen-menu');}
 function toggleChgBar(){const b=document.getElementById('chgBar');if(b.classList.toggle('open'))document.getElementById('chgTableSel').value=selectedTable;}
@@ -189,7 +166,6 @@ async function loadMenu(id,sheet){
   showMenuState('loading');
   try{const res=await fetch(`https://docs.google.com/spreadsheets/d/${id}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(sheet)}`);if(!res.ok)throw new Error('HTTP '+res.status);const parsed=parseCSV(await res.text());if(!parsed.length)throw new Error('Sem dados');MENU=csvToMenu(parsed);renderMenu();showMenuState(null);}
   catch(e){showMenuState('error',e.message);}
-
 }
 function parseCSV(text){const lines=text.trim().split('\n');const hdr=splitLine(lines[0]).map(h=>h.toLowerCase().trim().replace(/^"|"$/g,''));return lines.slice(1).map(l=>{const v=splitLine(l);const r={};hdr.forEach((h,i)=>r[h]=(v[i]||'').replace(/^"|"$/g,'').trim());return r;}).filter(r=>r.name);}
 function splitLine(l){const r=[];let c='';let q=false;for(let i=0;i<l.length;i++){const ch=l[i];if(ch==='"'){q=!q;}else if(ch===','&&!q){r.push(c);c='';}else c+=ch;}r.push(c);return r;}
@@ -229,7 +205,8 @@ async function writeOrder(order){
   if(cfg.backendType==='firebase'){
     if(typeof firebase==='undefined')throw new Error('Firebase SDK não carregado');
     if(!window._fbLoaded){window._fbLoaded=true;const projectId=cfg.fbUrl.replace('https://','').split('-default-rtdb')[0];firebase.initializeApp({apiKey:cfg.fbKey,databaseURL:cfg.fbUrl,projectId});}
-    await firebase.database().ref('orders/'+order.num).set(order);
+console.log(firebase);console.log("sending order);     
+await firebase.database().ref('orders/'+order.num).set(order);
   }else if(cfg.backendType==='sheets'){
     await fetch(cfg.scriptUrl,{method:'POST',body:JSON.stringify({action:'add',...order})});
   }
