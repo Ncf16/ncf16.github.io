@@ -197,7 +197,7 @@
 function getCfg(){try{return JSON.parse(localStorage.getItem('barCfg')||'{}')}catch(e){return{}}}
 
 // ── STATE ──
-const TABLES = Array.from({length:12},(_,i)=>`Mesa ${i+1}`);
+let TABLES = Array.from({length:12},(_,i)=>`Mesa ${i+1}`);
 const FALLBACK_MENU = [
   {cat:"🥤 Bebidas Frias",items:[{id:1,name:"Água",desc:"50cl",price:1.5},{id:2,name:"Sumo Natural",desc:"Laranja ou maçã",price:2.5},{id:3,name:"Refrigerante",desc:"Coca-Cola, Sprite",price:2.0},{id:5,name:"Cerveja",desc:"Sagres mini",price:2.5}]},
   {cat:"☕ Bebidas Quentes",items:[{id:7,name:"Café Expresso",desc:"Curto ou longo",price:1.0},{id:8,name:"Galão",desc:"Com leite quente",price:1.5}]},
@@ -209,7 +209,6 @@ let cart = {};
 let localCounter = 0;
 
 // ── FIREBASE ──
-// Inicializado uma única vez e reutilizado em todas as chamadas
 function initFirebase() {
   if (window._fbReady) return;
   const cfg = getCfg();
@@ -218,6 +217,26 @@ function initFirebase() {
   const projectId = cfg.fbUrl.replace('https://','').split('-default-rtdb')[0];
   firebase.initializeApp({apiKey: cfg.fbKey, databaseURL: cfg.fbUrl, projectId});
   window._fbReady = true;
+}
+
+// Lê tableCount do Firebase e atualiza os dropdowns
+async function syncTableCount() {
+  const cfg = getCfg();
+  if (cfg.backendType !== 'firebase') return;
+  try {
+    initFirebase();
+    const snap = await firebase.database().ref('config/tableCount').once('value');
+    const count = snap.val();
+    if (count && typeof count === 'number') {
+      TABLES = Array.from({length:count},(_,i)=>`Mesa ${i+1}`);
+      // Repopula os dropdowns com o novo número de mesas
+      ['landTableSel','chgTableSel','cartTableSel'].forEach(id=>{
+        const s=document.getElementById(id);
+        s.innerHTML=id==='landTableSel'?'<option value="">— Escolhe a mesa —</option>':'';
+        TABLES.forEach((t,i)=>{const o=document.createElement('option');o.value=i;o.textContent=t;s.appendChild(o);});
+      });
+    }
+  } catch(e) { console.warn('Erro ao ler tableCount:', e); }
 }
 
 async function getNextOrderNum() {
@@ -251,7 +270,7 @@ async function writeOrder(order) {
 }
 
 // ── INIT ──
-function init() {
+async function init() {
   ['landTableSel','chgTableSel','cartTableSel'].forEach(id => {
     const s = document.getElementById(id);
     s.innerHTML = id === 'landTableSel' ? '<option value="">— Escolhe a mesa —</option>' : '';
@@ -259,6 +278,7 @@ function init() {
   });
   const cfg = getCfg();
   if (!cfg.backendType) document.getElementById('warnBox').style.display = 'block';
+  await syncTableCount();
   if (cfg.sheetId) loadMenu(cfg.sheetId, cfg.sheetName || 'Menu');
   else renderMenu();
 }

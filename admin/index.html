@@ -269,14 +269,13 @@ let barFilter = 'all';
 let pollInterval = null;
 let selectedBackend = 'firebase';
 let pendingConfirm = null;
+let liveTableCount = TABLES_DEFAULT; // atualizado em tempo real do Firebase
 
 // ── CONFIG ──
 function getCfg(){try{return JSON.parse(localStorage.getItem('barCfg')||'{}')}catch(e){return{}}}
 function setCfg(c){localStorage.setItem('barCfg',JSON.stringify(c));}
 function tables(){
-  const cfg=getCfg();
-  const count=cfg.tableCount||TABLES_DEFAULT;
-  return Array.from({length:count},(_,i)=>`Mesa ${i+1}`);
+  return Array.from({length:liveTableCount},(_,i)=>`Mesa ${i+1}`);
 }
 
 // ── INIT ──
@@ -335,7 +334,19 @@ async function startFirebase(cfg){
   setConn('none','A ligar ao Firebase…');
   try{
     initFirebase(cfg);
-    const ref=firebase.database().ref('orders');
+    const db=firebase.database();
+
+    // Ouve o tableCount em tempo real
+    db.ref('config/tableCount').on('value', snap=>{
+      const val=snap.val();
+      if(val && typeof val==='number'){
+        liveTableCount=val;
+        populateTableFilter();
+      }
+    });
+
+    // Ouve os pedidos em tempo real
+    const ref=db.ref('orders');
     window._fbRef=ref;
     let firstLoad=true;
     ref.on('value', snap=>{
@@ -370,10 +381,12 @@ async function testFirebase(){
   const el=document.getElementById('testResult');
   el.className='test-result';el.textContent='A testar…';el.style.display='block';
   try{
-    const url=document.getElementById('fbUrl').value.trim();
+    const url=document.getElementById('fbUrl').value.trim().replace(/\/+$/,'');
     const key=document.getElementById('fbKey').value.trim();
     if(!url||!key) throw new Error('Preenche o URL e a API Key primeiro');
-    const res=await fetch(`${url}.json?auth=${key}&shallow=true`);
+    // Firebase REST: GET /.json sem auth funciona se as regras tiverem .read:true
+    const res=await fetch(`${url}/.json?shallow=true`);
+    if(res.status===401||res.status===403) throw new Error('Sem permissão — verifica as regras do Firebase (necessitas .read:true em /)');
     if(!res.ok) throw new Error('HTTP '+res.status);
     el.className='test-result test-ok';el.textContent='✓ Ligação bem-sucedida!';
   }catch(e){el.className='test-result test-err';el.textContent='✗ '+e.message;}
@@ -591,6 +604,7 @@ function saveCfg(){
   if(selectedBackend==='sheets' && !document.getElementById('scriptUrl').value.trim()){
     alert('Preenche o URL do Apps Script.'); return;
   }
+  const tableCount=parseInt(document.getElementById('tableCount').value)||TABLES_DEFAULT;
   const cfg={
     backendType: selectedBackend,
     fbUrl:    document.getElementById('fbUrl').value.trim(),
@@ -598,13 +612,21 @@ function saveCfg(){
     scriptUrl:document.getElementById('scriptUrl').value.trim(),
     sheetId:  document.getElementById('menuSheetId').value.trim(),
     sheetName:document.getElementById('menuSheetName').value.trim()||'Menu',
-    tableCount:parseInt(document.getElementById('tableCount').value)||TABLES_DEFAULT,
+    tableCount,
   };
   setCfg(cfg);
   closeCfg();
+  liveTableCount=tableCount;
   populateTableFilter();
   stopBackend();
   startBackend(cfg);
+  // Escreve tableCount no Firebase para sincronizar com a app do cliente
+  if(cfg.backendType==='firebase'){
+    try{
+      initFirebase(cfg);
+      firebase.database().ref('config/tableCount').set(tableCount);
+    }catch(e){console.warn('Erro ao guardar tableCount no Firebase:',e);}
+  }
 }
 
 // ── UTILS ──
