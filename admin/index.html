@@ -380,17 +380,32 @@ async function patchFirebase(num,status){
 async function testFirebase(){
   const el=document.getElementById('testResult');
   el.className='test-result';el.textContent='A testar…';el.style.display='block';
+  const url=document.getElementById('fbUrl').value.trim().replace(/\/+$/,'');
+  const key=document.getElementById('fbKey').value.trim();
+  if(!url||!key){el.className='test-result test-err';el.textContent='✗ Preenche o URL e a API Key primeiro';return;}
   try{
-    const url=document.getElementById('fbUrl').value.trim().replace(/\/+$/,'');
-    if(!url) throw new Error('Preenche o URL da base de dados primeiro');
-    // Lê config/tableCount — tem .read:true nas regras
-    const res=await fetch(`${url}/config/tableCount.json`);
-    if(res.status===401||res.status===403) throw new Error('Sem permissão — verifica as regras do Firebase');
-    if(!res.ok) throw new Error('HTTP '+res.status);
-    const val=await res.json();
-    const msg=val!==null?`✓ Ligação OK — tableCount: ${val}`:'✓ Ligação OK — (tableCount ainda não definido)';
+    // Usa o SDK para testar — mais fiável que REST, trata CORS automaticamente
+    // Reinicia o Firebase se as credenciais mudaram
+    if(window._fbReady){
+      try{await firebase.app().delete();}catch(e){}
+      window._fbReady=false;
+    }
+    const projectId=url.replace('https://','').split('-default-rtdb')[0];
+    firebase.initializeApp({apiKey:key,databaseURL:url,projectId});
+    window._fbReady=true;
+    // Tenta ler config/tableCount — tem .read:true nas regras
+    const snap=await firebase.database().ref('config/tableCount').once('value');
+    const val=snap.val();
+    const msg=val!==null?`✓ Ligação OK — ${val} mesas configuradas`:'✓ Ligação OK — (guarda a config para definir o nº de mesas)';
     el.className='test-result test-ok';el.textContent=msg;
-  }catch(e){el.className='test-result test-err';el.textContent='✗ '+e.message;}
+  }catch(e){
+    // Limpa estado Firebase para não ficar preso
+    try{if(window._fbReady){await firebase.app().delete();window._fbReady=false;}}catch(_){}
+    const msg=e.code==='PERMISSION_DENIED'
+      ? '✗ Sem permissão — adiciona .read:true ao nó config nas regras do Firebase'
+      : '✗ '+( e.message||e.code||'Erro desconhecido');
+    el.className='test-result test-err';el.textContent=msg;
+  }
 }
 
 // ── SHEETS ──
@@ -499,17 +514,22 @@ function closeConfirm(){document.getElementById('confirmOverlay').classList.remo
 // ── NOTIFICATION ──
 function notifyNewOrder(){
   showToast();
-  // Vibração no mobile
   if(navigator.vibrate) navigator.vibrate([200,100,200]);
-  // Beep
+  // Cria um nó novo por beep — OscillatorNode não pode ser reiniciado
   try{
     const ctx=new(window.AudioContext||window.webkitAudioContext)();
-    const osc=ctx.createOscillator();
     const gain=ctx.createGain();
-    osc.connect(gain);gain.connect(ctx.destination);
-    osc.frequency.value=880;gain.gain.value=0.3;
-    osc.start();osc.stop(ctx.currentTime+0.15);
-    setTimeout(()=>{osc.frequency.value=1100;osc.start();osc.stop(ctx.currentTime+0.15);},200);
+    gain.gain.value=0.3;
+    gain.connect(ctx.destination);
+    function beep(freq,when){
+      const osc=ctx.createOscillator();
+      osc.connect(gain);
+      osc.frequency.value=freq;
+      osc.start(when);
+      osc.stop(when+0.15);
+    }
+    beep(880, ctx.currentTime);
+    beep(1100, ctx.currentTime+0.25);
   }catch(e){}
 }
 
