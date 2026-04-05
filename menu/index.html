@@ -202,10 +202,11 @@ async function submitOrder(){
 }
 async function writeOrder(order){
   const cfg=getCfg();
-  if(cfg.backendType==='firebase'){
+console.log(cfg)  
+if(cfg.backendType==='firebase'){
     if(typeof firebase==='undefined')throw new Error('Firebase SDK não carregado');
     if(!window._fbLoaded){window._fbLoaded=true;const projectId=cfg.fbUrl.replace('https://','').split('-default-rtdb')[0];firebase.initializeApp({apiKey:cfg.fbKey,databaseURL:cfg.fbUrl,projectId});}
-console.log(firebase);console.log("sending order");     
+console.log(firebase);console.log("sending order");     console.log(order);
     await firebase.database().ref('orders/'+order.num).set(order);
   }else if(cfg.backendType==='sheets'){
     await fetch(cfg.scriptUrl,{method:'POST',body:JSON.stringify({action:'add',...order})});
