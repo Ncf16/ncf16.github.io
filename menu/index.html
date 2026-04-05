@@ -269,8 +269,15 @@ function updateLabels(){
 }
 function backToMenu(){cart={};updateCartUI();showScreen('screen-menu');}
 function toggleChgBar(){const b=document.getElementById('chgBar');if(b.classList.toggle('open'))document.getElementById('chgTableSel').value=selectedTable;}
-function confirmChg(){selectedTable=parseInt(document.getElementById('chgTableSel').value);updateLabels();document.getElementById('chgBar').classList.remove('open');}
-function onCartTableChange(){selectedTable=parseInt(document.getElementById('cartTableSel').value);updateLabels();}
+function resetCartQtys() {
+  Object.keys(cart).forEach(id => {
+    const el = document.getElementById('qty-' + id);
+    if (el) el.textContent = '0';
+  });
+}
+
+function confirmChg(){selectedTable=parseInt(document.getElementById('chgTableSel').value);updateLabels();document.getElementById('chgBar').classList.remove('open');resetCartQtys();cart={};updateCartUI();}
+function onCartTableChange(){selectedTable=parseInt(document.getElementById('cartTableSel').value);updateLabels();resetCartQtys();cart={};updateCartUI();}
 
 // ── MENU ──
 async function loadMenu(id,sheet){
@@ -356,7 +363,7 @@ async function submitOrder(){
   try { num = await getNextOrderNum(); } catch(e) { num = Date.now() % 100000; }
   const order={num,table:selectedTable,items,total,note,status:'new',time:new Date().toISOString()};
   try{await writeOrder(order);}catch(e){console.warn('backend error',e);}
-  closeCart();document.getElementById('cartNote').value='';cart={};updateCartUI();
+  closeCart();document.getElementById('cartNote').value='';resetCartQtys();cart={};updateCartUI();
   document.getElementById('orderNum').textContent='#'+order.num;
   btn.disabled=false;btn.textContent='Confirmar Pedido';
   showScreen('screen-success');
