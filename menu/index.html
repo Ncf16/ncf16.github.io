@@ -193,8 +193,29 @@
 </div>
 
 <script>
-// ── CONFIG ──
-function getCfg(){try{return JSON.parse(localStorage.getItem('barCfg')||'{}')}catch(e){return{}}}
+// ══════════════════════════════════════════════
+// CONFIGURAÇÃO — edita apenas esta secção
+// ══════════════════════════════════════════════
+const FIREBASE_CONFIG = {
+  apiKey:      'AIzaSy...',           // Firebase Console → Definições → apiKey
+  databaseURL: 'https://SEU-PROJETO-default-rtdb.europe-west1.firebasedatabase.app',
+};
+const MENU_SHEET_ID   = '';           // ID da Google Sheet do menu (opcional)
+const MENU_SHEET_NAME = 'Menu';       // Nome do separador do menu
+// ══════════════════════════════════════════════
+
+// getCfg() constrói o objeto de config a partir das constantes acima
+// para manter compatibilidade com o resto do código
+function getCfg(){
+  return {
+    backendType: FIREBASE_CONFIG.apiKey && !FIREBASE_CONFIG.apiKey.startsWith('AIzaSy...')
+      ? 'firebase' : null,
+    fbUrl:    FIREBASE_CONFIG.databaseURL,
+    fbKey:    FIREBASE_CONFIG.apiKey,
+    sheetId:  MENU_SHEET_ID,
+    sheetName: MENU_SHEET_NAME,
+  };
+}
 
 // ── STATE ──
 let TABLES = Array.from({length:12},(_,i)=>`Mesa ${i+1}`);

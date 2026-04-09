@@ -263,6 +263,20 @@ function doGet(e) {
 </div>
 
 <script>
+// ══════════════════════════════════════════════
+// CONFIGURAÇÃO DEFAULT — edita apenas esta secção
+// ══════════════════════════════════════════════
+const DEFAULT_CONFIG = {
+  backendType: 'firebase',
+  fbUrl:       'https://SEU-PROJETO-default-rtdb.europe-west1.firebasedatabase.app',
+  fbKey:       'AIzaSy...',
+  scriptUrl:   '',
+  sheetId:     '',
+  sheetName:   'Menu',
+  tableCount:  12,
+};
+// ══════════════════════════════════════════════
+
 const TABLES_DEFAULT = 12;
 let orders = [];
 let barFilter = 'all';
@@ -272,8 +286,13 @@ let pendingConfirm = null;
 let liveTableCount = TABLES_DEFAULT; // atualizado em tempo real do Firebase
 
 // ── CONFIG ──
-function getCfg(){try{return JSON.parse(localStorage.getItem('barCfg')||'{}')}catch(e){return{}}}
-function setCfg(c){localStorage.setItem('barCfg',JSON.stringify(c));}
+// Config: merge entre defaults e o que estiver guardado no localStorage
+function getCfg(){
+  try{
+    const saved = JSON.parse(localStorage.getItem('barCfg')||'{}');
+    return {...DEFAULT_CONFIG, ...saved};
+  }catch(e){ return {...DEFAULT_CONFIG}; }
+}
 function tables(){
   return Array.from({length:liveTableCount},(_,i)=>`Mesa ${i+1}`);
 }
