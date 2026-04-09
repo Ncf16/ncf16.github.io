@@ -293,6 +293,7 @@ function getCfg(){
     return {...DEFAULT_CONFIG, ...saved};
   }catch(e){ return {...DEFAULT_CONFIG}; }
 }
+function setCfg(c){ localStorage.setItem('barCfg', JSON.stringify(c)); }
 function tables(){
   return Array.from({length:liveTableCount},(_,i)=>`Mesa ${i+1}`);
 }
