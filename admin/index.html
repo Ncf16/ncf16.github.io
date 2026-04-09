@@ -11,8 +11,6 @@
   :root{--green:#787B63;--green-d:#5a5c49;--green-l:#C4C8B0;--green-ll:#E8EAE0;--dark:#2A2A2A;--sand:#D8D5C8;--gray:#8A8A8A;--red:#C0392B;--amber:#D97706;--ok:#3D7A45;}
   *{box-sizing:border-box;margin:0;padding:0;}
   body{font-family:'DM Sans',sans-serif;background:#1a1a1a;color:#eee;min-height:100vh;display:flex;flex-direction:column;}
-
-  /* TOPBAR */
   .topbar{background:var(--dark);padding:.85rem 1.3rem;display:flex;align-items:center;justify-content:space-between;border-bottom:2px solid var(--green);flex-shrink:0;}
   .topbar-brand{font-family:'DM Serif Display',serif;color:white;font-size:1.15rem;}
   .topbar-brand span{color:var(--green-l);font-size:.72rem;font-family:'DM Sans',sans-serif;display:block;font-weight:400;}
@@ -23,16 +21,12 @@
   .stat-label{color:var(--gray);font-size:.65rem;text-transform:uppercase;letter-spacing:.05em;}
   .btn-cfg{background:transparent;border:1.5px solid #444;color:var(--gray);border-radius:8px;padding:.4rem .75rem;font-family:'DM Sans',sans-serif;font-size:.78rem;cursor:pointer;}
   .btn-cfg:hover{border-color:var(--green-l);color:var(--green-l);}
-
-  /* CONN BAR */
   .conn-bar{padding:.5rem 1.3rem;display:flex;align-items:center;gap:.5rem;font-size:.75rem;border-bottom:1px solid #2a2a2a;flex-shrink:0;}
   .conn-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
   .conn-ok .conn-dot{background:#6EE7B7;box-shadow:0 0 6px #6EE7B7;}
   .conn-err .conn-dot{background:#fca5a5;}
   .conn-none .conn-dot{background:#555;}
   .conn-ok{color:#6EE7B7;}.conn-err{color:#fca5a5;}.conn-none{color:var(--gray);}
-
-  /* FILTERS */
   .filters{display:flex;gap:.5rem;padding:.7rem 1.3rem;background:var(--dark);border-bottom:1px solid #333;overflow-x:auto;scrollbar-width:none;flex-shrink:0;flex-wrap:wrap;}
   .filters::-webkit-scrollbar{display:none;}
   .filter-btn{flex-shrink:0;padding:.3rem .8rem;border-radius:999px;border:1.5px solid #444;background:transparent;color:var(--gray);font-family:'DM Sans',sans-serif;font-size:.75rem;cursor:pointer;transition:all .15s;}
@@ -40,8 +34,6 @@
   .filter-sep{width:1px;background:#333;align-self:stretch;flex-shrink:0;}
   .table-filter{flex-shrink:0;padding:.28rem .65rem;border-radius:999px;border:1.5px solid #444;background:transparent;color:var(--gray);font-family:'DM Sans',sans-serif;font-size:.75rem;cursor:pointer;outline:none;}
   .table-filter option{background:#1e1e1e;}
-
-  /* ORDERS */
   .orders{flex:1;overflow-y:auto;padding:1rem 1.3rem;display:flex;flex-direction:column;gap:.8rem;}
   .order-card{background:#242424;border-radius:14px;overflow:hidden;border-left:4px solid var(--green);}
   .order-card.status-preparing{border-left-color:var(--amber);}
@@ -66,8 +58,6 @@
   .act-undo{background:#333;color:var(--gray);}.act-undo:hover{background:#444;}
   .empty{text-align:center;padding:3rem 1rem;color:var(--gray);}
   .empty-icon{font-size:2.5rem;margin-bottom:.5rem;}
-
-  /* CONFIRM OVERLAY */
   .confirm-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:350;display:none;align-items:center;justify-content:center;padding:1.5rem;}
   .confirm-overlay.open{display:flex;}
   .confirm-box{background:#242424;border-radius:16px;padding:1.5rem;width:100%;max-width:300px;text-align:center;}
@@ -77,12 +67,8 @@
   .btn-confirm-yes{flex:1;background:rgba(61,122,69,.35);color:#6EE7B7;border:none;border-radius:10px;padding:.7rem;font-family:'DM Sans',sans-serif;font-weight:700;font-size:.9rem;cursor:pointer;}
   .btn-confirm-yes:hover{background:rgba(61,122,69,.5);}
   .btn-confirm-no{flex:1;background:#333;color:var(--gray);border:none;border-radius:10px;padding:.7rem;font-family:'DM Sans',sans-serif;font-size:.9rem;cursor:pointer;}
-
-  /* TOAST */
   .toast{position:fixed;top:70px;left:50%;transform:translateX(-50%) translateY(-80px);background:var(--green);color:white;border-radius:12px;padding:.6rem 1.2rem;font-weight:600;font-size:.85rem;z-index:500;transition:transform .3s;white-space:nowrap;box-shadow:0 4px 16px rgba(0,0,0,.3);}
   .toast.show{transform:translateX(-50%) translateY(0);}
-
-  /* CONFIG MODAL */
   .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:400;display:none;align-items:flex-end;justify-content:center;}
   .modal-overlay.open{display:flex;}
   .modal-box{background:#1e1e1e;border-radius:20px 20px 0 0;width:100%;max-width:540px;padding:1.5rem 1.3rem 2.5rem;max-height:92vh;overflow-y:auto;}
@@ -132,7 +118,7 @@
 </div>
 
 <div class="conn-bar conn-none" id="connBar">
-  <div class="conn-dot"></div><span id="connLabel">Não configurado</span>
+  <div class="conn-dot"></div><span id="connLabel">A ligar…</span>
 </div>
 
 <div class="filters">
@@ -149,7 +135,6 @@
 <div class="orders" id="ordersList"></div>
 <div class="toast" id="toast">🔔 Novo pedido!</div>
 
-<!-- CONFIRM DIALOG -->
 <div class="confirm-overlay" id="confirmOverlay">
   <div class="confirm-box">
     <div class="confirm-title" id="confirmTitle">Confirmar</div>
@@ -161,18 +146,15 @@
   </div>
 </div>
 
-<!-- CONFIG MODAL -->
 <div class="modal-overlay" id="cfgModal">
   <div class="modal-box">
     <div class="modal-handle"></div>
     <div class="modal-title">⚙️ Configuração</div>
     <div class="modal-sub">Escolhe o backend para sincronização de pedidos em tempo real.</div>
-
     <div class="backend-toggle">
       <button class="back-btn active" id="btnFb" onclick="selBackend('firebase')">🔥 Firebase</button>
       <button class="back-btn" id="btnSh" onclick="selBackend('sheets')">📊 Google Sheets</button>
     </div>
-
     <div id="fbFields">
       <div class="modal-sec">
         <div class="modal-sec-title">🔥 Firebase Realtime Database</div>
@@ -190,7 +172,6 @@
         <button class="btn-test" onclick="testFirebase()">🔌 Testar ligação Firebase</button>
       </div>
     </div>
-
     <div id="shFields" style="display:none;">
       <div class="modal-sec">
         <div class="modal-sec-title">📊 Google Sheets — Apps Script</div>
@@ -226,27 +207,23 @@ function doGet(e) {
 }</pre>
         <b>3.</b> Implementar → Nova implementação → Aplicação Web<br>
         <b>4.</b> Executar como: <b>Eu</b> · Acesso: <b>Qualquer pessoa</b><br>
-        <b>5.</b> Copia o URL e cola acima, depois clica "Testar ligação".
+        <b>5.</b> Copia o URL e cola acima.
       </div>
     </div>
-
     <div class="modal-divider"></div>
-
     <div class="modal-sec">
       <div class="modal-sec-title">📋 Google Sheet do Menu</div>
       <div class="modal-field">
         <label>ID da Sheet</label>
         <input class="modal-input" id="menuSheetId" placeholder="1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgVE2upms"/>
-        <div class="modal-hint">URL: docs.google.com/spreadsheets/d/<code>ID</code>/edit · Sheet deve ser pública.</div>
+        <div class="modal-hint">URL: docs.google.com/spreadsheets/d/<code>ID</code>/edit</div>
       </div>
       <div class="modal-field">
         <label>Nome do separador</label>
         <input class="modal-input" id="menuSheetName" placeholder="Menu" value="Menu"/>
       </div>
     </div>
-
     <div class="modal-divider"></div>
-
     <div class="modal-sec">
       <div class="modal-sec-title">🪑 Número de mesas</div>
       <div class="modal-field">
@@ -254,7 +231,6 @@ function doGet(e) {
         <input class="modal-input" id="tableCount" type="number" min="1" max="50" placeholder="12"/>
       </div>
     </div>
-
     <div class="modal-actions">
       <button class="btn-cancel" onclick="closeCfg()">Cancelar</button>
       <button class="btn-save" onclick="saveCfg()">Guardar & Ligar</button>
@@ -264,7 +240,7 @@ function doGet(e) {
 
 <script>
 // ══════════════════════════════════════════════
-// CONFIGURAÇÃO DEFAULT — edita apenas esta secção
+// CONFIGURAÇÃO DEFAULT
 // ══════════════════════════════════════════════
 const DEFAULT_CONFIG = {
   backendType: 'firebase',
@@ -282,398 +258,375 @@ let orders = [];
 let barFilter = 'all';
 let pollInterval = null;
 let selectedBackend = 'firebase';
-let pendingConfirm = null;
-let liveTableCount = TABLES_DEFAULT; // atualizado em tempo real do Firebase
+let liveTableCount = TABLES_DEFAULT;
 
 // ── CONFIG ──
-// Config: merge entre defaults e o que estiver guardado no localStorage
-function getCfg(){
-  try{
-    const saved = JSON.parse(localStorage.getItem('barCfg')||'{}');
+function getCfg() {
+  try {
+    const saved = JSON.parse(localStorage.getItem('barCfg') || '{}');
     return {...DEFAULT_CONFIG, ...saved};
-  }catch(e){ return {...DEFAULT_CONFIG}; }
+  } catch(e) { return {...DEFAULT_CONFIG}; }
 }
-function setCfg(c){ localStorage.setItem('barCfg', JSON.stringify(c)); }
-function tables(){
-  return Array.from({length:liveTableCount},(_,i)=>`Mesa ${i+1}`);
-}
+function setCfg(c) { localStorage.setItem('barCfg', JSON.stringify(c)); }
+function tables() { return Array.from({length: liveTableCount}, (_,i) => `Mesa ${i+1}`); }
 
 // ── INIT ──
-function init(){
-  const cfg=getCfg();
+function init() {
   populateTableFilter();
-  if(cfg.backendType) startBackend(cfg);
-  else setConn('none','Não configurado — clica em ⚙️ Config');
+  const cfg = getCfg();
+  startBackend(cfg);
   renderOrders();
 }
 
-function populateTableFilter(){
-  const T=tables();
-  const sel=document.getElementById('tableFilter');
-  const cur=sel.value;
-  sel.innerHTML='<option value="all">Todas as mesas</option>';
-  T.forEach((t,i)=>{const o=document.createElement('option');o.value=i;o.textContent=t;sel.appendChild(o);});
-  sel.value=cur;
+function populateTableFilter() {
+  const T = tables();
+  const sel = document.getElementById('tableFilter');
+  const cur = sel.value;
+  sel.innerHTML = '<option value="all">Todas as mesas</option>';
+  T.forEach((t,i) => { const o = document.createElement('option'); o.value=i; o.textContent=t; sel.appendChild(o); });
+  sel.value = cur;
 }
 
 // ── CONNECTION ──
-function setConn(type,label){
-  const bar=document.getElementById('connBar');
-  bar.className='conn-bar conn-'+type;
-  document.getElementById('connLabel').textContent=label;
+function setConn(type, label) {
+  const bar = document.getElementById('connBar');
+  bar.className = 'conn-bar conn-' + type;
+  document.getElementById('connLabel').textContent = label;
 }
 
 // ── BACKEND ──
-function startBackend(cfg){
+function startBackend(cfg) {
   stopBackend();
-  if(cfg.backendType==='firebase') startFirebase(cfg);
-  else if(cfg.backendType==='sheets') startSheets(cfg);
+  if (cfg.backendType === 'firebase') startFirebase(cfg);
+  else if (cfg.backendType === 'sheets') startSheets(cfg);
 }
 
-function stopBackend(){
-  if(pollInterval){clearInterval(pollInterval);pollInterval=null;}
-  if(window._fbRef){try{window._fbRef.off();}catch(_){} window._fbRef=null;}
-  if(window._fbReady){
-    try{firebase.app().delete();}catch(_){}
-    window._fbReady=false;
-  }
+function stopBackend() {
+  if (pollInterval) { clearInterval(pollInterval); pollInterval = null; }
+  if (window._fbRef) { try { window._fbRef.off(); } catch(_) {} window._fbRef = null; }
+  if (window._fbReady) { try { firebase.app().delete(); } catch(_) {} window._fbReady = false; }
 }
 
 // ── FIREBASE ──
-function initFirebase(cfg){
-  if(window._fbReady) return;
-  if(typeof firebase==='undefined') throw new Error('Firebase SDK não carregado');
-  if(!cfg.fbUrl||!cfg.fbKey) throw new Error('Credenciais Firebase em falta');
-  const projectId=cfg.fbUrl.replace('https://','').split('-default-rtdb')[0];
-  firebase.initializeApp({apiKey:cfg.fbKey,databaseURL:cfg.fbUrl,projectId});
-  window._fbReady=true;
+function initFirebase(cfg) {
+  if (window._fbReady) return;
+  if (typeof firebase === 'undefined') throw new Error('Firebase SDK não carregado');
+  if (!cfg.fbUrl || !cfg.fbKey) throw new Error('Credenciais Firebase em falta');
+  const projectId = cfg.fbUrl.replace('https://','').split('-default-rtdb')[0];
+  firebase.initializeApp({apiKey: cfg.fbKey, databaseURL: cfg.fbUrl, projectId});
+  window._fbReady = true;
 }
 
-async function startFirebase(cfg){
-  setConn('none','A ligar ao Firebase…');
-  try{
+async function startFirebase(cfg) {
+  setConn('none', 'A ligar ao Firebase…');
+  try {
     initFirebase(cfg);
-    const db=firebase.database();
+    const db = firebase.database();
 
-    // Ouve o tableCount em tempo real
-    db.ref('config/tableCount').on('value', snap=>{
-      const val=snap.val();
-      if(val && typeof val==='number'){
-        liveTableCount=val;
+    // Ouve tableCount em tempo real
+    db.ref('config/tableCount').on('value', snap => {
+      const val = snap.val();
+      if (val && typeof val === 'number') {
+        liveTableCount = val;
         populateTableFilter();
+        // Actualiza o input nas configurações se estiver aberto
+        const el = document.getElementById('tableCount');
+        if (el) el.value = val;
       }
     });
 
-    // Escreve o tableCount configurado (agora que o Firebase está pronto)
+    // Escreve o tableCount configurado agora que o Firebase está pronto
     const savedCount = getCfg().tableCount || TABLES_DEFAULT;
     await db.ref('config/tableCount').set(savedCount);
 
-    // Ouve os pedidos em tempo real
-    const ref=db.ref('orders');
-    window._fbRef=ref;
-    let firstLoad=true;
-    ref.on('value', snap=>{
-      const val=snap.val();
-      const prev=orders.filter(o=>o.status!=='delivered').length;
-      orders=val
-        ? Object.values(val).map(o=>({
+    // Ouve pedidos em tempo real
+    const ref = db.ref('orders');
+    window._fbRef = ref;
+    let firstLoad = true;
+    ref.on('value', snap => {
+      const val = snap.val();
+      const prev = orders.filter(o => o.status !== 'delivered').length;
+      orders = val
+        ? Object.values(val).map(o => ({
             ...o,
             num:   Number(o.num),
             table: Number(o.table),
             total: Number(o.total),
-            items: typeof o.items==='string'?JSON.parse(o.items):o.items,
+            items: typeof o.items === 'string' ? JSON.parse(o.items) : o.items,
             time:  new Date(o.time)
-          })).sort((a,b)=>b.num-a.num)
+          })).sort((a,b) => b.num - a.num)
         : [];
-      const newPending=orders.filter(o=>o.status!=='delivered').length;
-      if(!firstLoad && newPending>prev) notifyNewOrder();
-      firstLoad=false;
+      const newPending = orders.filter(o => o.status !== 'delivered').length;
+      if (!firstLoad && newPending > prev) notifyNewOrder();
+      firstLoad = false;
       renderOrders();
-      setConn('ok',`Firebase — ligado`);
-    }, err=>{setConn('err','Erro Firebase: '+err.message);});
-  }catch(e){setConn('err','Erro: '+e.message);}
+      setConn('ok', 'Firebase — ligado');
+    }, err => { setConn('err', 'Erro Firebase: ' + err.message); });
+  } catch(e) { setConn('err', 'Erro: ' + e.message); }
 }
 
-async function patchFirebase(num,status){
-  const cfg=getCfg();
-  try{
+async function patchFirebase(num, status) {
+  try {
+    const cfg = getCfg();
     initFirebase(cfg);
-    await firebase.database().ref('orders/'+num+'/status').set(status);
-  }catch(e){
-    throw new Error('Erro ao atualizar Firebase: '+e.message);
+    await firebase.database().ref('orders/' + num + '/status').set(status);
+  } catch(e) {
+    throw new Error('Erro ao atualizar Firebase: ' + e.message);
   }
 }
 
-async function testFirebase(){
-  const el=document.getElementById('testResult');
-  el.className='test-result';el.textContent='A testar…';el.style.display='block';
-  const url=document.getElementById('fbUrl').value.trim().replace(/\/+$/,'');
-  const key=document.getElementById('fbKey').value.trim();
-  if(!url||!key){el.className='test-result test-err';el.textContent='✗ Preenche o URL e a API Key primeiro';return;}
-  let testApp=null;
-  try{
-    const projectId=url.replace('https://','').split('-default-rtdb')[0];
-    testApp=firebase.initializeApp({apiKey:key,databaseURL:url,projectId},'test-'+Date.now());
-    const snap=await testApp.database().ref('config/tableCount').once('value');
-    const val=snap.val();
-    el.className='test-result test-ok';
-    el.textContent=val!==null?`✓ Ligação OK — ${val} mesas configuradas`:'✓ Ligação OK — a ligar…';
-    // Teste bem-sucedido — elimina o app de teste e liga o principal
-    await testApp.delete(); testApp=null;
-    const cfg=getCfg();
-    cfg.fbUrl=url; cfg.fbKey=key;
-    const tableCount = parseInt(document.getElementById('tableCount').value)||TABLES_DEFAULT;
-  const cfg = {
-    backendType: selectedBackend,
-    fbUrl:    document.getElementById('fbUrl').value.trim(),
-    fbKey:    document.getElementById('fbKey').value.trim(),
-    scriptUrl:document.getElementById('scriptUrl').value.trim(),
-    sheetId:  document.getElementById('menuSheetId').value.trim(),
-    sheetName:document.getElementById('menuSheetName').value.trim()||'Menu',
-    tableCount,
-  };
-  setCfg(cfg);
+async function testFirebase() {
+  const el = document.getElementById('testResult');
+  el.className = 'test-result'; el.textContent = 'A testar…'; el.style.display = 'block';
+  const url = document.getElementById('fbUrl').value.trim().replace(/\/+$/,'');
+  const key = document.getElementById('fbKey').value.trim();
+  if (!url || !key) { el.className='test-result test-err'; el.textContent='✗ Preenche o URL e a API Key primeiro'; return; }
+  let testApp = null;
+  try {
+    const projectId = url.replace('https://','').split('-default-rtdb')[0];
+    testApp = firebase.initializeApp({apiKey:key, databaseURL:url, projectId}, 'test-' + Date.now());
+    const snap = await testApp.database().ref('config/tableCount').once('value');
+    const val = snap.val();
+    el.className = 'test-result test-ok';
+    el.textContent = val !== null ? `✓ Ligação OK — ${val} mesas configuradas` : '✓ Ligação OK — a ligar…';
+    // Ligação bem-sucedida: usa estas credenciais
+    await testApp.delete(); testApp = null;
+    const cfg = getCfg();
+    cfg.fbUrl = url; cfg.fbKey = key;
+    setCfg(cfg);
     stopBackend();
     startBackend(cfg);
-    el.textContent=val!==null?`✓ Ligado — ${val} mesas configuradas`:'✓ Ligado ao Firebase';
-  }catch(e){
-    const msg=e.code==='PERMISSION_DENIED'
-      ?'✗ Sem permissão — adiciona .read:true ao nó config nas regras do Firebase'
-      :'✗ '+(e.message||e.code||'Erro desconhecido');
-    el.className='test-result test-err';el.textContent=msg;
-  }finally{
-    if(testApp) try{await testApp.delete();}catch(_){}
+    el.textContent = val !== null ? `✓ Ligado — ${val} mesas configuradas` : '✓ Ligado ao Firebase';
+  } catch(e) {
+    const msg = e.code === 'PERMISSION_DENIED'
+      ? '✗ Sem permissão — adiciona .read:true ao nó config nas regras do Firebase'
+      : '✗ ' + (e.message || e.code || 'Erro desconhecido');
+    el.className = 'test-result test-err'; el.textContent = msg;
+  } finally {
+    if (testApp) try { await testApp.delete(); } catch(_) {}
   }
 }
 
 // ── SHEETS ──
-function startSheets(cfg){
-  setConn('none','A ligar ao Google Sheets…');
-  let lastNums=new Set();
-
-  async function poll(){
-    try{
-      const res=await fetch(cfg.scriptUrl+'?t='+Date.now());
-      if(!res.ok) throw new Error('HTTP '+res.status);
-      const rows=await res.json();
-      if(!Array.isArray(rows)) throw new Error('Resposta inválida');
-
-      const fetched=rows.map(r=>({
+function startSheets(cfg) {
+  setConn('none', 'A ligar ao Google Sheets…');
+  let lastNums = new Set();
+  async function poll() {
+    try {
+      const res = await fetch(cfg.scriptUrl + '?t=' + Date.now());
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const rows = await res.json();
+      if (!Array.isArray(rows)) throw new Error('Resposta inválida');
+      const fetched = rows.map(r => ({
         ...r,
         num:   Number(r.num),
         table: Number(r.table),
         total: Number(r.total),
-        items: typeof r.items==='string'?JSON.parse(r.items):r.items,
+        items: typeof r.items === 'string' ? JSON.parse(r.items) : r.items,
         time:  new Date(r.time)
-      })).sort((a,b)=>b.num-a.num);
-
-      // Merge: preserve local status changes that haven't synced yet
-      const localMap=Object.fromEntries(orders.map(o=>[o.num,o.status]));
-      orders=fetched.map(o=>({
-        ...o,
-        status: localMap[o.num]||o.status
-      }));
-
-      // Detect genuinely new orders (not seen before)
-      const newNums=new Set(orders.map(o=>o.num));
-      let hasNew=false;
-      newNums.forEach(n=>{ if(!lastNums.has(n)) hasNew=true; });
-      if(lastNums.size>0 && hasNew) notifyNewOrder();
-      lastNums=newNums;
-
+      })).sort((a,b) => b.num - a.num);
+      const localMap = Object.fromEntries(orders.map(o => [o.num, o.status]));
+      orders = fetched.map(o => ({...o, status: localMap[o.num] || o.status}));
+      const newNums = new Set(orders.map(o => o.num));
+      let hasNew = false;
+      newNums.forEach(n => { if (!lastNums.has(n)) hasNew = true; });
+      if (lastNums.size > 0 && hasNew) notifyNewOrder();
+      lastNums = newNums;
       renderOrders();
-      setConn('ok',`Google Sheets — ${new Date().toLocaleTimeString('pt',{hour:'2-digit',minute:'2-digit'})}`);
-    }catch(e){setConn('err','Erro: '+e.message);}
+      setConn('ok', `Google Sheets — ${new Date().toLocaleTimeString('pt',{hour:'2-digit',minute:'2-digit'})}`);
+    } catch(e) { setConn('err', 'Erro: ' + e.message); }
   }
   poll();
-  pollInterval=setInterval(poll,5000);
+  pollInterval = setInterval(poll, 5000);
 }
 
-async function patchSheets(num,status){
-  // Optimistic local update
-  const o=orders.find(o=>o.num===num);
-  if(o){o.status=status;renderOrders();}
-  const cfg=getCfg();
-  try{
-    await fetch(cfg.scriptUrl,{method:'POST',body:JSON.stringify({action:'update',num,status})});
-  }catch(e){
-    // Rollback on failure
-    const prev={new:'preparing',preparing:'new',delivered:'preparing'}[status]||'new';
-    if(o){o.status=prev;renderOrders();}
-    alert('Erro ao atualizar pedido: '+e.message);
+async function patchSheets(num, status) {
+  const o = orders.find(o => o.num === num);
+  if (o) { o.status = status; renderOrders(); }
+  const cfg = getCfg();
+  try {
+    await fetch(cfg.scriptUrl, {method:'POST', body: JSON.stringify({action:'update', num, status})});
+  } catch(e) {
+    const prev = {new:'preparing', preparing:'new', delivered:'preparing'}[status] || 'new';
+    if (o) { o.status = prev; renderOrders(); }
+    alert('Erro ao atualizar pedido: ' + e.message);
   }
 }
 
-async function testSheets(){
-  const el=document.getElementById('testResultSh');
-  el.className='test-result';el.textContent='A testar…';el.style.display='block';
-  try{
-    const url=document.getElementById('scriptUrl').value.trim();
-    if(!url) throw new Error('Preenche o URL do Apps Script primeiro');
-    const res=await fetch(url+'?t='+Date.now());
-    if(!res.ok) throw new Error('HTTP '+res.status);
-    const data=await res.json();
-    if(!Array.isArray(data)) throw new Error('Resposta inesperada — verifica o script');
-    el.className='test-result test-ok';el.textContent=`✓ Ligação OK — ${data.length} pedidos encontrados`;
-  }catch(e){el.className='test-result test-err';el.textContent='✗ '+e.message;}
+async function testSheets() {
+  const el = document.getElementById('testResultSh');
+  el.className = 'test-result'; el.textContent = 'A testar…'; el.style.display = 'block';
+  try {
+    const url = document.getElementById('scriptUrl').value.trim();
+    if (!url) throw new Error('Preenche o URL do Apps Script primeiro');
+    const res = await fetch(url + '?t=' + Date.now());
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+    if (!Array.isArray(data)) throw new Error('Resposta inesperada — verifica o script');
+    el.className = 'test-result test-ok';
+    el.textContent = `✓ Ligação OK — ${data.length} pedidos encontrados`;
+  } catch(e) { el.className = 'test-result test-err'; el.textContent = '✗ ' + e.message; }
 }
 
-// ── STATUS UPDATE ──
-async function setStatus(num,status){
-  if(status==='delivered'){
-    const o=orders.find(o=>o.num===num);
-    const T=tables();
+// ── STATUS ──
+async function setStatus(num, status) {
+  if (status === 'delivered') {
+    const o = orders.find(o => o.num === num);
+    const T = tables();
     askConfirm(
       'Marcar como entregue?',
-      `${T[o.table]||'Mesa ?'} · #${String(num).padStart(3,'0')}`,
-      async()=>{ await doSetStatus(num,status); }
+      `${T[o.table] || 'Mesa ?'} · #${String(num).padStart(3,'0')}`,
+      () => doSetStatus(num, status)
     );
   } else {
-    await doSetStatus(num,status);
+    await doSetStatus(num, status);
   }
 }
 
-async function doSetStatus(num,status){
-  const cfg=getCfg();
-  if(cfg.backendType==='firebase') await patchFirebase(num,status);
-  else if(cfg.backendType==='sheets') await patchSheets(num,status);
-  else { const o=orders.find(o=>o.num===num); if(o){o.status=status;renderOrders();} }
+async function doSetStatus(num, status) {
+  const cfg = getCfg();
+  try {
+    if (cfg.backendType === 'firebase') await patchFirebase(num, status);
+    else if (cfg.backendType === 'sheets') await patchSheets(num, status);
+    else { const o = orders.find(o => o.num === num); if (o) { o.status = status; renderOrders(); } }
+  } catch(e) { alert(e.message); }
 }
 
-// ── CONFIRM DIALOG ──
-function askConfirm(title,sub,onYes){
-  document.getElementById('confirmTitle').textContent=title;
-  document.getElementById('confirmSub').textContent=sub;
-  document.getElementById('confirmYes').onclick=()=>{closeConfirm();onYes();};
+// ── CONFIRM ──
+function askConfirm(title, sub, onYes) {
+  document.getElementById('confirmTitle').textContent = title;
+  document.getElementById('confirmSub').textContent = sub;
+  document.getElementById('confirmYes').onclick = () => { closeConfirm(); onYes(); };
   document.getElementById('confirmOverlay').classList.add('open');
 }
-function closeConfirm(){document.getElementById('confirmOverlay').classList.remove('open');}
+function closeConfirm() { document.getElementById('confirmOverlay').classList.remove('open'); }
 
-// ── NOTIFICATION ──
-function notifyNewOrder(){
+// ── NOTIFY ──
+function notifyNewOrder() {
   showToast();
-  if(navigator.vibrate) navigator.vibrate([200,100,200]);
-  // Cria um nó novo por beep — OscillatorNode não pode ser reiniciado
-  try{
-    const ctx=new(window.AudioContext||window.webkitAudioContext)();
-    const gain=ctx.createGain();
-    gain.gain.value=0.3;
+  if (navigator.vibrate) navigator.vibrate([200,100,200]);
+  try {
+    const ctx = new(window.AudioContext || window.webkitAudioContext)();
+    const gain = ctx.createGain();
+    gain.gain.value = 0.3;
     gain.connect(ctx.destination);
-    function beep(freq,when){
-      const osc=ctx.createOscillator();
+    function beep(freq, when) {
+      const osc = ctx.createOscillator();
       osc.connect(gain);
-      osc.frequency.value=freq;
+      osc.frequency.value = freq;
       osc.start(when);
-      osc.stop(when+0.15);
+      osc.stop(when + 0.15);
     }
-    beep(880, ctx.currentTime);
-    beep(1100, ctx.currentTime+0.25);
-  }catch(e){}
+    beep(880,  ctx.currentTime);
+    beep(1100, ctx.currentTime + 0.25);
+  } catch(e) {}
 }
 
 // ── RENDER ──
-function setFilter(f,btn){
-  barFilter=f;
-  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+function setFilter(f, btn) {
+  barFilter = f;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
   renderOrders();
 }
 
-function renderOrders(){
-  const T=tables();
-  const c=document.getElementById('ordersList');
-  const tableF=document.getElementById('tableFilter').value;
-  const today=new Date().toDateString();
-
-  const filtered=orders.filter(o=>{
-    if(barFilter!=='all' && o.status!==barFilter) return false;
-    if(tableF!=='all' && o.table!==parseInt(tableF)) return false;
+function renderOrders() {
+  const T = tables();
+  const c = document.getElementById('ordersList');
+  const tableF = document.getElementById('tableFilter').value;
+  const today = new Date().toDateString();
+  const filtered = orders.filter(o => {
+    if (barFilter !== 'all' && o.status !== barFilter) return false;
+    if (tableF !== 'all' && o.table !== parseInt(tableF)) return false;
     return true;
   });
-
-  // Stats: pending = new+preparing; today = orders created today
-  document.getElementById('statPending').textContent=orders.filter(o=>o.status==='new'||o.status==='preparing').length;
-  document.getElementById('statToday').textContent=orders.filter(o=>o.time instanceof Date && o.time.toDateString()===today).length;
-
-  c.innerHTML='';
-  if(!filtered.length){
-    c.innerHTML=`<div class="empty"><div class="empty-icon">☕</div>Sem pedidos${barFilter!=='all'||tableF!=='all'?' com este filtro':''}.</div>`;
+  document.getElementById('statPending').textContent = orders.filter(o => o.status === 'new' || o.status === 'preparing').length;
+  document.getElementById('statToday').textContent = orders.filter(o => o.time instanceof Date && o.time.toDateString() === today).length;
+  c.innerHTML = '';
+  if (!filtered.length) {
+    c.innerHTML = `<div class="empty"><div class="empty-icon">☕</div>Sem pedidos${barFilter !== 'all' || tableF !== 'all' ? ' com este filtro' : ''}.</div>`;
     return;
   }
-
-  filtered.forEach(o=>{
-    const card=document.createElement('div');
-    card.className=`order-card status-${o.status}`;
-    const bC={new:'badge-new',preparing:'badge-preparing',delivered:'badge-delivered'}[o.status]||'badge-new';
-    const bL={new:'🔴 Novo',preparing:'🟡 Em preparação',delivered:'🟢 Entregue'}[o.status]||'🔴 Novo';
-    const t=o.time instanceof Date?o.time.toLocaleTimeString('pt',{hour:'2-digit',minute:'2-digit'}):String(o.time).slice(11,16);
-    const tableName=T[o.table]||`Mesa ${o.table+1}`;
-    const numFmt='#'+String(o.num).padStart(3,'0');
-    const ih=(o.items||[]).map(i=>`<div class="order-item-line"><span class="order-item-name">${i.name}</span><span class="order-item-qty">×${i.qty}</span></div>`).join('');
-    let a='';
-    if(o.status==='new')
-      a=`<button class="act-btn act-prepare" onclick="setStatus(${o.num},'preparing')">Em preparação</button><button class="act-btn act-deliver" onclick="setStatus(${o.num},'delivered')">Entregue ✓</button>`;
-    else if(o.status==='preparing')
-      a=`<button class="act-btn act-deliver" onclick="setStatus(${o.num},'delivered')">Entregue ✓</button><button class="act-btn act-undo" onclick="setStatus(${o.num},'new')">Repor</button>`;
+  filtered.forEach(o => {
+    const card = document.createElement('div');
+    card.className = `order-card status-${o.status}`;
+    const bC = {new:'badge-new', preparing:'badge-preparing', delivered:'badge-delivered'}[o.status] || 'badge-new';
+    const bL = {new:'🔴 Novo', preparing:'🟡 Em preparação', delivered:'🟢 Entregue'}[o.status] || '🔴 Novo';
+    const t = o.time instanceof Date ? o.time.toLocaleTimeString('pt',{hour:'2-digit',minute:'2-digit'}) : String(o.time).slice(11,16);
+    const tableName = T[o.table] || `Mesa ${o.table + 1}`;
+    const numFmt = '#' + String(o.num).padStart(3,'0');
+    const ih = (o.items||[]).map(i => `<div class="order-item-line"><span class="order-item-name">${i.name}</span><span class="order-item-qty">×${i.qty}</span></div>`).join('');
+    let a = '';
+    if (o.status === 'new')
+      a = `<button class="act-btn act-prepare" onclick="setStatus(${o.num},'preparing')">Em preparação</button><button class="act-btn act-deliver" onclick="setStatus(${o.num},'delivered')">Entregue ✓</button>`;
+    else if (o.status === 'preparing')
+      a = `<button class="act-btn act-deliver" onclick="setStatus(${o.num},'delivered')">Entregue ✓</button><button class="act-btn act-undo" onclick="setStatus(${o.num},'new')">Repor</button>`;
     else
-      a=`<button class="act-btn act-undo" onclick="setStatus(${o.num},'preparing')">Repor</button>`;
-
-    card.innerHTML=`
+      a = `<button class="act-btn act-undo" onclick="setStatus(${o.num},'preparing')">Repor</button>`;
+    card.innerHTML = `
       <div class="order-head">
         <div><div class="order-num">${tableName} · ${numFmt}</div><div class="order-time">${t}</div></div>
         <div class="badge ${bC}">${bL}</div>
       </div>
       <div class="order-items">${ih}</div>
-      ${o.note?`<div class="order-note">📝 ${o.note}</div>`:''}
+      ${o.note ? `<div class="order-note">📝 ${o.note}</div>` : ''}
       <div class="order-foot"><div class="order-total">${fmt(o.total)}</div><div class="order-actions">${a}</div></div>`;
     c.appendChild(card);
   });
 }
 
 // ── CONFIG MODAL ──
-function openCfg(){
-  const cfg=getCfg();
-  selBackend(cfg.backendType||'firebase');
-  document.getElementById('fbUrl').value=cfg.fbUrl||'';
-  document.getElementById('fbKey').value=cfg.fbKey||'';
-  document.getElementById('scriptUrl').value=cfg.scriptUrl||'';
-  document.getElementById('menuSheetId').value=cfg.sheetId||'';
-  document.getElementById('menuSheetName').value=cfg.sheetName||'Menu';
-  document.getElementById('tableCount').value=cfg.tableCount||TABLES_DEFAULT;
-  document.getElementById('testResult').className='test-result';
-  document.getElementById('testResultSh').className='test-result';
+function openCfg() {
+  const cfg = getCfg();
+  selBackend(cfg.backendType || 'firebase');
+  document.getElementById('fbUrl').value = cfg.fbUrl || '';
+  document.getElementById('fbKey').value = cfg.fbKey || '';
+  document.getElementById('scriptUrl').value = cfg.scriptUrl || '';
+  document.getElementById('menuSheetId').value = cfg.sheetId || '';
+  document.getElementById('menuSheetName').value = cfg.sheetName || 'Menu';
+  document.getElementById('tableCount').value = liveTableCount;
+  document.getElementById('testResult').className = 'test-result';
+  document.getElementById('testResultSh').className = 'test-result';
   document.getElementById('cfgModal').classList.add('open');
 }
-function closeCfg(){document.getElementById('cfgModal').classList.remove('open');}
-
-function selBackend(type){
-  selectedBackend=type;
-  document.getElementById('btnFb').classList.toggle('active',type==='firebase');
-  document.getElementById('btnSh').classList.toggle('active',type==='sheets');
-  document.getElementById('fbFields').style.display=type==='firebase'?'block':'none';
-  document.getElementById('shFields').style.display=type==='sheets'?'block':'none';
+function closeCfg() { document.getElementById('cfgModal').classList.remove('open'); }
+function selBackend(type) {
+  selectedBackend = type;
+  document.getElementById('btnFb').classList.toggle('active', type === 'firebase');
+  document.getElementById('btnSh').classList.toggle('active', type === 'sheets');
+  document.getElementById('fbFields').style.display = type === 'firebase' ? 'block' : 'none';
+  document.getElementById('shFields').style.display = type === 'sheets' ? 'block' : 'none';
 }
+function toggleGuide() { document.getElementById('guideBody').classList.toggle('open'); }
 
-function toggleGuide(){document.getElementById('guideBody').classList.toggle('open');}
-
-function saveCfg(){
-  if(selectedBackend==='firebase' && (!document.getElementById('fbUrl').value.trim()||!document.getElementById('fbKey').value.trim())){
+function saveCfg() {
+  if (selectedBackend === 'firebase' && (!document.getElementById('fbUrl').value.trim() || !document.getElementById('fbKey').value.trim())) {
     alert('Preenche o URL e a API Key do Firebase.'); return;
   }
-  if(selectedBackend==='sheets' && !document.getElementById('scriptUrl').value.trim()){
+  if (selectedBackend === 'sheets' && !document.getElementById('scriptUrl').value.trim()) {
     alert('Preenche o URL do Apps Script.'); return;
   }
+  const newTableCount = parseInt(document.getElementById('tableCount').value) || TABLES_DEFAULT;
+  const cfg = {
+    backendType: selectedBackend,
+    fbUrl:       document.getElementById('fbUrl').value.trim(),
+    fbKey:       document.getElementById('fbKey').value.trim(),
+    scriptUrl:   document.getElementById('scriptUrl').value.trim(),
+    sheetId:     document.getElementById('menuSheetId').value.trim(),
+    sheetName:   document.getElementById('menuSheetName').value.trim() || 'Menu',
+    tableCount:  newTableCount,
+  };
   setCfg(cfg);
   closeCfg();
-  liveTableCount = tableCount;
+  liveTableCount = newTableCount;
   populateTableFilter();
   stopBackend();
   startBackend(cfg);
 }
 
 // ── UTILS ──
-function showToast(){const t=document.getElementById('toast');t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3500);}
-function fmt(n){return(+n||0).toFixed(2).replace('.',',')+' €';}
+function showToast() { const t = document.getElementById('toast'); t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 3500); }
+function fmt(n) { return (+n||0).toFixed(2).replace('.',',') + ' €'; }
 
 init();
 </script>
