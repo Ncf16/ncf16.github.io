@@ -315,25 +315,35 @@ async function writeOrder(order) {
 }
 
 // ── INIT ──
-async function init() {
-  // 1. Popula dropdowns com valor default
+// ── INIT — síncrono: UI imediata, sem await ──
+function init() {
   ['landTableSel','chgTableSel','cartTableSel'].forEach(id => {
     const s = document.getElementById(id);
     s.innerHTML = id === 'landTableSel' ? '<option value="">— Escolhe a mesa —</option>' : '';
-    TABLES.forEach((t,i) => { const o = document.createElement('option'); o.value=i; o.textContent=t; s.appendChild(o); });
+    TABLES.forEach((t,i) => {
+      const o = document.createElement('option');
+      o.value = i; o.textContent = t; s.appendChild(o);
+    });
   });
 
-  // 2. Renderiza o menu de fallback imediatamente — sempre visível
+  // Renderiza o menu de fallback imediatamente — síncrono, nunca falha
   renderMenu();
 
-  // 3. Carrega menu da sheet em background (se configurado)
-  const cfg = getCfg();
-  if (cfg.sheetId) loadMenu(cfg.sheetId, cfg.sheetName || 'Menu');
+  // Tudo o resto em background — erros não afetam o UI
+  initAsync();
+}
 
-  // 4. Sincroniza tableCount do Firebase em background
-  syncTableCount();
+async function initAsync() {
+  // Carrega menu da sheet se configurado
+  try {
+    const cfg = getCfg();
+    if (cfg.sheetId) await loadMenu(cfg.sheetId, cfg.sheetName || 'Menu');
+  } catch(e) { /* fallback já está visível */ }
 
-  // 5. Testa ligação Firebase — mostra aviso só se falhar
+  // Sincroniza número de mesas
+  try { await syncTableCount(); } catch(e) {}
+
+  // Testa ligação Firebase
   try {
     initFirebase();
     await firebase.database().ref('config/tableCount').once('value');
