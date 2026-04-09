@@ -3,543 +3,625 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Maia Racket Center — Bar</title>
+<title>Maia Racket Center — Gestão do Bar</title>
 <script src="https://cdn.jsdelivr.net/npm/firebase@10.12.0/firebase-app-compat.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/firebase@10.12.0/firebase-database-compat.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
 <style>
-  :root{--green:#787B63;--green-d:#5a5c49;--green-l:#C4C8B0;--green-ll:#E8EAE0;--dark:#2A2A2A;--sand:#D8D5C8;--cream:#F5F3EE;--gray:#8A8A8A;--text:#1F2937;--red:#C0392B;}
+  :root{--green:#787B63;--green-d:#5a5c49;--green-l:#C4C8B0;--green-ll:#E8EAE0;--dark:#2A2A2A;--sand:#D8D5C8;--gray:#8A8A8A;--red:#C0392B;--amber:#D97706;--ok:#3D7A45;}
   *{box-sizing:border-box;margin:0;padding:0;}
-  body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--text);min-height:100vh;}
-  .screen{display:none;min-height:100vh;}.screen.active{display:flex;flex-direction:column;}
-  .topbar{background:var(--dark);padding:.75rem 1.1rem;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(0,0,0,.25);}
-  .topbar-brand{display:flex;align-items:center;gap:.55rem;}
-  .topbar-logo{width:32px;height:32px;border-radius:50%;background:var(--green);display:flex;align-items:center;justify-content:center;font-size:14px;}
-  .topbar-name{color:white;font-weight:600;font-size:.95rem;}
-  .topbar-sub{color:var(--green-l);font-size:.72rem;display:flex;align-items:center;gap:.3rem;}
-  .topbar-sub .chg{font-size:.65rem;text-decoration:underline;cursor:pointer;opacity:.8;}
-  .topbar-sub .chg:hover{opacity:1;}
-  .topbar-badge{background:var(--green);color:white;border-radius:999px;padding:.3rem .75rem;font-size:.78rem;font-weight:600;cursor:pointer;flex-shrink:0;}
-  .topbar-badge .count{background:white;color:var(--dark);border-radius:999px;padding:0 5px;font-size:.7rem;font-weight:700;margin-left:4px;}
-  .chg-bar{background:#1e1e1e;border-bottom:1px solid #333;padding:.75rem 1.1rem;display:none;align-items:center;gap:.7rem;flex-wrap:wrap;}
-  .chg-bar.open{display:flex;}
-  .chg-bar label{color:var(--sand);font-size:.82rem;white-space:nowrap;}
-  .chg-sel{flex:1;min-width:120px;padding:.45rem .7rem;background:#2e2e2e;border:1.5px solid #444;border-radius:8px;color:white;font-family:'DM Sans',sans-serif;font-size:.85rem;cursor:pointer;outline:none;}
-  .chg-sel:focus{border-color:var(--green);}
-  .chg-sel option{background:#2e2e2e;}
-  .btn-chg-ok{background:var(--green);color:white;border:none;border-radius:8px;padding:.45rem .9rem;font-family:'DM Sans',sans-serif;font-size:.82rem;font-weight:600;cursor:pointer;}
-  .btn-chg-no{background:transparent;color:var(--gray);border:none;font-size:.82rem;cursor:pointer;padding:.45rem .3rem;}
-  .hero{background:var(--dark);padding:1.4rem 1.1rem 1.1rem;display:flex;flex-direction:column;gap:.3rem;}
-  .hero-table{color:var(--green-l);font-size:.78rem;letter-spacing:.06em;text-transform:uppercase;}
-  .hero-title{font-family:'DM Serif Display',serif;color:white;font-size:1.55rem;}
-  .hero-hint{color:var(--sand);font-size:.8rem;opacity:.75;margin-top:.1rem;}
-  .menu-state{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:3rem 1.5rem;gap:.8rem;text-align:center;flex:1;}
-  .spinner{width:36px;height:36px;border:3px solid var(--green-ll);border-top-color:var(--green);border-radius:50%;animation:spin .8s linear infinite;}
-  @keyframes spin{to{transform:rotate(360deg);}}
-  .menu-state-title{font-weight:600;font-size:1rem;}
-  .menu-state-sub{font-size:.82rem;color:var(--gray);line-height:1.5;}
-  .btn-retry{background:var(--green);color:white;border:none;border-radius:10px;padding:.6rem 1.2rem;font-family:'DM Sans',sans-serif;font-size:.85rem;font-weight:600;cursor:pointer;}
-  .cat-scroll{display:flex;gap:.5rem;padding:.9rem 1.1rem;overflow-x:auto;background:white;border-bottom:1px solid var(--green-ll);scrollbar-width:none;position:sticky;top:58px;z-index:90;}
-  .cat-scroll::-webkit-scrollbar{display:none;}
-  .cat-btn{flex-shrink:0;padding:.38rem .9rem;border-radius:999px;border:1.5px solid var(--green-l);background:transparent;color:var(--gray);font-family:'DM Sans',sans-serif;font-size:.8rem;font-weight:500;cursor:pointer;transition:all .18s;white-space:nowrap;}
-  .cat-btn.active,.cat-btn:hover{background:var(--green);border-color:var(--green);color:white;}
-  .menu-body{flex:1;padding:0 0 6rem;}
-  .menu-section{padding:1.2rem 1.1rem 0;}
-  .section-title{font-size:.7rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--green);margin-bottom:.75rem;display:flex;align-items:center;gap:.5rem;}
-  .section-title::after{content:'';flex:1;height:1px;background:var(--green-ll);}
-  .item-card{display:flex;align-items:center;justify-content:space-between;background:white;border-radius:12px;padding:.85rem;margin-bottom:.6rem;box-shadow:0 1px 4px rgba(0,0,0,.06);}
-  .item-info{flex:1;}
-  .item-name{font-weight:600;font-size:.92rem;color:var(--dark);}
-  .item-desc{font-size:.76rem;color:var(--gray);margin-top:.15rem;line-height:1.4;}
-  .item-price{font-weight:700;color:var(--green-d);font-size:.95rem;margin-top:.3rem;}
-  .item-ctrl{display:flex;align-items:center;gap:.4rem;margin-left:1rem;flex-shrink:0;}
-  .qty-btn{width:30px;height:30px;border-radius:50%;border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:1.1rem;font-weight:700;}
-  .qty-minus{background:var(--green-ll);color:var(--green-d);}
-  .qty-plus{background:var(--green);color:white;}
-  .qty-count{font-weight:700;font-size:.95rem;min-width:18px;text-align:center;color:var(--dark);}
-  .cart-bar{position:fixed;bottom:0;left:0;right:0;background:var(--dark);padding:.85rem 1.1rem;display:flex;align-items:center;justify-content:space-between;transform:translateY(100%);transition:transform .3s cubic-bezier(.34,1.56,.64,1);z-index:200;box-shadow:0 -4px 20px rgba(0,0,0,.25);}
-  .cart-bar.visible{transform:translateY(0);}
-  .cart-bar-info{color:white;}
-  .cart-bar-items{font-size:.78rem;color:var(--green-l);}
-  .cart-bar-total{font-weight:700;font-size:1.1rem;}
-  .cart-bar-btn{background:var(--green);color:white;border:none;border-radius:10px;padding:.7rem 1.3rem;font-family:'DM Sans',sans-serif;font-weight:700;font-size:.9rem;cursor:pointer;}
-  .cart-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:300;opacity:0;pointer-events:none;transition:opacity .25s;}
-  .cart-overlay.open{opacity:1;pointer-events:all;}
-  .cart-panel{position:fixed;bottom:0;left:0;right:0;background:white;border-radius:20px 20px 0 0;max-height:90vh;overflow-y:auto;padding:1.2rem 1.1rem 2rem;transform:translateY(100%);transition:transform .3s cubic-bezier(.34,1.56,.64,1);z-index:301;}
-  .cart-panel.open{transform:translateY(0);}
-  .cart-handle{width:40px;height:4px;background:var(--green-l);border-radius:2px;margin:0 auto 1.1rem;}
-  .cart-title{font-family:'DM Serif Display',serif;font-size:1.3rem;margin-bottom:.5rem;}
-  .cart-table-row{display:flex;align-items:center;gap:.6rem;background:var(--green-ll);border-radius:10px;padding:.6rem .8rem;margin-bottom:1rem;}
-  .cart-table-label{font-size:.8rem;color:var(--green-d);font-weight:600;white-space:nowrap;}
-  .cart-table-select{flex:1;padding:.35rem .6rem;background:white;border:1.5px solid var(--green-l);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:.85rem;color:var(--dark);cursor:pointer;outline:none;}
-  .cart-item-row{display:flex;align-items:center;gap:.7rem;padding:.65rem 0;border-bottom:1px solid var(--green-ll);}
-  .cart-item-qty{background:var(--green);color:white;border-radius:6px;width:26px;height:26px;display:flex;align-items:center;justify-content:center;font-size:.8rem;font-weight:700;flex-shrink:0;}
-  .cart-item-name{flex:1;font-size:.88rem;font-weight:500;}
-  .cart-item-price{font-weight:700;font-size:.9rem;color:var(--green-d);}
-  .cart-item-del{background:none;border:none;color:var(--gray);cursor:pointer;font-size:1.1rem;padding:0 .2rem;}
-  .cart-item-del:hover{color:var(--red);}
-  .cart-total-row{display:flex;justify-content:space-between;align-items:center;padding:1rem 0 .5rem;}
-  .cart-total-label{font-size:.82rem;color:var(--gray);text-transform:uppercase;letter-spacing:.05em;}
-  .cart-total-val{font-weight:700;font-size:1.25rem;}
-  .cart-note{width:100%;border:1.5px solid var(--green-ll);border-radius:10px;padding:.7rem .8rem;font-family:'DM Sans',sans-serif;font-size:.85rem;resize:none;margin-bottom:.8rem;outline:none;}
-  .cart-note:focus{border-color:var(--green);}
-  .btn-order{width:100%;background:var(--green);color:white;border:none;border-radius:12px;padding:.9rem;font-family:'DM Sans',sans-serif;font-weight:700;font-size:1rem;cursor:pointer;}
-  .btn-order:disabled{background:var(--green-l);cursor:not-allowed;}
-  #screen-landing{background:var(--dark);align-items:center;justify-content:center;text-align:center;padding:2rem;gap:1.2rem;}
-  .land-logo{width:72px;height:72px;border-radius:50%;background:var(--green);display:flex;align-items:center;justify-content:center;margin:0 auto;font-size:2rem;}
-  .land-title{font-family:'DM Serif Display',serif;color:white;font-size:2rem;}
-  .land-sub{color:var(--sand);font-size:.88rem;line-height:1.6;max-width:280px;}
-  .land-form{width:100%;max-width:280px;display:flex;flex-direction:column;gap:.9rem;}
-  .land-field{display:flex;flex-direction:column;gap:.4rem;text-align:left;}
-  .land-field label{color:var(--green-l);font-size:.75rem;text-transform:uppercase;letter-spacing:.07em;}
-  .land-select{width:100%;padding:.75rem 1rem;background:#333;border:1.5px solid #444;border-radius:12px;color:white;font-family:'DM Sans',sans-serif;font-size:1rem;cursor:pointer;outline:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23C4C8B0' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 1rem center;}
-  .land-select:focus{border-color:var(--green);}
-  .land-select option{background:#333;}
-  .land-btn-main{background:var(--green);color:white;border:none;border-radius:12px;padding:.9rem;font-family:'DM Sans',sans-serif;font-weight:700;font-size:1rem;cursor:pointer;}
-  .warn-box{background:rgba(192,57,43,.15);border:1px solid rgba(192,57,43,.3);border-radius:10px;padding:.75rem 1rem;color:#fca5a5;font-size:.8rem;line-height:1.5;text-align:left;display:none;}
-  #screen-success{background:var(--dark);align-items:center;justify-content:center;text-align:center;padding:2rem;}
-  .success-icon{font-size:4rem;margin-bottom:1rem;animation:pop .5s cubic-bezier(.34,1.56,.64,1);}
-  @keyframes pop{from{transform:scale(0)}to{transform:scale(1)}}
-  .success-title{font-family:'DM Serif Display',serif;color:white;font-size:1.9rem;margin-bottom:.5rem;}
-  .success-sub{color:var(--sand);font-size:.95rem;line-height:1.6;margin-bottom:2rem;}
-  .success-number{background:var(--green);color:white;border-radius:16px;padding:1rem 2rem;display:inline-block;margin-bottom:2rem;}
-  .success-number-label{font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--green-l);}
-  .success-number-val{font-family:'DM Serif Display',serif;font-size:2.5rem;line-height:1;}
-  .btn-back{background:transparent;border:1.5px solid var(--green-l);color:var(--green-l);border-radius:10px;padding:.7rem 1.5rem;font-family:'DM Sans',sans-serif;font-size:.9rem;cursor:pointer;}
-  .btn-back:hover{background:var(--green);border-color:var(--green);color:white;}
+  body{font-family:'DM Sans',sans-serif;background:#1a1a1a;color:#eee;min-height:100vh;display:flex;flex-direction:column;}
+  .topbar{background:var(--dark);padding:.85rem 1.3rem;display:flex;align-items:center;justify-content:space-between;border-bottom:2px solid var(--green);flex-shrink:0;}
+  .topbar-brand{font-family:'DM Serif Display',serif;color:white;font-size:1.15rem;}
+  .topbar-brand span{color:var(--green-l);font-size:.72rem;font-family:'DM Sans',sans-serif;display:block;font-weight:400;}
+  .topbar-right{display:flex;align-items:center;gap:.75rem;}
+  .stats{display:flex;gap:.75rem;}
+  .stat{text-align:right;}
+  .stat-val{color:white;font-weight:700;font-size:1.1rem;line-height:1;}
+  .stat-label{color:var(--gray);font-size:.65rem;text-transform:uppercase;letter-spacing:.05em;}
+  .btn-cfg{background:transparent;border:1.5px solid #444;color:var(--gray);border-radius:8px;padding:.4rem .75rem;font-family:'DM Sans',sans-serif;font-size:.78rem;cursor:pointer;}
+  .btn-cfg:hover{border-color:var(--green-l);color:var(--green-l);}
+  .conn-bar{padding:.5rem 1.3rem;display:flex;align-items:center;gap:.5rem;font-size:.75rem;border-bottom:1px solid #2a2a2a;flex-shrink:0;}
+  .conn-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+  .conn-ok .conn-dot{background:#6EE7B7;box-shadow:0 0 6px #6EE7B7;}
+  .conn-err .conn-dot{background:#fca5a5;}
+  .conn-none .conn-dot{background:#555;}
+  .conn-ok{color:#6EE7B7;}.conn-err{color:#fca5a5;}.conn-none{color:var(--gray);}
+  .filters{display:flex;gap:.5rem;padding:.7rem 1.3rem;background:var(--dark);border-bottom:1px solid #333;overflow-x:auto;scrollbar-width:none;flex-shrink:0;flex-wrap:wrap;}
+  .filters::-webkit-scrollbar{display:none;}
+  .filter-btn{flex-shrink:0;padding:.3rem .8rem;border-radius:999px;border:1.5px solid #444;background:transparent;color:var(--gray);font-family:'DM Sans',sans-serif;font-size:.75rem;cursor:pointer;transition:all .15s;}
+  .filter-btn.active{border-color:var(--green);background:var(--green);color:white;}
+  .filter-sep{width:1px;background:#333;align-self:stretch;flex-shrink:0;}
+  .table-filter{flex-shrink:0;padding:.28rem .65rem;border-radius:999px;border:1.5px solid #444;background:transparent;color:var(--gray);font-family:'DM Sans',sans-serif;font-size:.75rem;cursor:pointer;outline:none;}
+  .table-filter option{background:#1e1e1e;}
+  .orders{flex:1;overflow-y:auto;padding:1rem 1.3rem;display:flex;flex-direction:column;gap:.8rem;}
+  .order-card{background:#242424;border-radius:14px;overflow:hidden;border-left:4px solid var(--green);}
+  .order-card.status-preparing{border-left-color:var(--amber);}
+  .order-card.status-delivered{border-left-color:var(--ok);opacity:.5;}
+  .order-head{display:flex;align-items:center;justify-content:space-between;padding:.8rem 1rem .5rem;}
+  .order-num{font-family:'DM Serif Display',serif;color:white;font-size:1.1rem;}
+  .order-time{font-size:.72rem;color:var(--gray);}
+  .badge{padding:.25rem .65rem;border-radius:999px;font-size:.72rem;font-weight:600;}
+  .badge-new{background:rgba(120,123,99,.25);color:var(--green-l);}
+  .badge-preparing{background:rgba(217,119,6,.2);color:#FCD34D;}
+  .badge-delivered{background:rgba(61,122,69,.2);color:#6EE7B7;}
+  .order-items{padding:0 1rem .5rem;border-bottom:1px solid #333;}
+  .order-item-line{display:flex;justify-content:space-between;font-size:.82rem;padding:.25rem 0;}
+  .order-item-name{color:#ccc;}.order-item-qty{color:var(--green-l);font-weight:600;}
+  .order-note{padding:.4rem 1rem;font-size:.76rem;color:#FCD34D;font-style:italic;}
+  .order-foot{display:flex;align-items:center;justify-content:space-between;padding:.65rem 1rem;}
+  .order-total{color:white;font-weight:700;font-size:.95rem;}
+  .order-actions{display:flex;gap:.5rem;}
+  .act-btn{padding:.35rem .75rem;border-radius:8px;border:none;font-family:'DM Sans',sans-serif;font-size:.75rem;font-weight:600;cursor:pointer;transition:all .15s;}
+  .act-prepare{background:rgba(217,119,6,.2);color:#FCD34D;}.act-prepare:hover{background:rgba(217,119,6,.4);}
+  .act-deliver{background:rgba(61,122,69,.25);color:#6EE7B7;}.act-deliver:hover{background:rgba(61,122,69,.4);}
+  .act-undo{background:#333;color:var(--gray);}.act-undo:hover{background:#444;}
+  .empty{text-align:center;padding:3rem 1rem;color:var(--gray);}
+  .empty-icon{font-size:2.5rem;margin-bottom:.5rem;}
+  .confirm-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:350;display:none;align-items:center;justify-content:center;padding:1.5rem;}
+  .confirm-overlay.open{display:flex;}
+  .confirm-box{background:#242424;border-radius:16px;padding:1.5rem;width:100%;max-width:300px;text-align:center;}
+  .confirm-title{font-family:'DM Serif Display',serif;color:white;font-size:1.15rem;margin-bottom:.5rem;}
+  .confirm-sub{color:var(--gray);font-size:.82rem;margin-bottom:1.2rem;line-height:1.5;}
+  .confirm-actions{display:flex;gap:.7rem;}
+  .btn-confirm-yes{flex:1;background:rgba(61,122,69,.35);color:#6EE7B7;border:none;border-radius:10px;padding:.7rem;font-family:'DM Sans',sans-serif;font-weight:700;font-size:.9rem;cursor:pointer;}
+  .btn-confirm-yes:hover{background:rgba(61,122,69,.5);}
+  .btn-confirm-no{flex:1;background:#333;color:var(--gray);border:none;border-radius:10px;padding:.7rem;font-family:'DM Sans',sans-serif;font-size:.9rem;cursor:pointer;}
+  .toast{position:fixed;top:70px;left:50%;transform:translateX(-50%) translateY(-80px);background:var(--green);color:white;border-radius:12px;padding:.6rem 1.2rem;font-weight:600;font-size:.85rem;z-index:500;transition:transform .3s;white-space:nowrap;box-shadow:0 4px 16px rgba(0,0,0,.3);}
+  .toast.show{transform:translateX(-50%) translateY(0);}
+  .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:400;display:none;align-items:flex-end;justify-content:center;}
+  .modal-overlay.open{display:flex;}
+  .modal-box{background:#1e1e1e;border-radius:20px 20px 0 0;width:100%;max-width:540px;padding:1.5rem 1.3rem 2.5rem;max-height:92vh;overflow-y:auto;}
+  .modal-handle{width:40px;height:4px;background:#444;border-radius:2px;margin:0 auto 1.2rem;}
+  .modal-title{font-family:'DM Serif Display',serif;color:white;font-size:1.25rem;margin-bottom:.3rem;}
+  .modal-sub{color:var(--gray);font-size:.8rem;margin-bottom:1.2rem;line-height:1.5;}
+  .backend-toggle{display:flex;gap:.5rem;margin-bottom:1.2rem;}
+  .back-btn{flex:1;padding:.55rem;border-radius:10px;border:1.5px solid #444;background:transparent;color:var(--gray);font-family:'DM Sans',sans-serif;font-size:.82rem;font-weight:600;cursor:pointer;text-align:center;}
+  .back-btn.active{background:var(--green);border-color:var(--green);color:white;}
+  .modal-sec{margin-bottom:1rem;}
+  .modal-sec-title{color:var(--green-l);font-size:.72rem;text-transform:uppercase;letter-spacing:.07em;margin-bottom:.6rem;font-weight:700;}
+  .modal-field{display:flex;flex-direction:column;gap:.35rem;margin-bottom:.7rem;}
+  .modal-field label{color:#aaa;font-size:.73rem;}
+  .modal-input{background:#2a2a2a;border:1.5px solid #444;border-radius:10px;color:white;font-family:'DM Sans',sans-serif;font-size:.85rem;padding:.6rem .85rem;outline:none;width:100%;}
+  .modal-input:focus{border-color:var(--green);}
+  .modal-input::placeholder{color:#555;}
+  .modal-hint{font-size:.72rem;color:#555;margin-top:.2rem;line-height:1.4;}
+  .modal-hint code{background:#333;padding:1px 4px;border-radius:4px;font-size:.7rem;color:var(--green-l);}
+  .modal-divider{height:1px;background:#2e2e2e;margin:1rem 0;}
+  .modal-actions{display:flex;gap:.7rem;margin-top:.5rem;}
+  .btn-save{flex:1;background:var(--green);color:white;border:none;border-radius:10px;padding:.75rem;font-family:'DM Sans',sans-serif;font-weight:700;font-size:.9rem;cursor:pointer;}
+  .btn-save:hover{background:var(--green-d);}
+  .btn-cancel{background:#333;color:var(--gray);border:none;border-radius:10px;padding:.75rem 1rem;font-family:'DM Sans',sans-serif;font-size:.9rem;cursor:pointer;}
+  .btn-test{background:transparent;border:1.5px solid #444;color:var(--gray);border-radius:10px;padding:.55rem 1rem;font-family:'DM Sans',sans-serif;font-size:.82rem;cursor:pointer;margin-bottom:.75rem;width:100%;transition:all .2s;}
+  .btn-test:hover{border-color:var(--green-l);color:var(--green-l);}
+  .test-result{font-size:.75rem;padding:.4rem .7rem;border-radius:8px;margin-bottom:.5rem;display:none;}
+  .test-ok{background:rgba(61,122,69,.2);color:#6EE7B7;display:block;}
+  .test-err{background:rgba(192,57,43,.2);color:#fca5a5;display:block;}
+  .guide-toggle{color:var(--green-l);font-size:.78rem;cursor:pointer;margin-bottom:.5rem;}
+  .guide-body{display:none;background:#111;border-radius:10px;padding:.85rem;font-size:.73rem;color:#aaa;line-height:1.7;}
+  .guide-body.open{display:block;}
+  .guide-body pre{background:#0a0a0a;border-radius:8px;padding:.75rem;margin:.5rem 0;overflow-x:auto;font-size:.68rem;color:#6EE7B7;white-space:pre-wrap;}
+  .guide-body b{color:var(--green-l);}
 </style>
 </head>
 <body>
 
-<div id="screen-landing" class="screen active">
-  <div class="land-logo">🎾</div>
-  <div>
-    <div class="land-title">Maia Racket Center</div>
-    <div style="color:var(--green-l);font-size:.8rem;letter-spacing:.08em;text-transform:uppercase;margin-top:.2rem;">Bar & Esplanada</div>
-  </div>
-  <div class="land-sub">Seleciona a tua mesa e faz o pedido diretamente do telemóvel.</div>
-  <div class="land-form">
-    <div id="warnBox" class="warn-box">⚠️ Sem ligação ao servidor. Os pedidos podem não chegar ao bar.</div>
-    <div class="land-field">
-      <label>📍 Seleciona a tua mesa</label>
-      <select class="land-select" id="landTableSel"><option value="">— Escolhe a mesa —</option></select>
+<div class="topbar">
+  <div class="topbar-brand">🎾 Bar Dashboard<span>Maia Racket Center</span></div>
+  <div class="topbar-right">
+    <div class="stats">
+      <div class="stat"><div class="stat-val" id="statPending">0</div><div class="stat-label">Pendentes</div></div>
+      <div class="stat"><div class="stat-val" id="statToday">0</div><div class="stat-label">Hoje</div></div>
     </div>
-    <button class="land-btn-main" onclick="goToMenu()">Ver Menu & Pedir →</button>
+    <button class="btn-cfg" onclick="openCfg()">⚙️ Config</button>
   </div>
 </div>
 
-<div id="screen-menu" class="screen">
-  <div class="topbar">
-    <div class="topbar-brand">
-      <div class="topbar-logo">🎾</div>
-      <div>
-        <div class="topbar-name">Maia Racket Center</div>
-        <div class="topbar-sub">
-          <span id="tableLabel">Mesa —</span>
-          <span class="chg" onclick="toggleChgBar()">✏️ mudar</span>
+<div class="conn-bar conn-none" id="connBar">
+  <div class="conn-dot"></div><span id="connLabel">A ligar…</span>
+</div>
+
+<div class="filters">
+  <button class="filter-btn active" onclick="setFilter('all',this)">Todos</button>
+  <button class="filter-btn" onclick="setFilter('new',this)">🔴 Novos</button>
+  <button class="filter-btn" onclick="setFilter('preparing',this)">🟡 Em preparação</button>
+  <button class="filter-btn" onclick="setFilter('delivered',this)">🟢 Entregues</button>
+  <div class="filter-sep"></div>
+  <select class="table-filter" id="tableFilter" onchange="renderOrders()">
+    <option value="all">Todas as mesas</option>
+  </select>
+</div>
+
+<div class="orders" id="ordersList"></div>
+<div class="toast" id="toast">🔔 Novo pedido!</div>
+
+<div class="confirm-overlay" id="confirmOverlay">
+  <div class="confirm-box">
+    <div class="confirm-title" id="confirmTitle">Confirmar</div>
+    <div class="confirm-sub" id="confirmSub"></div>
+    <div class="confirm-actions">
+      <button class="btn-confirm-no" onclick="closeConfirm()">Cancelar</button>
+      <button class="btn-confirm-yes" id="confirmYes">Confirmar</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="cfgModal">
+  <div class="modal-box">
+    <div class="modal-handle"></div>
+    <div class="modal-title">⚙️ Configuração</div>
+    <div class="modal-sub">Escolhe o backend para sincronização de pedidos em tempo real.</div>
+    <div class="backend-toggle">
+      <button class="back-btn active" id="btnFb" onclick="selBackend('firebase')">🔥 Firebase</button>
+      <button class="back-btn" id="btnSh" onclick="selBackend('sheets')">📊 Google Sheets</button>
+    </div>
+    <div id="fbFields">
+      <div class="modal-sec">
+        <div class="modal-sec-title">🔥 Firebase Realtime Database</div>
+        <div class="modal-field">
+          <label>URL da base de dados</label>
+          <input class="modal-input" id="fbUrl" placeholder="https://SEU-PROJETO-default-rtdb.europe-west1.firebasedatabase.app"/>
+          <div class="modal-hint">Firebase Console → Realtime Database → copiar URL.</div>
         </div>
+        <div class="modal-field">
+          <label>API Key</label>
+          <input class="modal-input" id="fbKey" placeholder="AIzaSy..."/>
+          <div class="modal-hint">Firebase Console → Definições → Aplicações web → <code>apiKey</code>.</div>
+        </div>
+        <div id="testResult" class="test-result"></div>
+        <button class="btn-test" onclick="testFirebase()">🔌 Testar ligação Firebase</button>
       </div>
     </div>
-    <div class="topbar-badge" onclick="openCart()">🛒 Carrinho <span class="count" id="cartCount">0</span></div>
-  </div>
-  <div class="chg-bar" id="chgBar">
-    <label>Mudar para mesa:</label>
-    <select class="chg-sel" id="chgTableSel"></select>
-    <button class="btn-chg-ok" onclick="confirmChg()">Confirmar</button>
-    <button class="btn-chg-no" onclick="toggleChgBar()">Cancelar</button>
-  </div>
-  <div class="hero">
-    <div class="hero-table" id="heroTable">Mesa —</div>
-    <div class="hero-title">O que queres?</div>
-    <div class="hero-hint">Toca em + para adicionar ao pedido</div>
-  </div>
-  <div class="cat-scroll" id="catScroll"></div>
-  <div class="menu-body" id="menuBody"></div>
-  <div class="cart-bar" id="cartBar">
-    <div class="cart-bar-info">
-      <div class="cart-bar-items" id="cartBarItems"></div>
-      <div class="cart-bar-total" id="cartBarTotal"></div>
+    <div id="shFields" style="display:none;">
+      <div class="modal-sec">
+        <div class="modal-sec-title">📊 Google Sheets — Apps Script</div>
+        <div class="modal-field">
+          <label>URL do Web App</label>
+          <input class="modal-input" id="scriptUrl" placeholder="https://script.google.com/macros/s/.../exec"/>
+        </div>
+        <div id="testResultSh" class="test-result"></div>
+        <button class="btn-test" onclick="testSheets()">🔌 Testar ligação Sheets</button>
+      </div>
+      <div class="guide-toggle" onclick="toggleGuide()">📋 Como configurar o Apps Script ▾</div>
+      <div class="guide-body" id="guideBody">
+        <b>1.</b> Abre a tua Google Sheet → <b>Extensões → Apps Script</b><br>
+        <b>2.</b> Cola o código abaixo e guarda:<br>
+        <pre>const SHEET_NAME = 'Pedidos';
+function doPost(e) {
+  try {
+    const data = JSON.parse(e.postData.contents);
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    let sheet = ss.getSheetByName(SHEET_NAME);
+    if (!sheet) { sheet = ss.insertSheet(SHEET_NAME); sheet.appendRow(['num','table','items','total','note','status','time']); }
+    if (data.action === 'add') { sheet.appendRow([data.num,data.table,JSON.stringify(data.items),data.total,data.note||'','new',data.time]); }
+    if (data.action === 'update') { const vals=sheet.getDataRange().getValues(); for(let i=1;i<vals.length;i++){if(vals[i][0]==data.num){sheet.getRange(i+1,6).setValue(data.status);break;}} }
+    return ContentService.createTextOutput(JSON.stringify({ok:true})).setMimeType(ContentService.MimeType.JSON);
+  } catch(err) { return ContentService.createTextOutput(JSON.stringify({ok:false,error:err.message})).setMimeType(ContentService.MimeType.JSON); }
+}
+function doGet(e) {
+  const ss=SpreadsheetApp.getActiveSpreadsheet(); const sheet=ss.getSheetByName(SHEET_NAME);
+  if(!sheet)return ContentService.createTextOutput(JSON.stringify([])).setMimeType(ContentService.MimeType.JSON);
+  const vals=sheet.getDataRange().getValues();
+  const rows=vals.slice(1).map(r=>({num:Number(r[0]),table:Number(r[1]),items:JSON.parse(r[2]||'[]'),total:Number(r[3]),note:r[4],status:r[5],time:r[6]}));
+  return ContentService.createTextOutput(JSON.stringify(rows)).setMimeType(ContentService.MimeType.JSON);
+}</pre>
+        <b>3.</b> Implementar → Nova implementação → Aplicação Web<br>
+        <b>4.</b> Executar como: <b>Eu</b> · Acesso: <b>Qualquer pessoa</b><br>
+        <b>5.</b> Copia o URL e cola acima.
+      </div>
     </div>
-    <button class="cart-bar-btn" onclick="openCart()">Ver Pedido →</button>
+    <div class="modal-divider"></div>
+    <div class="modal-sec">
+      <div class="modal-sec-title">📋 Google Sheet do Menu</div>
+      <div class="modal-field">
+        <label>ID da Sheet</label>
+        <input class="modal-input" id="menuSheetId" placeholder="1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgVE2upms"/>
+        <div class="modal-hint">URL: docs.google.com/spreadsheets/d/<code>ID</code>/edit</div>
+      </div>
+      <div class="modal-field">
+        <label>Nome do separador</label>
+        <input class="modal-input" id="menuSheetName" placeholder="Menu" value="Menu"/>
+      </div>
+    </div>
+    <div class="modal-divider"></div>
+    <div class="modal-sec">
+      <div class="modal-sec-title">🪑 Número de mesas</div>
+      <div class="modal-field">
+        <label>Total de mesas</label>
+        <input class="modal-input" id="tableCount" type="number" min="1" max="50" placeholder="12"/>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeCfg()">Cancelar</button>
+      <button class="btn-save" onclick="saveCfg()">Guardar & Ligar</button>
+    </div>
   </div>
-</div>
-
-<div class="cart-overlay" id="cartOverlay" onclick="closeCart()"></div>
-<div class="cart-panel" id="cartPanel">
-  <div class="cart-handle"></div>
-  <div class="cart-title">O meu pedido</div>
-  <div class="cart-table-row">
-    <div class="cart-table-label">🍽️ Mesa:</div>
-    <select class="cart-table-select" id="cartTableSel" onchange="onCartTableChange()"></select>
-  </div>
-  <div id="cartItems"></div>
-  <div class="cart-total-row">
-    <div class="cart-total-label">Total</div>
-    <div class="cart-total-val" id="cartTotal">0,00 €</div>
-  </div>
-  <textarea class="cart-note" id="cartNote" rows="2" placeholder="Nota ao bar (ex: sem gelo, alergia...)"></textarea>
-  <button class="btn-order" id="btnOrder" onclick="submitOrder()">Confirmar Pedido</button>
-</div>
-
-<div id="screen-success" class="screen">
-  <div class="success-icon">✅</div>
-  <div class="success-title">Pedido enviado!</div>
-  <div class="success-sub">O teu pedido foi recebido pelo bar.<br>Entregamos na tua mesa em breve.</div>
-  <div class="success-number">
-    <div class="success-number-label">Nº do Pedido</div>
-    <div class="success-number-val" id="orderNum">—</div>
-  </div>
-  <button class="btn-back" onclick="backToMenu()">← Fazer mais um pedido</button>
 </div>
 
 <script>
 // ══════════════════════════════════════════════
-// CONFIGURAÇÃO — edita apenas esta secção
+// CONFIGURAÇÃO DEFAULT
 // ══════════════════════════════════════════════
-const FIREBASE_CONFIG = {
-  apiKey:      'AIzaSyCibZFX_qs38QLl3M61hmjgWDVd8_xJbzo',
-  databaseURL: 'https://testar-bar-default-rtdb.europe-west1.firebasedatabase.app',
+const DEFAULT_CONFIG = {
+  backendType: 'firebase',
+  fbUrl:       'https://testar-bar-default-rtdb.europe-west1.firebasedatabase.app',
+  fbKey:       'AIzaSyCibZFX_qs38QLl3M61hmjgWDVd8_xJbzo',
+  scriptUrl:   '',
+  sheetId:     '',
+  sheetName:   'Menu',
+  tableCount:  12,
 };
-const MENU_SHEET_ID   = '';
-const MENU_SHEET_NAME = 'Menu';
 // ══════════════════════════════════════════════
 
-// ── STATE ──
-let TABLES = Array.from({length:12}, (_,i) => `Mesa ${i+1}`);
-let MENU = [
-  {cat:"🥤 Bebidas Frias", items:[
-    {id:1,  name:"Água",              desc:"50cl, com ou sem gás",          price:1.5},
-    {id:2,  name:"Sumo Natural",      desc:"Laranja ou maçã, 33cl",         price:2.5},
-    {id:3,  name:"Refrigerante",      desc:"Coca-Cola, Sprite, 7Up, 33cl",  price:2.0},
-    {id:4,  name:"Ice Tea",           desc:"Lipton pêssego ou limão, 33cl", price:2.0},
-    {id:5,  name:"Cerveja",           desc:"Sagres mini, 20cl",             price:2.5},
-    {id:6,  name:"Cerveja s/ álcool", desc:"Sagres 0.0%, 33cl",             price:2.5},
-  ]},
-  {cat:"☕ Bebidas Quentes", items:[
-    {id:7,  name:"Café Expresso",     desc:"Curto ou longo",                price:1.0},
-    {id:8,  name:"Galão",             desc:"Com leite quente",              price:1.5},
-    {id:9,  name:"Chá",               desc:"Várias opções disponíveis",     price:1.5},
-    {id:10, name:"Chocolate Quente",  desc:"Com chantilly",                 price:2.5},
-  ]},
-  {cat:"🍔 Snacks", items:[
-    {id:11, name:"Tosta Mista",       desc:"Fiambre e queijo, pão de forma",price:3.0},
-    {id:12, name:"Sandes de Atum",    desc:"Com alface e tomate",           price:3.5},
-    {id:13, name:"Prego no Pão",      desc:"Bife de vaca, pão de sementes", price:5.5},
-    {id:14, name:"Cachorro",          desc:"Salsicha, mostarda e ketchup",  price:3.0},
-  ]},
-  {cat:"🍰 Doces", items:[
-    {id:15, name:"Bolo do Dia",       desc:"Perguntar disponibilidade",     price:2.5},
-    {id:16, name:"Croissant",         desc:"Simples ou com manteiga",       price:1.5},
-    {id:17, name:"Banana",            desc:"Fruta fresca",                  price:1.0},
-    {id:18, name:"Barra de Cereal",   desc:"Muesli ou chocolate",           price:1.5},
-  ]},
-  {cat:"🏋️ Recuperação", items:[
-    {id:19, name:"Bebida Isotónica",  desc:"Powerade, várias cores",        price:2.5},
-    {id:20, name:"Batido de Proteína",desc:"Chocolate ou baunilha",         price:4.5},
-    {id:21, name:"Barra Proteína",    desc:"Snickers Protein ou similar",   price:3.0},
-  ]},
-];
-let selectedTable = 0;
-let cart = {};
-let localCounter = 0;
+const TABLES_DEFAULT = 12;
+let orders = [];
+let barFilter = 'all';
+let pollInterval = null;
+let selectedBackend = 'firebase';
+let liveTableCount = TABLES_DEFAULT;
 
-// ── FIREBASE ──
-function initFirebase() {
-  if (window._fbReady) return;
-  if (typeof firebase === 'undefined') throw new Error('Firebase SDK não carregado');
-  if (!FIREBASE_CONFIG.apiKey || !FIREBASE_CONFIG.databaseURL) throw new Error('Firebase não configurado');
-  const projectId = FIREBASE_CONFIG.databaseURL.replace('https://','').split('-default-rtdb')[0];
-  firebase.initializeApp({apiKey: FIREBASE_CONFIG.apiKey, databaseURL: FIREBASE_CONFIG.databaseURL, projectId});
-  window._fbReady = true;
-}
-
-async function getNextOrderNum() {
+// ── CONFIG ──
+function getCfg() {
   try {
-    initFirebase();
-    const result = await firebase.database().ref('orderCounter').transaction(cur => (cur || 0) + 1);
-    if (!result.committed) throw new Error('Transação não confirmada');
-    return result.snapshot.val();
-  } catch(e) {
-    console.warn('Fallback para contador local:', e.message);
-    return ++localCounter;
-  }
+    const saved = JSON.parse(localStorage.getItem('barCfg') || '{}');
+    return {...DEFAULT_CONFIG, ...saved};
+  } catch(e) { return {...DEFAULT_CONFIG}; }
 }
-
-async function writeOrder(order) {
-  try {
-    initFirebase();
-    await firebase.database().ref('orders/' + order.num).set({
-      num:   order.num,
-      table: order.table,
-      status:'new',
-      time:  order.time,
-      note:  order.note || '',
-      total: order.total,
-      items: JSON.stringify(order.items),
-    });
-  } catch(e) {
-    throw new Error('Erro ao enviar pedido: ' + e.message);
-  }
-}
+function setCfg(c) { localStorage.setItem('barCfg', JSON.stringify(c)); }
+function tables() { return Array.from({length: liveTableCount}, (_,i) => `Mesa ${i+1}`); }
 
 // ── INIT ──
 function init() {
-  // Popula dropdowns imediatamente
-  populateTableSelects();
-  // Renderiza menu de fallback imediatamente — síncrono, nunca falha
-  renderMenu();
-  // Async em background — erros não afetam o UI
-  initAsync();
+  populateTableFilter();
+  const cfg = getCfg();
+  startBackend(cfg);
+  renderOrders();
 }
 
-async function initAsync() {
-  // Testa ligação Firebase e mostra aviso se falhar
+function populateTableFilter() {
+  const T = tables();
+  const sel = document.getElementById('tableFilter');
+  const cur = sel.value;
+  sel.innerHTML = '<option value="all">Todas as mesas</option>';
+  T.forEach((t,i) => { const o = document.createElement('option'); o.value=i; o.textContent=t; sel.appendChild(o); });
+  sel.value = cur;
+}
+
+// ── CONNECTION ──
+function setConn(type, label) {
+  const bar = document.getElementById('connBar');
+  bar.className = 'conn-bar conn-' + type;
+  document.getElementById('connLabel').textContent = label;
+}
+
+// ── BACKEND ──
+function startBackend(cfg) {
+  stopBackend();
+  if (cfg.backendType === 'firebase') startFirebase(cfg);
+  else if (cfg.backendType === 'sheets') startSheets(cfg);
+}
+
+function stopBackend() {
+  if (pollInterval) { clearInterval(pollInterval); pollInterval = null; }
+  if (window._fbRef) { try { window._fbRef.off(); } catch(_) {} window._fbRef = null; }
+  if (window._fbReady) { try { firebase.app().delete(); } catch(_) {} window._fbReady = false; }
+}
+
+// ── FIREBASE ──
+function initFirebase(cfg) {
+  if (window._fbReady) return;
+  if (typeof firebase === 'undefined') throw new Error('Firebase SDK não carregado');
+  if (!cfg.fbUrl || !cfg.fbKey) throw new Error('Credenciais Firebase em falta');
+  const projectId = cfg.fbUrl.replace('https://','').split('-default-rtdb')[0];
+  firebase.initializeApp({apiKey: cfg.fbKey, databaseURL: cfg.fbUrl, projectId});
+  window._fbReady = true;
+}
+
+async function startFirebase(cfg) {
+  setConn('none', 'A ligar ao Firebase…');
   try {
-    initFirebase();
-    await firebase.database().ref('config/tableCount').once('value');
-    setConnWarning(false);
-  } catch(e) {
-    setConnWarning(true);
-  }
-  // Sincroniza número de mesas em background
-  syncTableCount();
-  // Carrega menu da sheet se configurado
-  if (MENU_SHEET_ID) loadMenu(MENU_SHEET_ID, MENU_SHEET_NAME);
-}
+    initFirebase(cfg);
+    const db = firebase.database();
 
-function populateTableSelects() {
-  ['landTableSel','chgTableSel','cartTableSel'].forEach(id => {
-    const s = document.getElementById(id);
-    const prev = s.value;
-    s.innerHTML = id === 'landTableSel' ? '<option value="">— Escolhe a mesa —</option>' : '';
-    TABLES.forEach((t,i) => { const o = document.createElement('option'); o.value=i; o.textContent=t; s.appendChild(o); });
-    if (prev !== '') s.value = prev;
-  });
-}
-
-function setConnWarning(show) {
-  document.getElementById('warnBox').style.display = show ? 'block' : 'none';
-}
-
-async function syncTableCount() {
-  try {
-    initFirebase();
-    const snap = await firebase.database().ref('config/tableCount').once('value');
-    const count = snap.val();
-    if (count && typeof count === 'number' && count > 0) {
-      TABLES = Array.from({length:count}, (_,i) => `Mesa ${i+1}`);
-      populateTableSelects();
-    }
-  } catch(e) { /* silencioso — fica com o número de mesas atual */ }
-}
-
-// ── SCREENS ──
-function showScreen(id) {
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-}
-
-function goToMenu() {
-  const s = document.getElementById('landTableSel');
-  if (s.value === '') { s.style.borderColor='var(--red)'; setTimeout(()=>s.style.borderColor='',1500); return; }
-  selectedTable = parseInt(s.value);
-  updateLabels();
-  showScreen('screen-menu');
-  updateCartUI();
-  if (MENU_SHEET_ID) loadMenu(MENU_SHEET_ID, MENU_SHEET_NAME);
-}
-
-function updateLabels() {
-  const n = TABLES[selectedTable];
-  document.getElementById('tableLabel').textContent = n;
-  document.getElementById('heroTable').textContent = n;
-  document.getElementById('cartTableSel').value = selectedTable;
-  document.getElementById('chgTableSel').value = selectedTable;
-}
-
-function backToMenu() { cart = {}; updateCartUI(); showScreen('screen-menu'); }
-
-function toggleChgBar() {
-  const b = document.getElementById('chgBar');
-  const opening = b.classList.toggle('open');
-  if (opening) {
-    document.getElementById('chgTableSel').value = selectedTable;
-    syncTableCount();
-  }
-}
-
-function resetCartQtys() {
-  Object.keys(cart).forEach(id => { const el = document.getElementById('qty-'+id); if (el) el.textContent = '0'; });
-}
-
-function confirmChg() {
-  selectedTable = parseInt(document.getElementById('chgTableSel').value);
-  updateLabels();
-  document.getElementById('chgBar').classList.remove('open');
-  resetCartQtys(); cart = {}; updateCartUI();
-}
-
-function onCartTableChange() {
-  selectedTable = parseInt(document.getElementById('cartTableSel').value);
-  updateLabels();
-  resetCartQtys(); cart = {}; updateCartUI();
-  closeCart();
-}
-
-// ── MENU ──
-async function loadMenu(id, sheet) {
-  showMenuState('loading');
-  try {
-    const res = await fetch(`https://docs.google.com/spreadsheets/d/${id}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(sheet)}`);
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-    const parsed = parseCSV(await res.text());
-    if (!parsed.length) throw new Error('Sem dados');
-    MENU = csvToMenu(parsed);
-    renderMenu();
-    showMenuState(null);
-  } catch(e) { showMenuState('error', e.message); }
-}
-
-function parseCSV(text) {
-  const lines = text.trim().split('\n');
-  const hdr = splitLine(lines[0]).map(h => h.toLowerCase().trim().replace(/^"|"$/g,''));
-  return lines.slice(1).map(l => {
-    const v = splitLine(l); const r = {};
-    hdr.forEach((h,i) => r[h] = (v[i]||'').replace(/^"|"$/g,'').trim());
-    return r;
-  }).filter(r => r.name);
-}
-function splitLine(l) {
-  const r=[]; let c=''; let q=false;
-  for (let i=0;i<l.length;i++) { const ch=l[i]; if(ch==='"'){q=!q;}else if(ch===','&&!q){r.push(c);c='';}else c+=ch; }
-  r.push(c); return r;
-}
-function csvToMenu(rows) {
-  const cats = {};
-  rows.forEach((r,i) => {
-    const cat = r.cat || 'Outros';
-    const price = parseFloat((r.price||'0').replace(',','.')) || 0;
-    if (!cats[cat]) cats[cat] = {cat, items:[]};
-    cats[cat].items.push({id: parseInt(r.id)||(i+1), name:r.name, desc:r.desc||'', price});
-  });
-  return Object.values(cats);
-}
-
-function showMenuState(state, msg) {
-  const mb = document.getElementById('menuBody');
-  const cs = document.getElementById('catScroll');
-  if (state === 'loading') {
-    cs.innerHTML = '';
-    mb.innerHTML = `<div class="menu-state"><div class="spinner"></div><div class="menu-state-title">A carregar menu…</div></div>`;
-  } else if (state === 'error') {
-    mb.innerHTML = `<div class="menu-state"><div style="font-size:2rem">⚠️</div><div class="menu-state-title">Erro ao carregar</div><div class="menu-state-sub">${msg}</div><button class="btn-retry" onclick="renderMenu()">Usar menu de exemplo</button></div>`;
-  }
-}
-
-function renderMenu() {
-  const cs = document.getElementById('catScroll');
-  const mb = document.getElementById('menuBody');
-  cs.innerHTML = ''; mb.innerHTML = '';
-  MENU.forEach((sec, si) => {
-    const btn = document.createElement('button');
-    btn.className = 'cat-btn' + (si===0?' active':'');
-    btn.textContent = sec.cat;
-    btn.onclick = () => {
-      document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      document.getElementById('sec-'+si).scrollIntoView({behavior:'smooth', block:'start'});
-    };
-    cs.appendChild(btn);
-    const sd = document.createElement('div');
-    sd.className = 'menu-section'; sd.id = 'sec-'+si;
-    sd.innerHTML = `<div class="section-title">${sec.cat}</div>`;
-    sec.items.forEach(item => {
-      const c = document.createElement('div'); c.className = 'item-card';
-      c.innerHTML = `<div class="item-info"><div class="item-name">${item.name}</div><div class="item-desc">${item.desc}</div><div class="item-price">${fmt(item.price)}</div></div><div class="item-ctrl"><button class="qty-btn qty-minus" onclick="changeQty(${item.id},-1)">−</button><span class="qty-count" id="qty-${item.id}">0</span><button class="qty-btn qty-plus" onclick="changeQty(${item.id},+1)">+</button></div>`;
-      sd.appendChild(c);
+    // Ouve tableCount em tempo real
+    db.ref('config/tableCount').on('value', snap => {
+      const val = snap.val();
+      if (val && typeof val === 'number') {
+        liveTableCount = val;
+        populateTableFilter();
+        const el = document.getElementById('tableCount');
+        if (el) el.value = val;
+      }
     });
-    mb.appendChild(sd);
-  });
+
+    // Ouve pedidos em tempo real
+    const ref = db.ref('orders');
+    window._fbRef = ref;
+    let firstLoad = true;
+    ref.on('value', snap => {
+      const val = snap.val();
+      const prev = orders.filter(o => o.status !== 'delivered').length;
+      orders = val
+        ? Object.values(val).map(o => ({
+            ...o,
+            num:   Number(o.num),
+            table: Number(o.table),
+            total: Number(o.total),
+            items: typeof o.items === 'string' ? JSON.parse(o.items) : o.items,
+            time:  new Date(o.time)
+          })).sort((a,b) => b.num - a.num)
+        : [];
+      const newPending = orders.filter(o => o.status !== 'delivered').length;
+      if (!firstLoad && newPending > prev) notifyNewOrder();
+      firstLoad = false;
+      renderOrders();
+      setConn('ok', 'Firebase — ligado');
+    }, err => { setConn('err', 'Erro Firebase: ' + err.message); });
+  } catch(e) { setConn('err', 'Erro: ' + e.message); }
 }
 
-function changeQty(id, delta) {
-  cart[id] = Math.max(0, (cart[id]||0) + delta);
-  if (!cart[id]) delete cart[id];
-  const el = document.getElementById('qty-'+id); if (el) el.textContent = cart[id]||0;
-  updateCartUI();
-}
-
-function updateCartUI() {
-  const items = Object.entries(cart);
-  const total = items.reduce((s,[id,q]) => s + findItem(id).price*q, 0);
-  const count = items.reduce((s,[,q]) => s+q, 0);
-  document.getElementById('cartCount').textContent = count;
-  const bar = document.getElementById('cartBar');
-  if (count > 0) {
-    bar.classList.add('visible');
-    document.getElementById('cartBarItems').textContent = `${count} artigo${count>1?'s':''}`;
-    document.getElementById('cartBarTotal').textContent = fmt(total);
-  } else {
-    bar.classList.remove('visible');
+async function patchFirebase(num, status) {
+  try {
+    const cfg = getCfg();
+    initFirebase(cfg);
+    await firebase.database().ref('orders/' + num + '/status').set(status);
+  } catch(e) {
+    throw new Error('Erro ao atualizar Firebase: ' + e.message);
   }
 }
 
-// ── CART ──
-function openCart() {
-  document.getElementById('cartTableSel').value = selectedTable;
-  document.getElementById('cartOverlay').classList.add('open');
-  document.getElementById('cartPanel').classList.add('open');
-  renderCartPanel();
-}
-function closeCart() {
-  document.getElementById('cartOverlay').classList.remove('open');
-  document.getElementById('cartPanel').classList.remove('open');
-}
-function renderCartPanel() {
-  const c = document.getElementById('cartItems'); c.innerHTML = ''; let total = 0;
-  Object.entries(cart).forEach(([id,qty]) => {
-    const item = findItem(id); const sub = item.price*qty; total += sub;
-    const row = document.createElement('div'); row.className = 'cart-item-row';
-    row.innerHTML = `<div class="cart-item-qty">${qty}</div><div class="cart-item-name">${item.name}</div><div class="cart-item-price">${fmt(sub)}</div><button class="cart-item-del" onclick="removeFromCart(${id})">✕</button>`;
-    c.appendChild(row);
-  });
-  document.getElementById('cartTotal').textContent = fmt(total);
-  document.getElementById('btnOrder').disabled = Object.keys(cart).length === 0;
-}
-function removeFromCart(id) {
-  delete cart[id];
-  const el = document.getElementById('qty-'+id); if (el) el.textContent = '0';
-  updateCartUI(); renderCartPanel();
-  if (!Object.keys(cart).length) closeCart();
+async function testFirebase() {
+  const el = document.getElementById('testResult');
+  el.className = 'test-result'; el.textContent = 'A testar…'; el.style.display = 'block';
+  const url = document.getElementById('fbUrl').value.trim().replace(/\/+$/,'');
+  const key = document.getElementById('fbKey').value.trim();
+  if (!url || !key) { el.className='test-result test-err'; el.textContent='✗ Preenche o URL e a API Key primeiro'; return; }
+  let testApp = null;
+  try {
+    const projectId = url.replace('https://','').split('-default-rtdb')[0];
+    testApp = firebase.initializeApp({apiKey:key, databaseURL:url, projectId}, 'test-' + Date.now());
+    const snap = await testApp.database().ref('config/tableCount').once('value');
+    const val = snap.val();
+    el.className = 'test-result test-ok';
+    el.textContent = val !== null ? `✓ Ligação OK — ${val} mesas configuradas` : '✓ Ligação OK — a ligar…';
+    // Ligação bem-sucedida: usa estas credenciais
+    await testApp.delete(); testApp = null;
+    const cfg = getCfg();
+    cfg.fbUrl = url; cfg.fbKey = key;
+    setCfg(cfg);
+    stopBackend();
+    startBackend(cfg);
+    el.textContent = val !== null ? `✓ Ligado — ${val} mesas configuradas` : '✓ Ligado ao Firebase';
+  } catch(e) {
+    const msg = e.code === 'PERMISSION_DENIED'
+      ? '✗ Sem permissão — adiciona .read:true ao nó config nas regras do Firebase'
+      : '✗ ' + (e.message || e.code || 'Erro desconhecido');
+    el.className = 'test-result test-err'; el.textContent = msg;
+  } finally {
+    if (testApp) try { await testApp.delete(); } catch(_) {}
+  }
 }
 
-async function submitOrder() {
-  const btn = document.getElementById('btnOrder');
-  btn.disabled = true; btn.textContent = 'A enviar…';
-  const note  = document.getElementById('cartNote').value.trim();
-  const items = Object.entries(cart).map(([id,qty]) => { const i=findItem(id); return {id, name:i.name, qty, price:i.price}; });
-  const total = items.reduce((s,i) => s + i.price*i.qty, 0);
-  let num;
+// ── SHEETS ──
+function startSheets(cfg) {
+  setConn('none', 'A ligar ao Google Sheets…');
+  let lastNums = new Set();
+  async function poll() {
+    try {
+      const res = await fetch(cfg.scriptUrl + '?t=' + Date.now());
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const rows = await res.json();
+      if (!Array.isArray(rows)) throw new Error('Resposta inválida');
+      const fetched = rows.map(r => ({
+        ...r,
+        num:   Number(r.num),
+        table: Number(r.table),
+        total: Number(r.total),
+        items: typeof r.items === 'string' ? JSON.parse(r.items) : r.items,
+        time:  new Date(r.time)
+      })).sort((a,b) => b.num - a.num);
+      const localMap = Object.fromEntries(orders.map(o => [o.num, o.status]));
+      orders = fetched.map(o => ({...o, status: localMap[o.num] || o.status}));
+      const newNums = new Set(orders.map(o => o.num));
+      let hasNew = false;
+      newNums.forEach(n => { if (!lastNums.has(n)) hasNew = true; });
+      if (lastNums.size > 0 && hasNew) notifyNewOrder();
+      lastNums = newNums;
+      renderOrders();
+      setConn('ok', `Google Sheets — ${new Date().toLocaleTimeString('pt',{hour:'2-digit',minute:'2-digit'})}`);
+    } catch(e) { setConn('err', 'Erro: ' + e.message); }
+  }
+  poll();
+  pollInterval = setInterval(poll, 5000);
+}
+
+async function patchSheets(num, status) {
+  const o = orders.find(o => o.num === num);
+  if (o) { o.status = status; renderOrders(); }
+  const cfg = getCfg();
   try {
-    num = await getNextOrderNum();
+    await fetch(cfg.scriptUrl, {method:'POST', body: JSON.stringify({action:'update', num, status})});
   } catch(e) {
-    btn.disabled = false; btn.textContent = 'Confirmar Pedido';
-    alert('Erro ao obter número do pedido: ' + e.message);
+    const prev = {new:'preparing', preparing:'new', delivered:'preparing'}[status] || 'new';
+    if (o) { o.status = prev; renderOrders(); }
+    alert('Erro ao atualizar pedido: ' + e.message);
+  }
+}
+
+async function testSheets() {
+  const el = document.getElementById('testResultSh');
+  el.className = 'test-result'; el.textContent = 'A testar…'; el.style.display = 'block';
+  try {
+    const url = document.getElementById('scriptUrl').value.trim();
+    if (!url) throw new Error('Preenche o URL do Apps Script primeiro');
+    const res = await fetch(url + '?t=' + Date.now());
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+    if (!Array.isArray(data)) throw new Error('Resposta inesperada — verifica o script');
+    el.className = 'test-result test-ok';
+    el.textContent = `✓ Ligação OK — ${data.length} pedidos encontrados`;
+  } catch(e) { el.className = 'test-result test-err'; el.textContent = '✗ ' + e.message; }
+}
+
+// ── STATUS ──
+async function setStatus(num, status) {
+  if (status === 'delivered') {
+    const o = orders.find(o => o.num === num);
+    const T = tables();
+    askConfirm(
+      'Marcar como entregue?',
+      `${T[o.table] || 'Mesa ?'} · #${String(num).padStart(3,'0')}`,
+      () => doSetStatus(num, status)
+    );
+  } else {
+    await doSetStatus(num, status);
+  }
+}
+
+async function doSetStatus(num, status) {
+  const cfg = getCfg();
+  try {
+    if (cfg.backendType === 'firebase') await patchFirebase(num, status);
+    else if (cfg.backendType === 'sheets') await patchSheets(num, status);
+    else { const o = orders.find(o => o.num === num); if (o) { o.status = status; renderOrders(); } }
+  } catch(e) { alert(e.message); }
+}
+
+// ── CONFIRM ──
+function askConfirm(title, sub, onYes) {
+  document.getElementById('confirmTitle').textContent = title;
+  document.getElementById('confirmSub').textContent = sub;
+  document.getElementById('confirmYes').onclick = () => { closeConfirm(); onYes(); };
+  document.getElementById('confirmOverlay').classList.add('open');
+}
+function closeConfirm() { document.getElementById('confirmOverlay').classList.remove('open'); }
+
+// ── NOTIFY ──
+function notifyNewOrder() {
+  showToast();
+  if (navigator.vibrate) navigator.vibrate([200,100,200]);
+  try {
+    const ctx = new(window.AudioContext || window.webkitAudioContext)();
+    const gain = ctx.createGain();
+    gain.gain.value = 0.3;
+    gain.connect(ctx.destination);
+    function beep(freq, when) {
+      const osc = ctx.createOscillator();
+      osc.connect(gain);
+      osc.frequency.value = freq;
+      osc.start(when);
+      osc.stop(when + 0.15);
+    }
+    beep(880,  ctx.currentTime);
+    beep(1100, ctx.currentTime + 0.25);
+  } catch(e) {}
+}
+
+// ── RENDER ──
+function setFilter(f, btn) {
+  barFilter = f;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderOrders();
+}
+
+function renderOrders() {
+  const T = tables();
+  const c = document.getElementById('ordersList');
+  const tableF = document.getElementById('tableFilter').value;
+  const today = new Date().toDateString();
+  const filtered = orders.filter(o => {
+    if (barFilter !== 'all' && o.status !== barFilter) return false;
+    if (tableF !== 'all' && o.table !== parseInt(tableF)) return false;
+    return true;
+  });
+  document.getElementById('statPending').textContent = orders.filter(o => o.status === 'new' || o.status === 'preparing').length;
+  document.getElementById('statToday').textContent = orders.filter(o => o.time instanceof Date && o.time.toDateString() === today).length;
+  c.innerHTML = '';
+  if (!filtered.length) {
+    c.innerHTML = `<div class="empty"><div class="empty-icon">☕</div>Sem pedidos${barFilter !== 'all' || tableF !== 'all' ? ' com este filtro' : ''}.</div>`;
     return;
   }
-  const order = {num, table:selectedTable, items, total, note, status:'new', time: new Date().toISOString()};
-  try { await writeOrder(order); } catch(e) { console.warn(e.message); }
-  closeCart();
-  document.getElementById('cartNote').value = '';
-  resetCartQtys(); cart = {}; updateCartUI();
-  document.getElementById('orderNum').textContent = '#' + String(num).padStart(3,'0');
-  btn.disabled = false; btn.textContent = 'Confirmar Pedido';
-  showScreen('screen-success');
+  filtered.forEach(o => {
+    const card = document.createElement('div');
+    card.className = `order-card status-${o.status}`;
+    const bC = {new:'badge-new', preparing:'badge-preparing', delivered:'badge-delivered'}[o.status] || 'badge-new';
+    const bL = {new:'🔴 Novo', preparing:'🟡 Em preparação', delivered:'🟢 Entregue'}[o.status] || '🔴 Novo';
+    const t = o.time instanceof Date ? o.time.toLocaleTimeString('pt',{hour:'2-digit',minute:'2-digit'}) : String(o.time).slice(11,16);
+    const tableName = T[o.table] || `Mesa ${o.table + 1}`;
+    const numFmt = '#' + String(o.num).padStart(3,'0');
+    const ih = (o.items||[]).map(i => `<div class="order-item-line"><span class="order-item-name">${i.name}</span><span class="order-item-qty">×${i.qty}</span></div>`).join('');
+    let a = '';
+    if (o.status === 'new')
+      a = `<button class="act-btn act-prepare" onclick="setStatus(${o.num},'preparing')">Em preparação</button><button class="act-btn act-deliver" onclick="setStatus(${o.num},'delivered')">Entregue ✓</button>`;
+    else if (o.status === 'preparing')
+      a = `<button class="act-btn act-deliver" onclick="setStatus(${o.num},'delivered')">Entregue ✓</button><button class="act-btn act-undo" onclick="setStatus(${o.num},'new')">Repor</button>`;
+    else
+      a = `<button class="act-btn act-undo" onclick="setStatus(${o.num},'preparing')">Repor</button>`;
+    card.innerHTML = `
+      <div class="order-head">
+        <div><div class="order-num">${tableName} · ${numFmt}</div><div class="order-time">${t}</div></div>
+        <div class="badge ${bC}">${bL}</div>
+      </div>
+      <div class="order-items">${ih}</div>
+      ${o.note ? `<div class="order-note">📝 ${o.note}</div>` : ''}
+      <div class="order-foot"><div class="order-total">${fmt(o.total)}</div><div class="order-actions">${a}</div></div>`;
+    c.appendChild(card);
+  });
+}
+
+// ── CONFIG MODAL ──
+function openCfg() {
+  const cfg = getCfg();
+  selBackend(cfg.backendType || 'firebase');
+  document.getElementById('fbUrl').value = cfg.fbUrl || '';
+  document.getElementById('fbKey').value = cfg.fbKey || '';
+  document.getElementById('scriptUrl').value = cfg.scriptUrl || '';
+  document.getElementById('menuSheetId').value = cfg.sheetId || '';
+  document.getElementById('menuSheetName').value = cfg.sheetName || 'Menu';
+  document.getElementById('tableCount').value = liveTableCount;
+  document.getElementById('testResult').className = 'test-result';
+  document.getElementById('testResultSh').className = 'test-result';
+  document.getElementById('cfgModal').classList.add('open');
+}
+function closeCfg() { document.getElementById('cfgModal').classList.remove('open'); }
+function selBackend(type) {
+  selectedBackend = type;
+  document.getElementById('btnFb').classList.toggle('active', type === 'firebase');
+  document.getElementById('btnSh').classList.toggle('active', type === 'sheets');
+  document.getElementById('fbFields').style.display = type === 'firebase' ? 'block' : 'none';
+  document.getElementById('shFields').style.display = type === 'sheets' ? 'block' : 'none';
+}
+function toggleGuide() { document.getElementById('guideBody').classList.toggle('open'); }
+
+function saveCfg() {
+  if (selectedBackend === 'firebase' && (!document.getElementById('fbUrl').value.trim() || !document.getElementById('fbKey').value.trim())) {
+    alert('Preenche o URL e a API Key do Firebase.'); return;
+  }
+  if (selectedBackend === 'sheets' && !document.getElementById('scriptUrl').value.trim()) {
+    alert('Preenche o URL do Apps Script.'); return;
+  }
+  const newTableCount = parseInt(document.getElementById('tableCount').value) || TABLES_DEFAULT;
+  const cfg = {
+    backendType: selectedBackend,
+    fbUrl:       document.getElementById('fbUrl').value.trim(),
+    fbKey:       document.getElementById('fbKey').value.trim(),
+    scriptUrl:   document.getElementById('scriptUrl').value.trim(),
+    sheetId:     document.getElementById('menuSheetId').value.trim(),
+    sheetName:   document.getElementById('menuSheetName').value.trim() || 'Menu',
+    tableCount:  newTableCount,
+  };
+  setCfg(cfg);
+  closeCfg();
+  liveTableCount = newTableCount;
+  populateTableFilter();
+  stopBackend();
+  startBackend(cfg);
 }
 
 // ── UTILS ──
-function findItem(id) { return MENU.flatMap(s=>s.items).find(i=>i.id==id) || {name:'?',price:0}; }
-function fmt(n) { return n.toFixed(2).replace('.',',') + ' €'; }
+function showToast() { const t = document.getElementById('toast'); t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 3500); }
+function fmt(n) { return (+n||0).toFixed(2).replace('.',',') + ' €'; }
 
 init();
 </script>
