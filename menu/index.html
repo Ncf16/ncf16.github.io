@@ -96,7 +96,7 @@
   .land-select:focus{border-color:var(--green);}
   .land-select option{background:#333;}
   .land-btn-main{background:var(--green);color:white;border:none;border-radius:12px;padding:.9rem;font-family:'DM Sans',sans-serif;font-weight:700;font-size:1rem;cursor:pointer;}
-  .warn-box{background:rgba(192,57,43,.15);border:1px solid rgba(192,57,43,.3);border-radius:10px;padding:.75rem 1rem;color:#fca5a5;font-size:.8rem;line-height:1.5;text-align:left;}
+  .warn-box{background:rgba(192,57,43,.15);border:1px solid rgba(192,57,43,.3);border-radius:10px;padding:.75rem 1rem;color:#fca5a5;font-size:.8rem;line-height:1.5;text-align:left;display:none;}
   #screen-success{background:var(--dark);align-items:center;justify-content:center;text-align:center;padding:2rem;}
   .success-icon{font-size:4rem;margin-bottom:1rem;animation:pop .5s cubic-bezier(.34,1.56,.64,1);}
   @keyframes pop{from{transform:scale(0)}to{transform:scale(1)}}
@@ -119,7 +119,7 @@
   </div>
   <div class="land-sub">Seleciona a tua mesa e faz o pedido diretamente do telemóvel.</div>
   <div class="land-form">
-    <div id="warnBox" style="display:none;" class="warn-box">⚠️ Backend não configurado. Os pedidos não chegam ao bar.</div>
+    <div id="warnBox" class="warn-box">⚠️ Sem ligação ao servidor. Os pedidos podem não chegar ao bar.</div>
     <div class="land-field">
       <label>📍 Seleciona a tua mesa</label>
       <select class="land-select" id="landTableSel"><option value="">— Escolhe a mesa —</option></select>
@@ -204,102 +204,69 @@ const MENU_SHEET_ID   = '';
 const MENU_SHEET_NAME = 'Menu';
 // ══════════════════════════════════════════════
 
-function getCfg(){
-  return {
-    backendType: isConfigured() ? 'firebase' : null,
-    fbUrl:       FIREBASE_CONFIG.databaseURL,
-    fbKey:       FIREBASE_CONFIG.apiKey,
-    sheetId:     MENU_SHEET_ID,
-    sheetName:   MENU_SHEET_NAME,
-  };
-}
-
-function setConnWarning(show, msg) {
-  const box = document.getElementById('warnBox');
-  box.style.display = show ? 'block' : 'none';
-  if (msg) box.textContent = msg;
-}
-
 // ── STATE ──
-let TABLES = Array.from({length:12},(_,i)=>`Mesa ${i+1}`);
-const FALLBACK_MENU = [
-  {cat:"🥤 Bebidas Frias",items:[{id:1,name:"Água",desc:"50cl",price:1.5},{id:2,name:"Sumo Natural",desc:"Laranja ou maçã",price:2.5},{id:3,name:"Refrigerante",desc:"Coca-Cola, Sprite",price:2.0},{id:5,name:"Cerveja",desc:"Sagres mini",price:2.5}]},
-  {cat:"☕ Bebidas Quentes",items:[{id:7,name:"Café Expresso",desc:"Curto ou longo",price:1.0},{id:8,name:"Galão",desc:"Com leite quente",price:1.5}]},
-  {cat:"🍔 Snacks",items:[{id:11,name:"Tosta Mista",desc:"Fiambre e queijo",price:3.0},{id:13,name:"Prego no Pão",desc:"Bife de vaca",price:5.5}]},
+let TABLES = Array.from({length:12}, (_,i) => `Mesa ${i+1}`);
+let MENU = [
+  {cat:"🥤 Bebidas Frias", items:[
+    {id:1,  name:"Água",              desc:"50cl, com ou sem gás",          price:1.5},
+    {id:2,  name:"Sumo Natural",      desc:"Laranja ou maçã, 33cl",         price:2.5},
+    {id:3,  name:"Refrigerante",      desc:"Coca-Cola, Sprite, 7Up, 33cl",  price:2.0},
+    {id:4,  name:"Ice Tea",           desc:"Lipton pêssego ou limão, 33cl", price:2.0},
+    {id:5,  name:"Cerveja",           desc:"Sagres mini, 20cl",             price:2.5},
+    {id:6,  name:"Cerveja s/ álcool", desc:"Sagres 0.0%, 33cl",             price:2.5},
+  ]},
+  {cat:"☕ Bebidas Quentes", items:[
+    {id:7,  name:"Café Expresso",     desc:"Curto ou longo",                price:1.0},
+    {id:8,  name:"Galão",             desc:"Com leite quente",              price:1.5},
+    {id:9,  name:"Chá",               desc:"Várias opções disponíveis",     price:1.5},
+    {id:10, name:"Chocolate Quente",  desc:"Com chantilly",                 price:2.5},
+  ]},
+  {cat:"🍔 Snacks", items:[
+    {id:11, name:"Tosta Mista",       desc:"Fiambre e queijo, pão de forma",price:3.0},
+    {id:12, name:"Sandes de Atum",    desc:"Com alface e tomate",           price:3.5},
+    {id:13, name:"Prego no Pão",      desc:"Bife de vaca, pão de sementes", price:5.5},
+    {id:14, name:"Cachorro",          desc:"Salsicha, mostarda e ketchup",  price:3.0},
+  ]},
+  {cat:"🍰 Doces", items:[
+    {id:15, name:"Bolo do Dia",       desc:"Perguntar disponibilidade",     price:2.5},
+    {id:16, name:"Croissant",         desc:"Simples ou com manteiga",       price:1.5},
+    {id:17, name:"Banana",            desc:"Fruta fresca",                  price:1.0},
+    {id:18, name:"Barra de Cereal",   desc:"Muesli ou chocolate",           price:1.5},
+  ]},
+  {cat:"🏋️ Recuperação", items:[
+    {id:19, name:"Bebida Isotónica",  desc:"Powerade, várias cores",        price:2.5},
+    {id:20, name:"Batido de Proteína",desc:"Chocolate ou baunilha",         price:4.5},
+    {id:21, name:"Barra Proteína",    desc:"Snickers Protein ou similar",   price:3.0},
+  ]},
 ];
-let MENU = FALLBACK_MENU;
 let selectedTable = 0;
 let cart = {};
 let localCounter = 0;
 
-function isConfigured() {
-  return FIREBASE_CONFIG.apiKey !== 'AIzaSy...'
-    && !FIREBASE_CONFIG.databaseURL.includes('SEU-PROJETO');
-}
-
 // ── FIREBASE ──
 function initFirebase() {
   if (window._fbReady) return;
-  if (!isConfigured()) throw new Error('Credenciais Firebase por configurar');
-  const cfg = getCfg();
   if (typeof firebase === 'undefined') throw new Error('Firebase SDK não carregado');
-  const projectId = cfg.fbUrl.replace('https://','').split('-default-rtdb')[0];
-  firebase.initializeApp({apiKey: cfg.fbKey, databaseURL: cfg.fbUrl, projectId});
+  if (!FIREBASE_CONFIG.apiKey || !FIREBASE_CONFIG.databaseURL) throw new Error('Firebase não configurado');
+  const projectId = FIREBASE_CONFIG.databaseURL.replace('https://','').split('-default-rtdb')[0];
+  firebase.initializeApp({apiKey: FIREBASE_CONFIG.apiKey, databaseURL: FIREBASE_CONFIG.databaseURL, projectId});
   window._fbReady = true;
 }
 
-// Lê tableCount — usa localStorage imediatamente, depois sincroniza com Firebase
-async function syncTableCount() {
-  const cfg = getCfg();
-
-  // Aplica valor local imediatamente para não bloquear o UI
-  const localCount = cfg.tableCount || 12;
-  applyTableCount(localCount);
-
-  // Tenta sincronizar com Firebase em background
-  if (cfg.backendType !== 'firebase' || !cfg.fbUrl || !cfg.fbKey) return;
+async function getNextOrderNum() {
   try {
     initFirebase();
-    const snap = await firebase.database().ref('config/tableCount').once('value');
-    const count = snap.val();
-    if (count && typeof count === 'number' && count > 0 && count !== localCount) {
-      applyTableCount(count);
-    }
-  } catch(e) {
-    // Firebase não disponível — fica com o valor local, sem erro visível
-  }
-}
-
-function applyTableCount(count) {
-  TABLES = Array.from({length:count}, (_,i) => `Mesa ${i+1}`);
-  ['landTableSel','chgTableSel','cartTableSel'].forEach(id => {
-    const s = document.getElementById(id);
-    if (!s) return;
-    const prev = s.value;
-    s.innerHTML = id === 'landTableSel' ? '<option value="">— Escolhe a mesa —</option>' : '';
-    TABLES.forEach((t,i) => {
-      const o = document.createElement('option');
-      o.value = i; o.textContent = t; s.appendChild(o);
-    });
-    if (prev !== '') s.value = prev;
-  });
-}
-
-async function getNextOrderNum() {
-  const cfg = getCfg();
-  if (cfg.backendType === 'firebase') {
-    initFirebase();
     const result = await firebase.database().ref('orderCounter').transaction(cur => (cur || 0) + 1);
-    if (!result.committed) throw new Error('Falha ao obter número do pedido');
+    if (!result.committed) throw new Error('Transação não confirmada');
     return result.snapshot.val();
+  } catch(e) {
+    console.warn('Fallback para contador local:', e.message);
+    return ++localCounter;
   }
-  // Fallback local
-  return ++localCounter;
 }
 
 async function writeOrder(order) {
-  const cfg = getCfg();
-  if (cfg.backendType === 'firebase') {
+  try {
     initFirebase();
     await firebase.database().ref('orders/' + order.num).set({
       num:   order.num,
@@ -308,54 +275,69 @@ async function writeOrder(order) {
       time:  order.time,
       note:  order.note || '',
       total: order.total,
-      items: JSON.stringify(order.items)
+      items: JSON.stringify(order.items),
     });
-  } else if (cfg.backendType === 'sheets') {
-    await fetch(cfg.scriptUrl, {method:'POST', body: JSON.stringify({action:'add', ...order})});
+  } catch(e) {
+    throw new Error('Erro ao enviar pedido: ' + e.message);
   }
 }
 
 // ── INIT ──
-// ── INIT — síncrono: UI imediata, sem await ──
 function init() {
-  ['landTableSel','chgTableSel','cartTableSel'].forEach(id => {
-    const s = document.getElementById(id);
-    s.innerHTML = id === 'landTableSel' ? '<option value="">— Escolhe a mesa —</option>' : '';
-    TABLES.forEach((t,i) => {
-      const o = document.createElement('option');
-      o.value = i; o.textContent = t; s.appendChild(o);
-    });
-  });
-
-  // Renderiza o menu de fallback imediatamente — síncrono, nunca falha
+  // Popula dropdowns imediatamente
+  populateTableSelects();
+  // Renderiza menu de fallback imediatamente — síncrono, nunca falha
   renderMenu();
-
-  // Tudo o resto em background — erros não afetam o UI
+  // Async em background — erros não afetam o UI
   initAsync();
 }
 
 async function initAsync() {
-  // Carrega menu da sheet se configurado
-  try {
-    const cfg = getCfg();
-    if (cfg.sheetId) await loadMenu(cfg.sheetId, cfg.sheetName || 'Menu');
-  } catch(e) { /* fallback já está visível */ }
-
-  // Sincroniza número de mesas
-  try { await syncTableCount(); } catch(e) {}
-
-  // Testa ligação Firebase
+  // Testa ligação Firebase e mostra aviso se falhar
   try {
     initFirebase();
     await firebase.database().ref('config/tableCount').once('value');
     setConnWarning(false);
   } catch(e) {
-    setConnWarning(true, '⚠️ Sem ligação ao servidor. Os pedidos podem não chegar ao bar.');
+    setConnWarning(true);
   }
+  // Sincroniza número de mesas em background
+  syncTableCount();
+  // Carrega menu da sheet se configurado
+  if (MENU_SHEET_ID) loadMenu(MENU_SHEET_ID, MENU_SHEET_NAME);
+}
+
+function populateTableSelects() {
+  ['landTableSel','chgTableSel','cartTableSel'].forEach(id => {
+    const s = document.getElementById(id);
+    const prev = s.value;
+    s.innerHTML = id === 'landTableSel' ? '<option value="">— Escolhe a mesa —</option>' : '';
+    TABLES.forEach((t,i) => { const o = document.createElement('option'); o.value=i; o.textContent=t; s.appendChild(o); });
+    if (prev !== '') s.value = prev;
+  });
+}
+
+function setConnWarning(show) {
+  document.getElementById('warnBox').style.display = show ? 'block' : 'none';
+}
+
+async function syncTableCount() {
+  try {
+    initFirebase();
+    const snap = await firebase.database().ref('config/tableCount').once('value');
+    const count = snap.val();
+    if (count && typeof count === 'number' && count > 0) {
+      TABLES = Array.from({length:count}, (_,i) => `Mesa ${i+1}`);
+      populateTableSelects();
+    }
+  } catch(e) { /* silencioso — fica com o número de mesas atual */ }
 }
 
 // ── SCREENS ──
-function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');}
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
 
 function goToMenu() {
   const s = document.getElementById('landTableSel');
@@ -364,8 +346,7 @@ function goToMenu() {
   updateLabels();
   showScreen('screen-menu');
   updateCartUI();
-  const cfg = getCfg();
-  if (cfg.sheetId) loadMenu(cfg.sheetId, cfg.sheetName || 'Menu');
+  if (MENU_SHEET_ID) loadMenu(MENU_SHEET_ID, MENU_SHEET_NAME);
 }
 
 function updateLabels() {
@@ -376,19 +357,19 @@ function updateLabels() {
   document.getElementById('chgTableSel').value = selectedTable;
 }
 
-function backToMenu() { cart={}; updateCartUI(); showScreen('screen-menu'); }
+function backToMenu() { cart = {}; updateCartUI(); showScreen('screen-menu'); }
 
 function toggleChgBar() {
   const b = document.getElementById('chgBar');
   const opening = b.classList.toggle('open');
   if (opening) {
     document.getElementById('chgTableSel').value = selectedTable;
-    syncTableCount(); // refresh silencioso em background
+    syncTableCount();
   }
 }
 
 function resetCartQtys() {
-  Object.keys(cart).forEach(id => { const el = document.getElementById('qty-'+id); if (el) el.textContent='0'; });
+  Object.keys(cart).forEach(id => { const el = document.getElementById('qty-'+id); if (el) el.textContent = '0'; });
 }
 
 function confirmChg() {
@@ -413,37 +394,67 @@ async function loadMenu(id, sheet) {
     if (!res.ok) throw new Error('HTTP ' + res.status);
     const parsed = parseCSV(await res.text());
     if (!parsed.length) throw new Error('Sem dados');
-    MENU = csvToMenu(parsed); renderMenu(); showMenuState(null);
+    MENU = csvToMenu(parsed);
+    renderMenu();
+    showMenuState(null);
   } catch(e) { showMenuState('error', e.message); }
 }
 
 function parseCSV(text) {
   const lines = text.trim().split('\n');
-  const hdr = splitLine(lines[0]).map(h=>h.toLowerCase().trim().replace(/^"|"$/g,''));
-  return lines.slice(1).map(l=>{const v=splitLine(l);const r={};hdr.forEach((h,i)=>r[h]=(v[i]||'').replace(/^"|"$/g,'').trim());return r;}).filter(r=>r.name);
+  const hdr = splitLine(lines[0]).map(h => h.toLowerCase().trim().replace(/^"|"$/g,''));
+  return lines.slice(1).map(l => {
+    const v = splitLine(l); const r = {};
+    hdr.forEach((h,i) => r[h] = (v[i]||'').replace(/^"|"$/g,'').trim());
+    return r;
+  }).filter(r => r.name);
 }
-function splitLine(l){const r=[];let c='';let q=false;for(let i=0;i<l.length;i++){const ch=l[i];if(ch==='"'){q=!q;}else if(ch===','&&!q){r.push(c);c='';}else c+=ch;}r.push(c);return r;}
-function csvToMenu(rows){const cats={};rows.forEach((r,i)=>{const cat=r.cat||'Outros';const price=parseFloat((r.price||'0').replace(',','.'))||0;if(!cats[cat])cats[cat]={cat,items:[]};cats[cat].items.push({id:parseInt(r.id)||(i+1),name:r.name,desc:r.desc||'',price});});return Object.values(cats);}
+function splitLine(l) {
+  const r=[]; let c=''; let q=false;
+  for (let i=0;i<l.length;i++) { const ch=l[i]; if(ch==='"'){q=!q;}else if(ch===','&&!q){r.push(c);c='';}else c+=ch; }
+  r.push(c); return r;
+}
+function csvToMenu(rows) {
+  const cats = {};
+  rows.forEach((r,i) => {
+    const cat = r.cat || 'Outros';
+    const price = parseFloat((r.price||'0').replace(',','.')) || 0;
+    if (!cats[cat]) cats[cat] = {cat, items:[]};
+    cats[cat].items.push({id: parseInt(r.id)||(i+1), name:r.name, desc:r.desc||'', price});
+  });
+  return Object.values(cats);
+}
 
 function showMenuState(state, msg) {
-  const mb = document.getElementById('menuBody'), cs = document.getElementById('catScroll');
-  if (state==='loading') { cs.innerHTML=''; mb.innerHTML=`<div class="menu-state"><div class="spinner"></div><div class="menu-state-title">A carregar menu…</div></div>`; }
-  else if (state==='error') { mb.innerHTML=`<div class="menu-state"><div style="font-size:2rem">⚠️</div><div class="menu-state-title">Erro ao carregar</div><div class="menu-state-sub">${msg}</div><button class="btn-retry" onclick="useFallback()">Usar menu de exemplo</button></div>`; }
+  const mb = document.getElementById('menuBody');
+  const cs = document.getElementById('catScroll');
+  if (state === 'loading') {
+    cs.innerHTML = '';
+    mb.innerHTML = `<div class="menu-state"><div class="spinner"></div><div class="menu-state-title">A carregar menu…</div></div>`;
+  } else if (state === 'error') {
+    mb.innerHTML = `<div class="menu-state"><div style="font-size:2rem">⚠️</div><div class="menu-state-title">Erro ao carregar</div><div class="menu-state-sub">${msg}</div><button class="btn-retry" onclick="renderMenu()">Usar menu de exemplo</button></div>`;
+  }
 }
-function useFallback(){ MENU=FALLBACK_MENU; renderMenu(); }
 
 function renderMenu() {
-  const cs = document.getElementById('catScroll'), mb = document.getElementById('menuBody');
-  cs.innerHTML=''; mb.innerHTML='';
-  MENU.forEach((sec,si) => {
+  const cs = document.getElementById('catScroll');
+  const mb = document.getElementById('menuBody');
+  cs.innerHTML = ''; mb.innerHTML = '';
+  MENU.forEach((sec, si) => {
     const btn = document.createElement('button');
-    btn.className = 'cat-btn'+(si===0?' active':''); btn.textContent = sec.cat;
-    btn.onclick = () => { document.querySelectorAll('.cat-btn').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); document.getElementById('sec-'+si).scrollIntoView({behavior:'smooth',block:'start'}); };
+    btn.className = 'cat-btn' + (si===0?' active':'');
+    btn.textContent = sec.cat;
+    btn.onclick = () => {
+      document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('sec-'+si).scrollIntoView({behavior:'smooth', block:'start'});
+    };
     cs.appendChild(btn);
-    const sd = document.createElement('div'); sd.className='menu-section'; sd.id='sec-'+si;
+    const sd = document.createElement('div');
+    sd.className = 'menu-section'; sd.id = 'sec-'+si;
     sd.innerHTML = `<div class="section-title">${sec.cat}</div>`;
     sec.items.forEach(item => {
-      const c = document.createElement('div'); c.className='item-card';
+      const c = document.createElement('div'); c.className = 'item-card';
       c.innerHTML = `<div class="item-info"><div class="item-name">${item.name}</div><div class="item-desc">${item.desc}</div><div class="item-price">${fmt(item.price)}</div></div><div class="item-ctrl"><button class="qty-btn qty-minus" onclick="changeQty(${item.id},-1)">−</button><span class="qty-count" id="qty-${item.id}">0</span><button class="qty-btn qty-plus" onclick="changeQty(${item.id},+1)">+</button></div>`;
       sd.appendChild(c);
     });
@@ -452,7 +463,7 @@ function renderMenu() {
 }
 
 function changeQty(id, delta) {
-  cart[id] = Math.max(0,(cart[id]||0)+delta);
+  cart[id] = Math.max(0, (cart[id]||0) + delta);
   if (!cart[id]) delete cart[id];
   const el = document.getElementById('qty-'+id); if (el) el.textContent = cart[id]||0;
   updateCartUI();
@@ -460,12 +471,17 @@ function changeQty(id, delta) {
 
 function updateCartUI() {
   const items = Object.entries(cart);
-  const total = items.reduce((s,[id,q])=>s+findItem(id).price*q, 0);
-  const count = items.reduce((s,[,q])=>s+q, 0);
+  const total = items.reduce((s,[id,q]) => s + findItem(id).price*q, 0);
+  const count = items.reduce((s,[,q]) => s+q, 0);
   document.getElementById('cartCount').textContent = count;
   const bar = document.getElementById('cartBar');
-  if (count>0) { bar.classList.add('visible'); document.getElementById('cartBarItems').textContent=`${count} artigo${count>1?'s':''}`; document.getElementById('cartBarTotal').textContent=fmt(total); }
-  else bar.classList.remove('visible');
+  if (count > 0) {
+    bar.classList.add('visible');
+    document.getElementById('cartBarItems').textContent = `${count} artigo${count>1?'s':''}`;
+    document.getElementById('cartBarTotal').textContent = fmt(total);
+  } else {
+    bar.classList.remove('visible');
+  }
 }
 
 // ── CART ──
@@ -480,10 +496,10 @@ function closeCart() {
   document.getElementById('cartPanel').classList.remove('open');
 }
 function renderCartPanel() {
-  const c = document.getElementById('cartItems'); c.innerHTML=''; let total=0;
+  const c = document.getElementById('cartItems'); c.innerHTML = ''; let total = 0;
   Object.entries(cart).forEach(([id,qty]) => {
-    const item = findItem(id); const sub = item.price*qty; total+=sub;
-    const row = document.createElement('div'); row.className='cart-item-row';
+    const item = findItem(id); const sub = item.price*qty; total += sub;
+    const row = document.createElement('div'); row.className = 'cart-item-row';
     row.innerHTML = `<div class="cart-item-qty">${qty}</div><div class="cart-item-name">${item.name}</div><div class="cart-item-price">${fmt(sub)}</div><button class="cart-item-del" onclick="removeFromCart(${id})">✕</button>`;
     c.appendChild(row);
   });
@@ -492,7 +508,7 @@ function renderCartPanel() {
 }
 function removeFromCart(id) {
   delete cart[id];
-  const el = document.getElementById('qty-'+id); if (el) el.textContent='0';
+  const el = document.getElementById('qty-'+id); if (el) el.textContent = '0';
   updateCartUI(); renderCartPanel();
   if (!Object.keys(cart).length) closeCart();
 }
@@ -502,28 +518,28 @@ async function submitOrder() {
   btn.disabled = true; btn.textContent = 'A enviar…';
   const note  = document.getElementById('cartNote').value.trim();
   const items = Object.entries(cart).map(([id,qty]) => { const i=findItem(id); return {id, name:i.name, qty, price:i.price}; });
-  const total = items.reduce((s,i) => s+i.price*i.qty, 0);
+  const total = items.reduce((s,i) => s + i.price*i.qty, 0);
   let num;
   try {
     num = await getNextOrderNum();
   } catch(e) {
-    btn.disabled=false; btn.textContent='Confirmar Pedido';
+    btn.disabled = false; btn.textContent = 'Confirmar Pedido';
     alert('Erro ao obter número do pedido: ' + e.message);
     return;
   }
   const order = {num, table:selectedTable, items, total, note, status:'new', time: new Date().toISOString()};
-  try { await writeOrder(order); } catch(e) { console.warn('Erro ao escrever pedido:', e); }
+  try { await writeOrder(order); } catch(e) { console.warn(e.message); }
   closeCart();
   document.getElementById('cartNote').value = '';
   resetCartQtys(); cart = {}; updateCartUI();
   document.getElementById('orderNum').textContent = '#' + String(num).padStart(3,'0');
-  btn.disabled=false; btn.textContent='Confirmar Pedido';
+  btn.disabled = false; btn.textContent = 'Confirmar Pedido';
   showScreen('screen-success');
 }
 
 // ── UTILS ──
-function findItem(id){ return MENU.flatMap(s=>s.items).find(i=>i.id==id) || {name:'?',price:0}; }
-function fmt(n){ return n.toFixed(2).replace('.',',') + ' €'; }
+function findItem(id) { return MENU.flatMap(s=>s.items).find(i=>i.id==id) || {name:'?',price:0}; }
+function fmt(n) { return n.toFixed(2).replace('.',',') + ' €'; }
 
 init();
 </script>
