@@ -264,17 +264,27 @@ let liveTableCount = TABLES_DEFAULT;
 function getCfg() {
   try {
     const saved = JSON.parse(localStorage.getItem('barCfg') || '{}');
-    return {...DEFAULT_CONFIG, ...saved};
+    const merged = {...DEFAULT_CONFIG, ...saved};
+    // Se localStorage tiver strings vazias, usa os defaults
+    if (!merged.fbUrl) merged.fbUrl = DEFAULT_CONFIG.fbUrl;
+    if (!merged.fbKey) merged.fbKey = DEFAULT_CONFIG.fbKey;
+    if (!merged.backendType) merged.backendType = DEFAULT_CONFIG.backendType;
+    return merged;
   } catch(e) { return {...DEFAULT_CONFIG}; }
 }
 function setCfg(c) { localStorage.setItem('barCfg', JSON.stringify(c)); }
 function tables() { return Array.from({length: liveTableCount}, (_,i) => `Mesa ${i+1}`); }
 
 // ── INIT ──
-function init() {
+async function init() {
   populateTableFilter();
   const cfg = getCfg();
-  startBackend(cfg);
+  setConn('none', `A ligar (${cfg.backendType})…`);
+  try {
+    await startBackend(cfg);
+  } catch(e) {
+    setConn('err', 'Erro ao iniciar: ' + e.message);
+  }
   renderOrders();
 }
 
@@ -323,21 +333,20 @@ async function startFirebase(cfg) {
     initFirebase(cfg);
     const db = firebase.database();
 
+    // Escreve tableCount no Firebase (requer regra .write:true em /config/tableCount)
+    const savedCount = getCfg().tableCount || TABLES_DEFAULT;
+    db.ref('config/tableCount').set(savedCount).catch(() => {});
+
     // Ouve tableCount em tempo real
     db.ref('config/tableCount').on('value', snap => {
       const val = snap.val();
       if (val && typeof val === 'number') {
         liveTableCount = val;
         populateTableFilter();
-        // Actualiza o input nas configurações se estiver aberto
         const el = document.getElementById('tableCount');
         if (el) el.value = val;
       }
     });
-
-    // Escreve o tableCount configurado agora que o Firebase está pronto
-    const savedCount = getCfg().tableCount || TABLES_DEFAULT;
-    await db.ref('config/tableCount').set(savedCount);
 
     // Ouve pedidos em tempo real
     const ref = db.ref('orders');
@@ -394,8 +403,8 @@ async function testFirebase() {
     const cfg = getCfg();
     cfg.fbUrl = url; cfg.fbKey = key;
     setCfg(cfg);
-    stopBackend();
-    startBackend(cfg);
+    await stopBackend();
+    await startBackend(cfg);
     el.textContent = val !== null ? `✓ Ligado — ${val} mesas configuradas` : '✓ Ligado ao Firebase';
   } catch(e) {
     const msg = e.code === 'PERMISSION_DENIED'
