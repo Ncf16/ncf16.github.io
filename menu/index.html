@@ -316,12 +316,24 @@ async function writeOrder(order) {
 
 // ── INIT ──
 async function init() {
+  // 1. Popula dropdowns com valor default
   ['landTableSel','chgTableSel','cartTableSel'].forEach(id => {
     const s = document.getElementById(id);
     s.innerHTML = id === 'landTableSel' ? '<option value="">— Escolhe a mesa —</option>' : '';
     TABLES.forEach((t,i) => { const o = document.createElement('option'); o.value=i; o.textContent=t; s.appendChild(o); });
   });
-  // Testa ligação Firebase — mostra aviso se falhar
+
+  // 2. Renderiza o menu de fallback imediatamente — sempre visível
+  renderMenu();
+
+  // 3. Carrega menu da sheet em background (se configurado)
+  const cfg = getCfg();
+  if (cfg.sheetId) loadMenu(cfg.sheetId, cfg.sheetName || 'Menu');
+
+  // 4. Sincroniza tableCount do Firebase em background
+  syncTableCount();
+
+  // 5. Testa ligação Firebase — mostra aviso só se falhar
   try {
     initFirebase();
     await firebase.database().ref('config/tableCount').once('value');
@@ -329,10 +341,6 @@ async function init() {
   } catch(e) {
     setConnWarning(true, '⚠️ Sem ligação ao servidor. Os pedidos podem não chegar ao bar.');
   }
-  await syncTableCount();
-  const cfg = getCfg();
-  if (cfg.sheetId) loadMenu(cfg.sheetId, cfg.sheetName || 'Menu');
-  else renderMenu();
 }
 
 // ── SCREENS ──
