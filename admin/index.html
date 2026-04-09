@@ -364,6 +364,10 @@ async function startFirebase(cfg){
       }
     });
 
+    // Escreve o tableCount configurado (agora que o Firebase está pronto)
+    const savedCount = getCfg().tableCount || TABLES_DEFAULT;
+    await db.ref('config/tableCount').set(savedCount);
+
     // Ouve os pedidos em tempo real
     const ref=db.ref('orders');
     window._fbRef=ref;
@@ -418,7 +422,17 @@ async function testFirebase(){
     await testApp.delete(); testApp=null;
     const cfg=getCfg();
     cfg.fbUrl=url; cfg.fbKey=key;
-    setCfg(cfg);
+    const tableCount = parseInt(document.getElementById('tableCount').value)||TABLES_DEFAULT;
+  const cfg = {
+    backendType: selectedBackend,
+    fbUrl:    document.getElementById('fbUrl').value.trim(),
+    fbKey:    document.getElementById('fbKey').value.trim(),
+    scriptUrl:document.getElementById('scriptUrl').value.trim(),
+    sheetId:  document.getElementById('menuSheetId').value.trim(),
+    sheetName:document.getElementById('menuSheetName').value.trim()||'Menu',
+    tableCount,
+  };
+  setCfg(cfg);
     stopBackend();
     startBackend(cfg);
     el.textContent=val!==null?`✓ Ligado — ${val} mesas configuradas`:'✓ Ligado ao Firebase';
@@ -649,32 +663,12 @@ function saveCfg(){
   if(selectedBackend==='sheets' && !document.getElementById('scriptUrl').value.trim()){
     alert('Preenche o URL do Apps Script.'); return;
   }
-  const tableCount=parseInt(document.getElementById('tableCount').value)||TABLES_DEFAULT;
-  const cfg={
-    backendType: selectedBackend,
-    fbUrl:    document.getElementById('fbUrl').value.trim(),
-    fbKey:    document.getElementById('fbKey').value.trim(),
-    scriptUrl:document.getElementById('scriptUrl').value.trim(),
-    sheetId:  document.getElementById('menuSheetId').value.trim(),
-    sheetName:document.getElementById('menuSheetName').value.trim()||'Menu',
-    tableCount,
-  };
   setCfg(cfg);
   closeCfg();
-  liveTableCount=tableCount;
+  liveTableCount = tableCount;
   populateTableFilter();
   stopBackend();
   startBackend(cfg);
-  // Escreve tableCount no Firebase para sincronizar com a app do cliente
-  if(cfg.backendType==='firebase'){
-    // startBackend já inicializou o Firebase — aguarda um tick para garantir
-    setTimeout(()=>{
-      try{
-        if(window._fbReady)
-          firebase.database().ref('config/tableCount').set(tableCount);
-      }catch(e){console.warn('Erro ao guardar tableCount:',e.message);}
-    },500);
-  }
 }
 
 // ── UTILS ──
