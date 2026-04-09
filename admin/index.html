@@ -509,12 +509,30 @@ function askConfirm(title, sub, onYes) {
 }
 function closeConfirm() { document.getElementById('confirmOverlay').classList.remove('open'); }
 
-// ── NOTIFY ──
+// AudioContext criado na primeira interação do utilizador
+let _audioCtx = null;
+
+function getAudioCtx() {
+  if (!_audioCtx) {
+    _audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  }
+  return _audioCtx;
+}
+
+// Inicializa o AudioContext na primeira interação (qualquer clique na página)
+document.addEventListener('click', () => {
+  try {
+    const ctx = getAudioCtx();
+    if (ctx.state === 'suspended') ctx.resume();
+  } catch(_) {}
+}, { once: false });
+
 function notifyNewOrder() {
   showToast();
-  if (navigator.vibrate) navigator.vibrate([200,100,200]);
+  if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
   try {
-    const ctx = new(window.AudioContext || window.webkitAudioContext)();
+    const ctx = getAudioCtx();
+    if (ctx.state === 'suspended') { ctx.resume(); return; } // não toca se ainda suspenso
     const gain = ctx.createGain();
     gain.gain.value = 0.3;
     gain.connect(ctx.destination);
