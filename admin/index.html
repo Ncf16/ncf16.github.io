@@ -305,16 +305,19 @@ function setConn(type, label) {
 }
 
 // ── BACKEND ──
-function startBackend(cfg) {
-  stopBackend();
-  if (cfg.backendType === 'firebase') startFirebase(cfg);
+async function startBackend(cfg) {
+  await stopBackend();
+  if (cfg.backendType === 'firebase') await startFirebase(cfg);
   else if (cfg.backendType === 'sheets') startSheets(cfg);
 }
 
-function stopBackend() {
+async function stopBackend() {
   if (pollInterval) { clearInterval(pollInterval); pollInterval = null; }
   if (window._fbRef) { try { window._fbRef.off(); } catch(_) {} window._fbRef = null; }
-  if (window._fbReady) { try { firebase.app().delete(); } catch(_) {} window._fbReady = false; }
+  if (window._fbReady) {
+    window._fbReady = false;
+    try { await firebase.app().delete(); } catch(_) {}
+  }
 }
 
 // ── FIREBASE ──
@@ -333,11 +336,7 @@ async function startFirebase(cfg) {
     initFirebase(cfg);
     const db = firebase.database();
 
-    // Escreve tableCount no Firebase (requer regra .write:true em /config/tableCount)
-    const savedCount = getCfg().tableCount || TABLES_DEFAULT;
-    db.ref('config/tableCount').set(savedCount).catch(() => {});
-
-    // Ouve tableCount em tempo real
+    // Ouve tableCount em tempo real (só leitura — escrita acontece em saveCfg)
     db.ref('config/tableCount').on('value', snap => {
       const val = snap.val();
       if (val && typeof val === 'number') {
@@ -608,7 +607,7 @@ function selBackend(type) {
 }
 function toggleGuide() { document.getElementById('guideBody').classList.toggle('open'); }
 
-function saveCfg() {
+async function saveCfg() {
   if (selectedBackend === 'firebase' && (!document.getElementById('fbUrl').value.trim() || !document.getElementById('fbKey').value.trim())) {
     alert('Preenche o URL e a API Key do Firebase.'); return;
   }
@@ -629,8 +628,11 @@ function saveCfg() {
   closeCfg();
   liveTableCount = newTableCount;
   populateTableFilter();
-  stopBackend();
-  startBackend(cfg);
+  await startBackend(cfg);
+  // Firebase já está pronto — escreve tableCount agora
+  if (cfg.backendType === 'firebase' && window._fbReady) {
+    firebase.database().ref('config/tableCount').set(newTableCount).catch(e => console.warn('tableCount:', e.message));
+  }
 }
 
 // ── UTILS ──
