@@ -197,24 +197,27 @@
 // CONFIGURAÇÃO — edita apenas esta secção
 // ══════════════════════════════════════════════
 const FIREBASE_CONFIG = {
-  apiKey:      'AIzaSy...',           // Firebase Console → Definições → apiKey
+  apiKey:      'AIzaSy...',
   databaseURL: 'https://SEU-PROJETO-default-rtdb.europe-west1.firebasedatabase.app',
 };
-const MENU_SHEET_ID   = '';           // ID da Google Sheet do menu (opcional)
-const MENU_SHEET_NAME = 'Menu';       // Nome do separador do menu
+const MENU_SHEET_ID   = '';
+const MENU_SHEET_NAME = 'Menu';
 // ══════════════════════════════════════════════
 
-// getCfg() constrói o objeto de config a partir das constantes acima
-// para manter compatibilidade com o resto do código
 function getCfg(){
   return {
-    backendType: FIREBASE_CONFIG.apiKey && !FIREBASE_CONFIG.apiKey.startsWith('AIzaSy...')
-      ? 'firebase' : null,
-    fbUrl:    FIREBASE_CONFIG.databaseURL,
-    fbKey:    FIREBASE_CONFIG.apiKey,
-    sheetId:  MENU_SHEET_ID,
-    sheetName: MENU_SHEET_NAME,
+    backendType: 'firebase',
+    fbUrl:       FIREBASE_CONFIG.databaseURL,
+    fbKey:       FIREBASE_CONFIG.apiKey,
+    sheetId:     MENU_SHEET_ID,
+    sheetName:   MENU_SHEET_NAME,
   };
+}
+
+function setConnWarning(show, msg) {
+  const box = document.getElementById('warnBox');
+  box.style.display = show ? 'block' : 'none';
+  if (msg) box.textContent = msg;
 }
 
 // ── STATE ──
@@ -318,9 +321,16 @@ async function init() {
     s.innerHTML = id === 'landTableSel' ? '<option value="">— Escolhe a mesa —</option>' : '';
     TABLES.forEach((t,i) => { const o = document.createElement('option'); o.value=i; o.textContent=t; s.appendChild(o); });
   });
-  const cfg = getCfg();
-  if (!cfg.backendType) document.getElementById('warnBox').style.display = 'block';
+  // Testa ligação Firebase — mostra aviso se falhar
+  try {
+    initFirebase();
+    await firebase.database().ref('config/tableCount').once('value');
+    setConnWarning(false);
+  } catch(e) {
+    setConnWarning(true, '⚠️ Sem ligação ao servidor. Os pedidos podem não chegar ao bar.');
+  }
   await syncTableCount();
+  const cfg = getCfg();
   if (cfg.sheetId) loadMenu(cfg.sheetId, cfg.sheetName || 'Menu');
   else renderMenu();
 }
