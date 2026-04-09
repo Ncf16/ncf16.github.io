@@ -197,8 +197,8 @@
 // CONFIGURAÇÃO — edita apenas esta secção
 // ══════════════════════════════════════════════
 const FIREBASE_CONFIG = {
-  apiKey:      'AIzaSy...',
-  databaseURL: 'https://SEU-PROJETO-default-rtdb.europe-west1.firebasedatabase.app',
+  apiKey:      'AIzaSyCibZFX_qs38QLl3M61hmjgWDVd8_xJbzo',
+  databaseURL: 'https://testar-bar-default-rtdb.europe-west1.firebasedatabase.app',
 };
 const MENU_SHEET_ID   = '';
 const MENU_SHEET_NAME = 'Menu';
@@ -206,7 +206,7 @@ const MENU_SHEET_NAME = 'Menu';
 
 function getCfg(){
   return {
-    backendType: 'firebase',
+    backendType: isConfigured() ? 'firebase' : null,
     fbUrl:       FIREBASE_CONFIG.databaseURL,
     fbKey:       FIREBASE_CONFIG.apiKey,
     sheetId:     MENU_SHEET_ID,
@@ -232,12 +232,17 @@ let selectedTable = 0;
 let cart = {};
 let localCounter = 0;
 
+function isConfigured() {
+  return FIREBASE_CONFIG.apiKey !== 'AIzaSy...'
+    && !FIREBASE_CONFIG.databaseURL.includes('SEU-PROJETO');
+}
+
 // ── FIREBASE ──
 function initFirebase() {
   if (window._fbReady) return;
+  if (!isConfigured()) throw new Error('Credenciais Firebase por configurar');
   const cfg = getCfg();
   if (typeof firebase === 'undefined') throw new Error('Firebase SDK não carregado');
-  if (!cfg.fbUrl || !cfg.fbKey) throw new Error('Firebase não configurado');
   const projectId = cfg.fbUrl.replace('https://','').split('-default-rtdb')[0];
   firebase.initializeApp({apiKey: cfg.fbKey, databaseURL: cfg.fbUrl, projectId});
   window._fbReady = true;
@@ -259,10 +264,6 @@ async function syncTableCount() {
     const count = snap.val();
     if (count && typeof count === 'number' && count > 0 && count !== localCount) {
       applyTableCount(count);
-      // Guarda localmente para próxima vez
-      const updated = getCfg();
-      updated.tableCount = count;
-      localStorage.setItem('barCfg', JSON.stringify(updated));
     }
   } catch(e) {
     // Firebase não disponível — fica com o valor local, sem erro visível
