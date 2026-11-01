@@ -3,36 +3,41 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
 <title>Maia Racket Center — Gestão do Bar</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/common.css">
 <script src="https://cdn.jsdelivr.net/npm/firebase@10.12.0/firebase-app-compat.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/firebase@10.12.0/firebase-database-compat.min.js"></script>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/firebase@10.12.0/firebase-auth-compat.min.js"></script>
+<script src="../assets/common.js"></script>
 <style>
-  :root{--green:#787B63;--green-d:#5a5c49;--green-l:#C4C8B0;--green-ll:#E8EAE0;--dark:#2A2A2A;--sand:#D8D5C8;--gray:#8A8A8A;--red:#C0392B;--amber:#D97706;--ok:#3D7A45;}
-  *{box-sizing:border-box;margin:0;padding:0;}
-  body{font-family:'DM Sans',sans-serif;background:#1a1a1a;color:#eee;min-height:100vh;display:flex;flex-direction:column;}
-  .topbar{background:var(--dark);padding:.85rem 1.3rem;display:flex;align-items:center;justify-content:space-between;border-bottom:2px solid var(--green);flex-shrink:0;}
+  body{background:#1a1a1a;color:#eee;min-height:100vh;display:flex;flex-direction:column;}
+  .topbar{background:var(--dark);padding:.85rem 1.3rem;display:flex;align-items:center;justify-content:space-between;border-bottom:2px solid var(--green);flex-shrink:0;gap:.75rem;flex-wrap:wrap;}
   .topbar-brand{font-family:'DM Serif Display',serif;color:white;font-size:1.15rem;}
   .topbar-brand span{color:var(--green-l);font-size:.72rem;font-family:'DM Sans',sans-serif;display:block;font-weight:400;}
-  .topbar-right{display:flex;align-items:center;gap:.75rem;}
+  .topbar-right{display:flex;align-items:center;gap:.6rem;flex-wrap:wrap;}
   .stats{display:flex;gap:.75rem;}
   .stat{text-align:right;}
   .stat-val{color:white;font-weight:700;font-size:1.1rem;line-height:1;}
   .stat-label{color:var(--gray);font-size:.65rem;text-transform:uppercase;letter-spacing:.05em;}
-  .btn-cfg{background:transparent;border:1.5px solid #444;color:var(--gray);border-radius:8px;padding:.4rem .75rem;font-family:'DM Sans',sans-serif;font-size:.78rem;cursor:pointer;}
-  .btn-cfg:hover{border-color:var(--green-l);color:var(--green-l);}
-  .conn-bar{padding:.5rem 1.3rem;display:flex;align-items:center;gap:.5rem;font-size:.75rem;border-bottom:1px solid #2a2a2a;flex-shrink:0;}
+  .btn-top{background:transparent;border:1.5px solid #444;color:var(--gray);border-radius:8px;padding:.4rem .75rem;font-size:.78rem;cursor:pointer;white-space:nowrap;}
+  .btn-top:hover{border-color:var(--green-l);color:var(--green-l);}
+  .btn-top[hidden]{display:none;}
+  .conn-bar{padding:.5rem 1.3rem;display:flex;align-items:center;gap:.5rem;font-size:.75rem;border-bottom:1px solid #2a2a2a;flex-shrink:0;line-height:1.4;}
   .conn-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
   .conn-ok .conn-dot{background:#6EE7B7;box-shadow:0 0 6px #6EE7B7;}
   .conn-err .conn-dot{background:#fca5a5;}
+  .conn-warn .conn-dot{background:#FCD34D;box-shadow:0 0 6px #FCD34D;}
   .conn-none .conn-dot{background:#555;}
-  .conn-ok{color:#6EE7B7;}.conn-err{color:#fca5a5;}.conn-none{color:var(--gray);}
-  .filters{display:flex;gap:.5rem;padding:.7rem 1.3rem;background:var(--dark);border-bottom:1px solid #333;overflow-x:auto;scrollbar-width:none;flex-shrink:0;flex-wrap:wrap;}
+  .conn-ok{color:#6EE7B7;}.conn-err{color:#fca5a5;}.conn-warn{color:#FCD34D;}.conn-none{color:var(--gray);}
+  .filters{display:flex;gap:.5rem;padding:.7rem 1.3rem;background:var(--dark);border-bottom:1px solid #333;overflow-x:auto;scrollbar-width:none;flex-shrink:0;flex-wrap:wrap;align-items:center;}
   .filters::-webkit-scrollbar{display:none;}
-  .filter-btn{flex-shrink:0;padding:.3rem .8rem;border-radius:999px;border:1.5px solid #444;background:transparent;color:var(--gray);font-family:'DM Sans',sans-serif;font-size:.75rem;cursor:pointer;transition:all .15s;}
+  .filter-btn{flex-shrink:0;padding:.3rem .8rem;border-radius:999px;border:1.5px solid #444;background:transparent;color:var(--gray);font-size:.75rem;cursor:pointer;transition:all .15s;}
   .filter-btn.active{border-color:var(--green);background:var(--green);color:white;}
   .filter-sep{width:1px;background:#333;align-self:stretch;flex-shrink:0;}
-  .table-filter{flex-shrink:0;padding:.28rem .65rem;border-radius:999px;border:1.5px solid #444;background:transparent;color:var(--gray);font-family:'DM Sans',sans-serif;font-size:.75rem;cursor:pointer;outline:none;}
+  .table-filter{flex-shrink:0;padding:.28rem .65rem;border-radius:999px;border:1.5px solid #444;background:transparent;color:var(--gray);font-size:.75rem;cursor:pointer;outline:none;}
   .table-filter option{background:#1e1e1e;}
   .orders{flex:1;overflow-y:auto;padding:1rem 1.3rem;display:flex;flex-direction:column;gap:.8rem;}
   .order-card{background:#242424;border-radius:14px;overflow:hidden;border-left:4px solid var(--green);}
@@ -48,11 +53,11 @@
   .order-items{padding:0 1rem .5rem;border-bottom:1px solid #333;}
   .order-item-line{display:flex;justify-content:space-between;font-size:.82rem;padding:.25rem 0;}
   .order-item-name{color:#ccc;}.order-item-qty{color:var(--green-l);font-weight:600;}
-  .order-note{padding:.4rem 1rem;font-size:.76rem;color:#FCD34D;font-style:italic;}
+  .order-note{padding:.4rem 1rem;font-size:.76rem;color:#FCD34D;font-style:italic;white-space:pre-wrap;}
   .order-foot{display:flex;align-items:center;justify-content:space-between;padding:.65rem 1rem;}
   .order-total{color:white;font-weight:700;font-size:.95rem;}
   .order-actions{display:flex;gap:.5rem;}
-  .act-btn{padding:.35rem .75rem;border-radius:8px;border:none;font-family:'DM Sans',sans-serif;font-size:.75rem;font-weight:600;cursor:pointer;transition:all .15s;}
+  .act-btn{padding:.35rem .75rem;border-radius:8px;border:none;font-size:.75rem;font-weight:600;cursor:pointer;transition:all .15s;}
   .act-prepare{background:rgba(217,119,6,.2);color:#FCD34D;}.act-prepare:hover{background:rgba(217,119,6,.4);}
   .act-deliver{background:rgba(61,122,69,.25);color:#6EE7B7;}.act-deliver:hover{background:rgba(61,122,69,.4);}
   .act-undo{background:#333;color:var(--gray);}.act-undo:hover{background:#444;}
@@ -64,10 +69,11 @@
   .confirm-title{font-family:'DM Serif Display',serif;color:white;font-size:1.15rem;margin-bottom:.5rem;}
   .confirm-sub{color:var(--gray);font-size:.82rem;margin-bottom:1.2rem;line-height:1.5;}
   .confirm-actions{display:flex;gap:.7rem;}
-  .btn-confirm-yes{flex:1;background:rgba(61,122,69,.35);color:#6EE7B7;border:none;border-radius:10px;padding:.7rem;font-family:'DM Sans',sans-serif;font-weight:700;font-size:.9rem;cursor:pointer;}
+  .btn-confirm-yes{flex:1;background:rgba(61,122,69,.35);color:#6EE7B7;border:none;border-radius:10px;padding:.7rem;font-weight:700;font-size:.9rem;cursor:pointer;}
   .btn-confirm-yes:hover{background:rgba(61,122,69,.5);}
-  .btn-confirm-no{flex:1;background:#333;color:var(--gray);border:none;border-radius:10px;padding:.7rem;font-family:'DM Sans',sans-serif;font-size:.9rem;cursor:pointer;}
-  .toast{position:fixed;top:70px;left:50%;transform:translateX(-50%) translateY(-80px);background:var(--green);color:white;border-radius:12px;padding:.6rem 1.2rem;font-weight:600;font-size:.85rem;z-index:500;transition:transform .3s;white-space:nowrap;box-shadow:0 4px 16px rgba(0,0,0,.3);}
+  .btn-confirm-no{flex:1;background:#333;color:var(--gray);border:none;border-radius:10px;padding:.7rem;font-size:.9rem;cursor:pointer;}
+  .toast{position:fixed;top:70px;left:50%;transform:translateX(-50%) translateY(-120px);background:var(--green);color:white;border-radius:12px;padding:.6rem 1.2rem;font-weight:600;font-size:.85rem;z-index:500;transition:transform .3s;max-width:calc(100% - 2rem);box-shadow:0 4px 16px rgba(0,0,0,.3);line-height:1.4;}
+  .toast.err{background:var(--red);font-weight:500;}
   .toast.show{transform:translateX(-50%) translateY(0);}
   .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:400;display:none;align-items:flex-end;justify-content:center;}
   .modal-overlay.open{display:flex;}
@@ -75,33 +81,45 @@
   .modal-handle{width:40px;height:4px;background:#444;border-radius:2px;margin:0 auto 1.2rem;}
   .modal-title{font-family:'DM Serif Display',serif;color:white;font-size:1.25rem;margin-bottom:.3rem;}
   .modal-sub{color:var(--gray);font-size:.8rem;margin-bottom:1.2rem;line-height:1.5;}
-  .backend-toggle{display:flex;gap:.5rem;margin-bottom:1.2rem;}
-  .back-btn{flex:1;padding:.55rem;border-radius:10px;border:1.5px solid #444;background:transparent;color:var(--gray);font-family:'DM Sans',sans-serif;font-size:.82rem;font-weight:600;cursor:pointer;text-align:center;}
-  .back-btn.active{background:var(--green);border-color:var(--green);color:white;}
   .modal-sec{margin-bottom:1rem;}
   .modal-sec-title{color:var(--green-l);font-size:.72rem;text-transform:uppercase;letter-spacing:.07em;margin-bottom:.6rem;font-weight:700;}
   .modal-field{display:flex;flex-direction:column;gap:.35rem;margin-bottom:.7rem;}
   .modal-field label{color:#aaa;font-size:.73rem;}
-  .modal-input{background:#2a2a2a;border:1.5px solid #444;border-radius:10px;color:white;font-family:'DM Sans',sans-serif;font-size:.85rem;padding:.6rem .85rem;outline:none;width:100%;}
+  .modal-input{background:#2a2a2a;border:1.5px solid #444;border-radius:10px;color:white;font-size:.85rem;padding:.6rem .85rem;outline:none;width:100%;}
   .modal-input:focus{border-color:var(--green);}
   .modal-input::placeholder{color:#555;}
-  .modal-hint{font-size:.72rem;color:#555;margin-top:.2rem;line-height:1.4;}
+  .modal-hint{font-size:.72rem;color:#666;margin-top:.2rem;line-height:1.4;}
   .modal-hint code{background:#333;padding:1px 4px;border-radius:4px;font-size:.7rem;color:var(--green-l);}
   .modal-divider{height:1px;background:#2e2e2e;margin:1rem 0;}
   .modal-actions{display:flex;gap:.7rem;margin-top:.5rem;}
-  .btn-save{flex:1;background:var(--green);color:white;border:none;border-radius:10px;padding:.75rem;font-family:'DM Sans',sans-serif;font-weight:700;font-size:.9rem;cursor:pointer;}
+  .btn-save{flex:1;background:var(--green);color:white;border:none;border-radius:10px;padding:.75rem;font-weight:700;font-size:.9rem;cursor:pointer;}
   .btn-save:hover{background:var(--green-d);}
-  .btn-cancel{background:#333;color:var(--gray);border:none;border-radius:10px;padding:.75rem 1rem;font-family:'DM Sans',sans-serif;font-size:.9rem;cursor:pointer;}
-  .btn-test{background:transparent;border:1.5px solid #444;color:var(--gray);border-radius:10px;padding:.55rem 1rem;font-family:'DM Sans',sans-serif;font-size:.82rem;cursor:pointer;margin-bottom:.75rem;width:100%;transition:all .2s;}
+  .btn-save:disabled{opacity:.6;cursor:wait;}
+  .btn-cancel{background:#333;color:var(--gray);border:none;border-radius:10px;padding:.75rem 1rem;font-size:.9rem;cursor:pointer;}
+  .btn-test{background:transparent;border:1.5px solid #444;color:var(--gray);border-radius:10px;padding:.55rem 1rem;font-size:.82rem;cursor:pointer;margin-bottom:.75rem;width:100%;transition:all .2s;}
   .btn-test:hover{border-color:var(--green-l);color:var(--green-l);}
-  .test-result{font-size:.75rem;padding:.4rem .7rem;border-radius:8px;margin-bottom:.5rem;display:none;}
+  .test-result{font-size:.75rem;padding:.4rem .7rem;border-radius:8px;margin-bottom:.5rem;display:none;line-height:1.4;}
   .test-ok{background:rgba(61,122,69,.2);color:#6EE7B7;display:block;}
   .test-err{background:rgba(192,57,43,.2);color:#fca5a5;display:block;}
-  .guide-toggle{color:var(--green-l);font-size:.78rem;cursor:pointer;margin-bottom:.5rem;}
+  .guide-toggle{color:var(--green-l);font-size:.78rem;cursor:pointer;margin-bottom:.5rem;background:none;border:none;padding:0;}
   .guide-body{display:none;background:#111;border-radius:10px;padding:.85rem;font-size:.73rem;color:#aaa;line-height:1.7;}
   .guide-body.open{display:block;}
   .guide-body pre{background:#0a0a0a;border-radius:8px;padding:.75rem;margin:.5rem 0;overflow-x:auto;font-size:.68rem;color:#6EE7B7;white-space:pre-wrap;}
   .guide-body b{color:var(--green-l);}
+  .tlinks{display:flex;flex-direction:column;gap:.35rem;max-height:220px;overflow-y:auto;}
+  .tlink-row{display:flex;align-items:center;gap:.45rem;}
+  .tlink-name{color:#aaa;font-size:.75rem;width:56px;flex-shrink:0;}
+  .tlink-url{flex:1;min-width:0;background:#2a2a2a;border:1px solid #3a3a3a;border-radius:8px;color:#ccc;font-family:ui-monospace,monospace;font-size:.68rem;padding:.35rem .5rem;outline:none;}
+  .tlink-copy{background:#333;border:none;color:var(--green-l);border-radius:8px;padding:.35rem .6rem;font-size:.72rem;cursor:pointer;flex-shrink:0;}
+  .tlink-copy:hover{background:#444;}
+  .login-overlay{position:fixed;inset:0;background:rgba(10,10,10,.92);z-index:380;display:none;align-items:center;justify-content:center;padding:1.5rem;}
+  .login-overlay.open{display:flex;}
+  .login-box{background:#242424;border-radius:16px;padding:1.6rem;width:100%;max-width:340px;display:flex;flex-direction:column;gap:.6rem;}
+  .login-title{font-family:'DM Serif Display',serif;color:white;font-size:1.3rem;}
+  .login-sub{color:var(--gray);font-size:.8rem;line-height:1.5;margin-bottom:.4rem;word-break:break-word;}
+  .login-box label{color:#aaa;font-size:.73rem;}
+  .login-err{color:#fca5a5;font-size:.76rem;min-height:1.2em;line-height:1.4;}
+  .login-cfg{background:none;border:none;color:var(--gray);font-size:.78rem;cursor:pointer;text-decoration:underline;margin-top:.3rem;}
 </style>
 </head>
 <body>
@@ -113,211 +131,313 @@
       <div class="stat"><div class="stat-val" id="statPending">0</div><div class="stat-label">Pendentes</div></div>
       <div class="stat"><div class="stat-val" id="statToday">0</div><div class="stat-label">Hoje</div></div>
     </div>
-    <button class="btn-cfg" onclick="openCfg()">⚙️ Config</button>
+    <button class="btn-top" id="btnArchive" type="button" title="Move os pedidos entregues para o arquivo">🧹 Arquivar</button>
+    <button class="btn-top" id="btnCfg" type="button">⚙️ Config</button>
+    <button class="btn-top" id="btnLogout" type="button" hidden>Sair</button>
   </div>
 </div>
 
-<div class="conn-bar conn-none" id="connBar">
+<div class="conn-bar conn-none" id="connBar" role="status" aria-live="polite">
   <div class="conn-dot"></div><span id="connLabel">A ligar…</span>
 </div>
 
 <div class="filters">
-  <button class="filter-btn active" onclick="setFilter('all',this)">Todos</button>
-  <button class="filter-btn" onclick="setFilter('new',this)">🔴 Novos</button>
-  <button class="filter-btn" onclick="setFilter('preparing',this)">🟡 Em preparação</button>
-  <button class="filter-btn" onclick="setFilter('delivered',this)">🟢 Entregues</button>
+  <button class="filter-btn active" type="button" data-filter="all">Todos</button>
+  <button class="filter-btn" type="button" data-filter="new">🔴 Novos</button>
+  <button class="filter-btn" type="button" data-filter="preparing">🟡 Em preparação</button>
+  <button class="filter-btn" type="button" data-filter="delivered">🟢 Entregues</button>
   <div class="filter-sep"></div>
-  <select class="table-filter" id="tableFilter" onchange="renderOrders()">
+  <label class="sr-only" for="tableFilter">Filtrar por mesa</label>
+  <select class="table-filter" id="tableFilter">
     <option value="all">Todas as mesas</option>
   </select>
 </div>
 
 <div class="orders" id="ordersList"></div>
-<div class="toast" id="toast">🔔 Novo pedido!</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <div class="confirm-overlay" id="confirmOverlay">
-  <div class="confirm-box">
+  <div class="confirm-box" role="dialog" aria-labelledby="confirmTitle">
     <div class="confirm-title" id="confirmTitle">Confirmar</div>
     <div class="confirm-sub" id="confirmSub"></div>
     <div class="confirm-actions">
-      <button class="btn-confirm-no" onclick="closeConfirm()">Cancelar</button>
-      <button class="btn-confirm-yes" id="confirmYes">Confirmar</button>
+      <button class="btn-confirm-no" id="confirmNo" type="button">Cancelar</button>
+      <button class="btn-confirm-yes" id="confirmYes" type="button">Confirmar</button>
     </div>
   </div>
 </div>
 
+<div class="login-overlay" id="loginOverlay">
+  <form class="login-box" id="loginForm" aria-label="Iniciar sessão">
+    <div class="login-title">🔐 Gestão do Bar</div>
+    <div class="login-sub" id="loginSub">Inicia sessão com a conta do bar para ver e gerir os pedidos.</div>
+    <label for="loginEmail">Email</label>
+    <input class="modal-input" id="loginEmail" type="email" autocomplete="username" required/>
+    <label for="loginPass">Palavra-passe</label>
+    <input class="modal-input" id="loginPass" type="password" autocomplete="current-password" required/>
+    <div class="login-err" id="loginErr"></div>
+    <button class="btn-save" id="btnLogin" type="submit">Entrar</button>
+    <button class="login-cfg" id="btnLoginCfg" type="button">⚙️ Configurar ligação Firebase</button>
+  </form>
+</div>
+
 <div class="modal-overlay" id="cfgModal">
-  <div class="modal-box">
+  <div class="modal-box" role="dialog" aria-label="Configuração">
     <div class="modal-handle"></div>
     <div class="modal-title">⚙️ Configuração</div>
-    <div class="modal-sub">Escolhe o backend para sincronização de pedidos em tempo real.</div>
-    <div class="backend-toggle">
-      <button class="back-btn active" id="btnFb" onclick="selBackend('firebase')">🔥 Firebase</button>
-      <button class="back-btn" id="btnSh" onclick="selBackend('sheets')">📊 Google Sheets</button>
+    <div class="modal-sub">A ligação Firebase fica guardada neste dispositivo. O resto (mesas, menu, registo) é guardado no servidor e chega a todos os telemóveis.</div>
+
+    <div class="modal-sec">
+      <div class="modal-sec-title">🔥 Firebase Realtime Database</div>
+      <div class="modal-field">
+        <label for="fbUrl">URL da base de dados</label>
+        <input class="modal-input" id="fbUrl" placeholder="https://SEU-PROJETO-default-rtdb.europe-west1.firebasedatabase.app"/>
+        <div class="modal-hint">Firebase Console → Realtime Database → copiar URL.</div>
+      </div>
+      <div class="modal-field">
+        <label for="fbKey">API Key</label>
+        <input class="modal-input" id="fbKey" placeholder="AIzaSy..."/>
+        <div class="modal-hint">Firebase Console → Definições → Aplicações web → <code>apiKey</code>.</div>
+      </div>
+      <div id="testResult" class="test-result"></div>
+      <button class="btn-test" id="btnTestFb" type="button">🔌 Testar ligação Firebase</button>
     </div>
-    <div id="fbFields">
-      <div class="modal-sec">
-        <div class="modal-sec-title">🔥 Firebase Realtime Database</div>
-        <div class="modal-field">
-          <label>URL da base de dados</label>
-          <input class="modal-input" id="fbUrl" placeholder="https://SEU-PROJETO-default-rtdb.europe-west1.firebasedatabase.app"/>
-          <div class="modal-hint">Firebase Console → Realtime Database → copiar URL.</div>
-        </div>
-        <div class="modal-field">
-          <label>API Key</label>
-          <input class="modal-input" id="fbKey" placeholder="AIzaSy..."/>
-          <div class="modal-hint">Firebase Console → Definições → Aplicações web → <code>apiKey</code>.</div>
-        </div>
-        <div id="testResult" class="test-result"></div>
-        <button class="btn-test" onclick="testFirebase()">🔌 Testar ligação Firebase</button>
+
+    <div class="modal-divider"></div>
+    <div class="modal-sec">
+      <div class="modal-sec-title">🪑 Mesas</div>
+      <div class="modal-field">
+        <label for="tableCount">Total de mesas</label>
+        <input class="modal-input" id="tableCount" type="number" min="1" max="50" inputmode="numeric" placeholder="12"/>
+      </div>
+      <div class="modal-field">
+        <label for="menuUrl">URL do menu dos clientes</label>
+        <input class="modal-input" id="menuUrl" placeholder="(automático — a pasta menu/ ao lado desta)"/>
+        <div class="modal-hint">Só muda se o menu estiver publicado noutro endereço. Os links abaixo abrem o menu já com a mesa selecionada; o parâmetro <code>t</code> é o número da mesa em base64.</div>
+      </div>
+      <div class="modal-sec-title" style="margin-top:.8rem;">🔗 Links das mesas (para QR codes)</div>
+      <div id="tableLinks" class="tlinks"></div>
+    </div>
+
+    <div class="modal-divider"></div>
+    <div class="modal-sec">
+      <div class="modal-sec-title">📋 Menu — Google Sheet (opcional)</div>
+      <div class="modal-field">
+        <label for="menuSheetId">ID da Sheet (ou URL)</label>
+        <input class="modal-input" id="menuSheetId" placeholder="1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgVE2upms"/>
+        <div class="modal-hint">Sheet partilhada como "Qualquer pessoa com o link pode ver". Colunas: <code>cat</code>, <code>id</code>, <code>name</code>, <code>desc</code>, <code>price</code>. Vazio = menu de exemplo.</div>
+      </div>
+      <div class="modal-field">
+        <label for="menuSheetName">Nome do separador</label>
+        <input class="modal-input" id="menuSheetName" placeholder="Menu"/>
       </div>
     </div>
-    <div id="shFields" style="display:none;">
-      <div class="modal-sec">
-        <div class="modal-sec-title">📊 Google Sheets — Apps Script</div>
-        <div class="modal-field">
-          <label>URL do Web App</label>
-          <input class="modal-input" id="scriptUrl" placeholder="https://script.google.com/macros/s/.../exec"/>
-        </div>
-        <div id="testResultSh" class="test-result"></div>
-        <button class="btn-test" onclick="testSheets()">🔌 Testar ligação Sheets</button>
+
+    <div class="modal-divider"></div>
+    <div class="modal-sec">
+      <div class="modal-sec-title">📊 Registo de pedidos em Google Sheets (opcional)</div>
+      <div class="modal-field">
+        <label for="scriptUrl">URL do Web App (Apps Script)</label>
+        <input class="modal-input" id="scriptUrl" placeholder="https://script.google.com/macros/s/.../exec"/>
+        <div class="modal-hint">Cada pedido e cada mudança de estado são também escritos numa sheet, para histórico/contabilidade. O bar continua a ler os pedidos do Firebase.</div>
       </div>
-      <div class="guide-toggle" onclick="toggleGuide()">📋 Como configurar o Apps Script ▾</div>
+      <div id="testResultSh" class="test-result"></div>
+      <button class="btn-test" id="btnTestSh" type="button">🔌 Testar ligação Sheets</button>
+      <button class="guide-toggle" id="btnGuide" type="button">📋 Como configurar o Apps Script ▾</button>
       <div class="guide-body" id="guideBody">
         <b>1.</b> Abre a tua Google Sheet → <b>Extensões → Apps Script</b><br>
         <b>2.</b> Cola o código abaixo e guarda:<br>
         <pre>const SHEET_NAME = 'Pedidos';
+function sheet_() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  let s = ss.getSheetByName(SHEET_NAME);
+  if (!s) { s = ss.insertSheet(SHEET_NAME); s.appendRow(['num','mesa','artigos','total','nota','estado','hora']); }
+  return s;
+}
 function doPost(e) {
   try {
-    const data = JSON.parse(e.postData.contents);
-    const ss = SpreadsheetApp.getActiveSpreadsheet();
-    let sheet = ss.getSheetByName(SHEET_NAME);
-    if (!sheet) { sheet = ss.insertSheet(SHEET_NAME); sheet.appendRow(['num','table','items','total','note','status','time']); }
-    if (data.action === 'add') { sheet.appendRow([data.num,data.table,JSON.stringify(data.items),data.total,data.note||'','new',data.time]); }
-    if (data.action === 'update') { const vals=sheet.getDataRange().getValues(); for(let i=1;i<vals.length;i++){if(vals[i][0]==data.num){sheet.getRange(i+1,6).setValue(data.status);break;}} }
+    const d = JSON.parse(e.postData.contents);
+    const s = sheet_();
+    if (d.action === 'add') {
+      const art = (d.items || []).map(i => i.qty + '× ' + i.name).join(', ');
+      s.appendRow([d.num, 'Mesa ' + d.table, art, d.total, d.note || '', 'new', d.time]);
+    }
+    if (d.action === 'update') {
+      const v = s.getDataRange().getValues();
+      for (let i = 1; i &lt; v.length; i++) {
+        if (String(v[i][0]) === String(d.num)) { s.getRange(i + 1, 6).setValue(d.status); break; }
+      }
+    }
     return ContentService.createTextOutput(JSON.stringify({ok:true})).setMimeType(ContentService.MimeType.JSON);
-  } catch(err) { return ContentService.createTextOutput(JSON.stringify({ok:false,error:err.message})).setMimeType(ContentService.MimeType.JSON); }
+  } catch (err) {
+    return ContentService.createTextOutput(JSON.stringify({ok:false,error:err.message})).setMimeType(ContentService.MimeType.JSON);
+  }
 }
-function doGet(e) {
-  const ss=SpreadsheetApp.getActiveSpreadsheet(); const sheet=ss.getSheetByName(SHEET_NAME);
-  if(!sheet)return ContentService.createTextOutput(JSON.stringify([])).setMimeType(ContentService.MimeType.JSON);
-  const vals=sheet.getDataRange().getValues();
-  const rows=vals.slice(1).map(r=>({num:Number(r[0]),table:Number(r[1]),items:JSON.parse(r[2]||'[]'),total:Number(r[3]),note:r[4],status:r[5],time:r[6]}));
-  return ContentService.createTextOutput(JSON.stringify(rows)).setMimeType(ContentService.MimeType.JSON);
+function doGet() {
+  const rows = Math.max(0, sheet_().getLastRow() - 1);
+  return ContentService.createTextOutput(JSON.stringify({ok:true, rows})).setMimeType(ContentService.MimeType.JSON);
 }</pre>
         <b>3.</b> Implementar → Nova implementação → Aplicação Web<br>
         <b>4.</b> Executar como: <b>Eu</b> · Acesso: <b>Qualquer pessoa</b><br>
         <b>5.</b> Copia o URL e cola acima.
       </div>
     </div>
-    <div class="modal-divider"></div>
-    <div class="modal-sec">
-      <div class="modal-sec-title">📋 Google Sheet do Menu</div>
-      <div class="modal-field">
-        <label>ID da Sheet</label>
-        <input class="modal-input" id="menuSheetId" placeholder="1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgVE2upms"/>
-        <div class="modal-hint">URL: docs.google.com/spreadsheets/d/<code>ID</code>/edit</div>
-      </div>
-      <div class="modal-field">
-        <label>Nome do separador</label>
-        <input class="modal-input" id="menuSheetName" placeholder="Menu" value="Menu"/>
-      </div>
-    </div>
-    <div class="modal-divider"></div>
-    <div class="modal-sec">
-      <div class="modal-sec-title">🪑 Número de mesas</div>
-      <div class="modal-field">
-        <label>Total de mesas</label>
-        <input class="modal-input" id="tableCount" type="number" min="1" max="50" placeholder="12"/>
-      </div>
-    </div>
+
     <div class="modal-actions">
-      <button class="btn-cancel" onclick="closeCfg()">Cancelar</button>
-      <button class="btn-save" onclick="saveCfg()">Guardar & Ligar</button>
+      <button class="btn-cancel" id="btnCfgCancel" type="button">Cancelar</button>
+      <button class="btn-save" id="btnCfgSave" type="button">Guardar & Ligar</button>
     </div>
   </div>
 </div>
 
 <script>
 // ══════════════════════════════════════════════
-// CONFIGURAÇÃO DEFAULT
+// CONFIGURAÇÃO DEFAULT (ligação Firebase — fica neste dispositivo)
 // ══════════════════════════════════════════════
-const DEFAULT_CONFIG = {
-  backendType: 'firebase',
-  fbUrl:       'https://testar-bar-default-rtdb.europe-west1.firebasedatabase.app',
-  fbKey:       'AIzaSyCibZFX_qs38QLl3M61hmjgWDVd8_xJbzo',
-  scriptUrl:   '',
-  sheetId:     '',
-  sheetName:   'Menu',
-  tableCount:  12,
+const DEFAULT_CREDS = {
+  fbUrl: 'https://testar-bar-default-rtdb.europe-west1.firebasedatabase.app',
+  fbKey: 'AIzaSyCibZFX_qs38QLl3M61hmjgWDVd8_xJbzo',
 };
+// Config partilhada — vive em config/ no Firebase e chega ao menu dos clientes.
+const DEFAULT_SHARED = { tableCount: MRC.DEFAULT_TABLES, menuSheetId: '', menuSheetName: 'Menu', scriptUrl: '' };
+const ORDER_WINDOW_HOURS = 36;   // pedidos mais antigos que isto não são carregados (usa "Arquivar" para limpar)
+const ORDER_LIMIT = 300;
+const NET_TIMEOUT_MS = 10000;
+const STATUSES = ['new', 'preparing', 'delivered'];
 // ══════════════════════════════════════════════
 
-const TABLES_DEFAULT = 12;
+const { esc, fmt } = MRC;
+const $ = id => document.getElementById(id);
+
+let shared = { ...DEFAULT_SHARED };
 let orders = [];
 let barFilter = 'all';
-let pollInterval = null;
-let selectedBackend = 'firebase';
-let liveTableCount = TABLES_DEFAULT;
+let currentUser = null;
+let authKnown = false;
+let pendingShared = null;      // config acabada de guardar, à espera de ser escrita no servidor
+let listeners = [];
+let unsubAuth = null;
+let firstLoad = true;
 
-// ── CONFIG ──
+// ── CONFIG LOCAL (credenciais + cache da config partilhada) ──
 function getCfg() {
-  try {
-    const saved = JSON.parse(localStorage.getItem('barCfg') || '{}');
-    const merged = {...DEFAULT_CONFIG, ...saved};
-    // Se localStorage tiver strings vazias, usa os defaults
-    if (!merged.fbUrl) merged.fbUrl = DEFAULT_CONFIG.fbUrl;
-    if (!merged.fbKey) merged.fbKey = DEFAULT_CONFIG.fbKey;
-    if (!merged.backendType) merged.backendType = DEFAULT_CONFIG.backendType;
-    return merged;
-  } catch(e) { return {...DEFAULT_CONFIG}; }
+  let saved = {};
+  try { saved = JSON.parse(localStorage.getItem('barCfg') || '{}') || {}; } catch(_) {}
+  return {
+    fbUrl:   (saved.fbUrl || DEFAULT_CREDS.fbUrl).replace(/\/+$/, ''),
+    fbKey:   saved.fbKey || DEFAULT_CREDS.fbKey,
+    menuUrl: typeof saved.menuUrl === 'string' ? saved.menuUrl : '',
+    // 'cache' é o formato atual; o resto migra a config guardada pela versão anterior do painel.
+    cache:   normalizeShared(saved.cache || { tableCount: saved.tableCount, menuSheetId: saved.sheetId, menuSheetName: saved.sheetName, scriptUrl: saved.scriptUrl }),
+  };
 }
-function setCfg(c) { localStorage.setItem('barCfg', JSON.stringify(c)); }
-function tables() { return Array.from({length: liveTableCount}, (_,i) => `Mesa ${i+1}`); }
+function setCfg(c) { try { localStorage.setItem('barCfg', JSON.stringify(c)); } catch(_) {} }
+
+function normalizeShared(s) {
+  s = (s && typeof s === 'object') ? s : {};
+  return {
+    tableCount:    MRC.clampTableCount(s.tableCount, DEFAULT_SHARED.tableCount),
+    menuSheetId:   typeof s.menuSheetId === 'string' ? s.menuSheetId.trim().slice(0, 199) : '',
+    menuSheetName: (typeof s.menuSheetName === 'string' && s.menuSheetName.trim().slice(0, 99)) || 'Menu',
+    scriptUrl:     typeof s.scriptUrl === 'string' ? s.scriptUrl.trim().slice(0, 399) : '',
+  };
+}
+function sameShared(a, b) { return JSON.stringify(a) === JSON.stringify(b); }
+function tables() { return MRC.tableNames(shared.tableCount); }
 
 // ── INIT ──
-async function init() {
-  populateTableFilter();
+function init() {
   const cfg = getCfg();
-  setConn('none', `A ligar (${cfg.backendType})…`);
-  try {
-    await startBackend(cfg);
-  } catch(e) {
-    setConn('err', 'Erro ao iniciar: ' + e.message);
-  }
+  shared = cfg.cache;
+  populateTableFilter();
+  const urlTable = MRC.tableFromLocation(location);
+  if (urlTable && urlTable <= shared.tableCount) $('tableFilter').value = String(urlTable - 1);
+  wireEvents();
   renderOrders();
+  connectFirebase(cfg);
+}
+
+function wireEvents() {
+  $('btnCfg').addEventListener('click', openCfg);
+  $('btnLoginCfg').addEventListener('click', openCfg);
+  $('btnCfgCancel').addEventListener('click', closeCfg);
+  $('btnCfgSave').addEventListener('click', saveCfg);
+  $('btnTestFb').addEventListener('click', testFirebase);
+  $('btnTestSh').addEventListener('click', testSheets);
+  $('btnGuide').addEventListener('click', () => $('guideBody').classList.toggle('open'));
+  $('btnArchive').addEventListener('click', archiveDelivered);
+  $('btnLogout').addEventListener('click', logout);
+  $('loginForm').addEventListener('submit', login);
+  $('confirmNo').addEventListener('click', closeConfirm);
+  $('tableFilter').addEventListener('change', onTableFilterChange);
+  $('tableCount').addEventListener('input', () => renderTableLinks());
+  $('menuUrl').addEventListener('input', () => renderTableLinks());
+  document.querySelectorAll('.filter-btn').forEach(b => b.addEventListener('click', () => setFilter(b.dataset.filter, b)));
+  $('ordersList').addEventListener('click', e => {
+    const b = e.target.closest('button[data-act="status"]');
+    if (b) setStatus(parseInt(b.dataset.num, 10), b.dataset.status);
+  });
+  $('tableLinks').addEventListener('click', e => {
+    const b = e.target.closest('button[data-copy]');
+    if (!b || !navigator.clipboard) return;
+    navigator.clipboard.writeText(b.dataset.copy).then(() => { b.textContent = '✓'; setTimeout(() => b.textContent = 'Copiar', 1200); });
+  });
+  // AudioContext só pode arrancar após uma interação — resume uma vez e sai.
+  document.addEventListener('click', function resumeAudio() {
+    try { const ctx = getAudioCtx(); if (ctx.state === 'suspended') ctx.resume(); if (ctx.state === 'running') document.removeEventListener('click', resumeAudio); } catch(_) {}
+  });
+}
+
+// ── MESA ↔ URL ──
+function menuBaseUrl(override) {
+  const typed = (override !== undefined ? override : getCfg().menuUrl).trim();
+  const u = typed ? new URL(typed, location.href) : new URL('../menu/', location.href);
+  if (!u.pathname.endsWith('/')) u.pathname += '/';
+  u.search = ''; u.hash = '';
+  return u;
+}
+function tableUrlFor(n, override) {
+  const u = menuBaseUrl(override);
+  u.search = '?t=' + MRC.encodeTable(n);
+  return u.toString();
+}
+function onTableFilterChange() {
+  const v = $('tableFilter').value;
+  const u = new URL(location.href);
+  if (v === 'all') u.searchParams.delete('t'); else u.searchParams.set('t', MRC.encodeTable(parseInt(v, 10) + 1));
+  history.replaceState(null, '', u.toString());
+  renderOrders();
+}
+function renderTableLinks() {
+  const box = $('tableLinks');
+  const count = MRC.clampTableCount(parseInt($('tableCount').value, 10), shared.tableCount);
+  const typed = $('menuUrl').value;
+  box.innerHTML = '';
+  let base;
+  try { base = menuBaseUrl(typed); } catch(_) { box.innerHTML = '<div class="modal-hint">URL do menu inválido.</div>'; return; }
+  for (let n = 1; n <= count; n++) {
+    const u = new URL(base); u.search = '?t=' + MRC.encodeTable(n);
+    const url = u.toString();
+    const row = document.createElement('div');
+    row.className = 'tlink-row';
+    row.innerHTML = `<span class="tlink-name">Mesa ${n}</span><input class="tlink-url" readonly value="${esc(url)}" aria-label="Link da mesa ${n}"/><button class="tlink-copy" type="button" data-copy="${esc(url)}">Copiar</button>`;
+    box.appendChild(row);
+  }
 }
 
 function populateTableFilter() {
   const T = tables();
-  const sel = document.getElementById('tableFilter');
+  const sel = $('tableFilter');
   const cur = sel.value;
   sel.innerHTML = '<option value="all">Todas as mesas</option>';
-  T.forEach((t,i) => { const o = document.createElement('option'); o.value=i; o.textContent=t; sel.appendChild(o); });
-  sel.value = cur;
+  T.forEach((t, i) => { const o = document.createElement('option'); o.value = String(i); o.textContent = t; sel.appendChild(o); });
+  sel.value = (cur !== 'all' && parseInt(cur, 10) < T.length) ? cur : 'all';
 }
 
-// ── CONNECTION ──
+// ── CONNECTION BAR ──
 function setConn(type, label) {
-  const bar = document.getElementById('connBar');
-  bar.className = 'conn-bar conn-' + type;
-  document.getElementById('connLabel').textContent = label;
-}
-
-// ── BACKEND ──
-async function startBackend(cfg) {
-  await stopBackend();
-  if (cfg.backendType === 'firebase') await startFirebase(cfg);
-  else if (cfg.backendType === 'sheets') startSheets(cfg);
-}
-
-async function stopBackend() {
-  if (pollInterval) { clearInterval(pollInterval); pollInterval = null; }
-  if (window._fbRef) { try { window._fbRef.off(); } catch(_) {} window._fbRef = null; }
-  if (window._fbReady) {
-    window._fbReady = false;
-    try { await firebase.app().delete(); } catch(_) {}
-  }
+  $('connBar').className = 'conn-bar conn-' + type;
+  $('connLabel').textContent = label;
 }
 
 // ── FIREBASE ──
@@ -325,230 +445,289 @@ function initFirebase(cfg) {
   if (window._fbReady) return;
   if (typeof firebase === 'undefined') throw new Error('Firebase SDK não carregado');
   if (!cfg.fbUrl || !cfg.fbKey) throw new Error('Credenciais Firebase em falta');
-  const projectId = cfg.fbUrl.replace('https://','').split('-default-rtdb')[0];
-  firebase.initializeApp({apiKey: cfg.fbKey, databaseURL: cfg.fbUrl, projectId});
+  const projectId = MRC.projectIdFromDbUrl(cfg.fbUrl);
+  firebase.initializeApp({ apiKey: cfg.fbKey, databaseURL: cfg.fbUrl, projectId, authDomain: projectId + '.firebaseapp.com' });
   window._fbReady = true;
 }
 
-async function startFirebase(cfg) {
+function connectFirebase(cfg) {
   setConn('none', 'A ligar ao Firebase…');
-  try {
-    initFirebase(cfg);
-    const db = firebase.database();
-
-    // Ouve tableCount em tempo real (só leitura — escrita acontece em saveCfg)
-    db.ref('config/tableCount').on('value', snap => {
-      const val = snap.val();
-      if (val && typeof val === 'number') {
-        liveTableCount = val;
-        populateTableFilter();
-        const el = document.getElementById('tableCount');
-        if (el) el.value = val;
-      }
-    });
-
-    // Ouve pedidos em tempo real
-    const ref = db.ref('orders');
-    window._fbRef = ref;
-    let firstLoad = true;
-    ref.on('value', snap => {
-      const val = snap.val();
-      const prev = orders.filter(o => o.status !== 'delivered').length;
-      orders = val
-        ? Object.values(val).map(o => ({
-            ...o,
-            num:   Number(o.num),
-            table: Number(o.table),
-            total: Number(o.total),
-            items: typeof o.items === 'string' ? JSON.parse(o.items) : o.items,
-            time:  new Date(o.time)
-          })).sort((a,b) => b.num - a.num)
-        : [];
-      const newPending = orders.filter(o => o.status !== 'delivered').length;
-      if (!firstLoad && newPending > prev) notifyNewOrder();
-      firstLoad = false;
-      renderOrders();
-      setConn('ok', 'Firebase — ligado');
-    }, err => { setConn('err', 'Erro Firebase: ' + err.message); });
-  } catch(e) { setConn('err', 'Erro: ' + e.message); }
+  try { initFirebase(cfg); } catch(e) { setConn('err', 'Erro: ' + e.message); return; }
+  if (typeof firebase.auth !== 'function') {
+    // SDK de auth não carregou — segue sem autenticação (as regras podem bloquear).
+    authKnown = true; currentUser = null; updateAuthUi(); attachListeners(); return;
+  }
+  unsubAuth = firebase.auth().onAuthStateChanged(user => {
+    currentUser = user; authKnown = true;
+    updateAuthUi();
+    attachListeners();
+    if (pendingShared) flushPendingShared();   // sem sessão: tenta na mesma — se for recusado, pede login
+  }, err => setConn('err', 'Auth: ' + MRC.friendlyError(err)));
 }
 
-async function patchFirebase(num, status) {
+// Só é chamado quando as credenciais (URL/API key) mudam.
+async function teardownFirebase() {
+  detachListeners();
+  if (unsubAuth) { try { unsubAuth(); } catch(_) {} unsubAuth = null; }
+  if (window._fbReady) { window._fbReady = false; try { await firebase.app().delete(); } catch(_) {} }
+  currentUser = null; authKnown = false; updateAuthUi();
+}
+
+function detachListeners() {
+  listeners.forEach(([ref, ev, fn]) => { try { ref.off(ev, fn); } catch(_) {} });
+  listeners = [];
+}
+
+function attachListeners() {
+  detachListeners();
+  if (!window._fbReady) return;
+  const db = firebase.database();
+
+  // Config partilhada (leitura pública). Enquanto há uma gravação pendente,
+  // ignora snapshots para não reverter o que acabou de ser guardado.
+  const cfgRef = db.ref('config');
+  const onCfg = snap => { if (pendingShared) return; applyShared(normalizeShared(snap.val())); };
+  cfgRef.on('value', onCfg, err => console.warn('config:', err.message));
+  listeners.push([cfgRef, 'value', onCfg]);
+
+  // Pedidos: só a janela recente, com limite — a base de dados não é toda carregada.
+  const cutoff = new Date(Date.now() - ORDER_WINDOW_HOURS * 3600e3).toISOString();
+  const q = db.ref('orders').orderByChild('time').startAt(cutoff).limitToLast(ORDER_LIMIT);
+  firstLoad = true;
+  const onOrders = snap => {
+    const list = [];
+    snap.forEach(ch => { const o = normalizeOrder(ch.val()); if (o) list.push(o); });
+    list.sort((a, b) => b.num - a.num);
+    const prevPending = orders.filter(o => o.status !== 'delivered').length;
+    orders = list;
+    const nowPending = orders.filter(o => o.status !== 'delivered').length;
+    if (!firstLoad && nowPending > prevPending) notifyNewOrder();
+    firstLoad = false;
+    renderOrders();
+    if (!pendingShared) showLogin(false);   // se há config à espera de sessão, o pedido de login fica
+    if (currentUser) setConn('ok', `Firebase — ligado como ${currentUser.email || 'admin'}`);
+    else setConn('warn', 'Ligado sem autenticação: as regras da base de dados estão abertas a toda a gente. Aplica firebase/database.rules.json e cria a conta do bar.');
+  };
+  const onOrdersErr = err => {
+    const denied = err.code === 'PERMISSION_DENIED' || /permission/i.test(err.message || '');
+    if (!denied) { setConn('err', 'Erro Firebase: ' + MRC.friendlyError(err)); return; }
+    if (!currentUser) { setConn('none', 'Inicia sessão para ver os pedidos'); showLogin(true); }
+    else {
+      setConn('err', 'Conta sem permissão');
+      showLogin(true, `A conta ${currentUser.email || ''} não está autorizada. Na base de dados cria admins/${currentUser.uid} = true (vê firebase/README.md).`);
+    }
+  };
+  q.on('value', onOrders, onOrdersErr);
+  listeners.push([q, 'value', onOrders]);
+}
+
+function normalizeOrder(raw) {
+  if (!raw || typeof raw !== 'object') return null;
+  const num = Number(raw.num);
+  if (!Number.isInteger(num) || num < 1) return null;
+  const items = MRC.safeJsonArray(raw.items)
+    .map(i => ({ name: String((i && i.name) ?? '?').slice(0, 80), qty: Number(i && i.qty) || 0 }))
+    .filter(i => i.qty > 0).slice(0, 100);
+  const table = Number(raw.table);
+  return {
+    num,
+    table:  Number.isInteger(table) && table >= 0 ? table : -1,
+    total:  Number(raw.total) || 0,
+    status: STATUSES.includes(raw.status) ? raw.status : 'new',
+    note:   typeof raw.note === 'string' ? raw.note.slice(0, 300) : '',
+    items,
+    time:   MRC.parseTime(raw.time),
+    _raw:   raw,
+  };
+}
+
+// ── CONFIG PARTILHADA ──
+function applyShared(s) {
+  const countChanged = s.tableCount !== shared.tableCount;
+  shared = s;
+  if (countChanged) { populateTableFilter(); renderOrders(); }
+  if (!$('cfgModal').classList.contains('open')) fillCfgForm();
+  const cfg = getCfg(); cfg.cache = s; setCfg(cfg);
+}
+
+async function refreshSharedFromDb() {
+  if (!window._fbReady) return;
+  try { const snap = await firebase.database().ref('config').once('value'); if (!pendingShared) applyShared(normalizeShared(snap.val())); } catch(_) {}
+}
+
+async function flushPendingShared() {
+  if (!pendingShared || !window._fbReady || !authKnown) return;
+  const data = pendingShared;
   try {
-    const cfg = getCfg();
-    initFirebase(cfg);
-    await firebase.database().ref('orders/' + num + '/status').set(status);
+    await MRC.withTimeout(firebase.database().ref('config').update(data), NET_TIMEOUT_MS, 'Sem ligação ao servidor');
+    pendingShared = null;
+    showToast('✓ Configuração guardada no servidor');
   } catch(e) {
-    throw new Error('Erro ao atualizar Firebase: ' + e.message);
+    const denied = e.code === 'PERMISSION_DENIED' || /permission/i.test(e.message || '');
+    if (denied && !currentUser) {
+      // fica pendente: é escrita assim que houver sessão
+      showLogin(true, 'A configuração ficou guardada neste dispositivo. Inicia sessão para a enviar para o servidor (e para os telemóveis dos clientes).');
+      return;
+    }
+    pendingShared = null;
+    showToast('❌ Configuração não guardada no servidor: ' + (denied && currentUser ? `a conta ${currentUser.email || ''} não está em admins/` : MRC.friendlyError(e)), true);
+  }
+  refreshSharedFromDb();
+}
+
+// ── AUTH ──
+function updateAuthUi() {
+  $('btnLogout').hidden = !currentUser;
+}
+function showLogin(show, msg) {
+  const ov = $('loginOverlay');
+  ov.classList.toggle('open', !!show);
+  if (show) {
+    $('loginSub').textContent = msg || 'Inicia sessão com a conta do bar para ver e gerir os pedidos.';
+    if (!msg) setTimeout(() => $('loginEmail').focus(), 50);
   }
 }
+async function login(e) {
+  e.preventDefault();
+  const btn = $('btnLogin'); const errEl = $('loginErr');
+  errEl.textContent = '';
+  if (!window._fbReady || typeof firebase.auth !== 'function') { errEl.textContent = 'Firebase não está ligado — verifica a configuração.'; return; }
+  btn.disabled = true; btn.textContent = 'A entrar…';
+  try {
+    await MRC.withTimeout(firebase.auth().signInWithEmailAndPassword($('loginEmail').value.trim(), $('loginPass').value), 15000, 'Sem ligação ao servidor');
+    $('loginPass').value = '';
+    // onAuthStateChanged trata do resto (listeners, config pendente)
+  } catch(err) {
+    errEl.textContent = MRC.friendlyError(err);
+  } finally {
+    btn.disabled = false; btn.textContent = 'Entrar';
+  }
+}
+async function logout() {
+  try { await firebase.auth().signOut(); showToast('Sessão terminada'); } catch(e) { showToast('❌ ' + MRC.friendlyError(e), true); }
+}
 
+// ── TESTES ──
 async function testFirebase() {
-  const el = document.getElementById('testResult');
+  const el = $('testResult');
   el.className = 'test-result'; el.textContent = 'A testar…'; el.style.display = 'block';
-  const url = document.getElementById('fbUrl').value.trim().replace(/\/+$/,'');
-  const key = document.getElementById('fbKey').value.trim();
-  if (!url || !key) { el.className='test-result test-err'; el.textContent='✗ Preenche o URL e a API Key primeiro'; return; }
+  const url = $('fbUrl').value.trim().replace(/\/+$/, '');
+  const key = $('fbKey').value.trim();
+  if (!url || !key) { el.className = 'test-result test-err'; el.textContent = '✗ Preenche o URL e a API Key primeiro'; return; }
   let testApp = null;
   try {
-    const projectId = url.replace('https://','').split('-default-rtdb')[0];
-    testApp = firebase.initializeApp({apiKey:key, databaseURL:url, projectId}, 'test-' + Date.now());
-    const snap = await testApp.database().ref('config/tableCount').once('value');
+    const projectId = MRC.projectIdFromDbUrl(url);
+    testApp = firebase.initializeApp({ apiKey: key, databaseURL: url, projectId }, 'test-' + Date.now());
+    const snap = await MRC.withTimeout(testApp.database().ref('config/tableCount').once('value'), NET_TIMEOUT_MS, 'Sem resposta do servidor');
     const val = snap.val();
     el.className = 'test-result test-ok';
-    el.textContent = val !== null ? `✓ Ligação OK — ${val} mesas configuradas` : '✓ Ligação OK — a ligar…';
-    // Ligação bem-sucedida: usa estas credenciais
-    await testApp.delete(); testApp = null;
-    const cfg = getCfg();
-    cfg.fbUrl = url; cfg.fbKey = key;
-    setCfg(cfg);
-    await stopBackend();
-    await startBackend(cfg);
-    el.textContent = val !== null ? `✓ Ligado — ${val} mesas configuradas` : '✓ Ligado ao Firebase';
+    el.textContent = val !== null ? `✓ Ligação OK — ${val} mesas configuradas no servidor` : '✓ Ligação OK — ainda sem configuração no servidor (guarda para criar)';
   } catch(e) {
-    const msg = e.code === 'PERMISSION_DENIED'
-      ? '✗ Sem permissão — adiciona .read:true ao nó config nas regras do Firebase'
-      : '✗ ' + (e.message || e.code || 'Erro desconhecido');
-    el.className = 'test-result test-err'; el.textContent = msg;
+    el.className = 'test-result test-err';
+    el.textContent = '✗ ' + (e.code === 'PERMISSION_DENIED' ? 'Sem permissão de leitura em config/ — aplica firebase/database.rules.json' : MRC.friendlyError(e));
   } finally {
     if (testApp) try { await testApp.delete(); } catch(_) {}
   }
 }
 
-// ── SHEETS ──
-function startSheets(cfg) {
-  setConn('none', 'A ligar ao Google Sheets…');
-  let lastNums = new Set();
-  async function poll() {
-    try {
-      const res = await fetch(cfg.scriptUrl + '?t=' + Date.now());
-      if (!res.ok) throw new Error('HTTP ' + res.status);
-      const rows = await res.json();
-      if (!Array.isArray(rows)) throw new Error('Resposta inválida');
-      const fetched = rows.map(r => ({
-        ...r,
-        num:   Number(r.num),
-        table: Number(r.table),
-        total: Number(r.total),
-        items: typeof r.items === 'string' ? JSON.parse(r.items) : r.items,
-        time:  new Date(r.time)
-      })).sort((a,b) => b.num - a.num);
-      const localMap = Object.fromEntries(orders.map(o => [o.num, o.status]));
-      orders = fetched.map(o => ({...o, status: localMap[o.num] || o.status}));
-      const newNums = new Set(orders.map(o => o.num));
-      let hasNew = false;
-      newNums.forEach(n => { if (!lastNums.has(n)) hasNew = true; });
-      if (lastNums.size > 0 && hasNew) notifyNewOrder();
-      lastNums = newNums;
-      renderOrders();
-      setConn('ok', `Google Sheets — ${new Date().toLocaleTimeString('pt',{hour:'2-digit',minute:'2-digit'})}`);
-    } catch(e) { setConn('err', 'Erro: ' + e.message); }
-  }
-  poll();
-  pollInterval = setInterval(poll, 5000);
-}
-
-async function patchSheets(num, status) {
-  const o = orders.find(o => o.num === num);
-  if (o) { o.status = status; renderOrders(); }
-  const cfg = getCfg();
-  try {
-    await fetch(cfg.scriptUrl, {method:'POST', body: JSON.stringify({action:'update', num, status})});
-  } catch(e) {
-    const prev = {new:'preparing', preparing:'new', delivered:'preparing'}[status] || 'new';
-    if (o) { o.status = prev; renderOrders(); }
-    alert('Erro ao atualizar pedido: ' + e.message);
-  }
-}
-
 async function testSheets() {
-  const el = document.getElementById('testResultSh');
+  const el = $('testResultSh');
   el.className = 'test-result'; el.textContent = 'A testar…'; el.style.display = 'block';
   try {
-    const url = document.getElementById('scriptUrl').value.trim();
+    const url = $('scriptUrl').value.trim();
     if (!url) throw new Error('Preenche o URL do Apps Script primeiro');
-    const res = await fetch(url + '?t=' + Date.now());
+    const res = await MRC.withTimeout(fetch(url + (url.includes('?') ? '&' : '?') + 't=' + Date.now()), NET_TIMEOUT_MS, 'Sem resposta do script');
     if (!res.ok) throw new Error('HTTP ' + res.status);
     const data = await res.json();
-    if (!Array.isArray(data)) throw new Error('Resposta inesperada — verifica o script');
+    const rows = Array.isArray(data) ? data.length : (data && typeof data.rows === 'number' ? data.rows : null);
+    if (rows === null && !(data && data.ok)) throw new Error('Resposta inesperada — verifica o script');
     el.className = 'test-result test-ok';
-    el.textContent = `✓ Ligação OK — ${data.length} pedidos encontrados`;
+    el.textContent = `✓ Ligação OK${rows !== null ? ` — ${rows} pedidos registados` : ''}`;
   } catch(e) { el.className = 'test-result test-err'; el.textContent = '✗ ' + e.message; }
 }
 
+// ── SHEETS EXPORT (opcional, fire-and-forget) ──
+function exportStatusToSheet(num, status) {
+  if (!shared.scriptUrl) return;
+  try {
+    fetch(shared.scriptUrl, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ action: 'update', num, status }) })
+      .catch(e => console.warn('Sheets export:', e.message));
+  } catch(e) { console.warn('Sheets export:', e.message); }
+}
+
 // ── STATUS ──
-async function setStatus(num, status) {
+function setStatus(num, status) {
+  if (!STATUSES.includes(status)) return;
+  const o = orders.find(o => o.num === num);
+  if (!o) return;
   if (status === 'delivered') {
-    const o = orders.find(o => o.num === num);
     const T = tables();
-    askConfirm(
-      'Marcar como entregue?',
-      `${T[o.table] || 'Mesa ?'} · #${String(num).padStart(3,'0')}`,
-      () => doSetStatus(num, status)
-    );
+    askConfirm('Marcar como entregue?', `${o.table >= 0 ? (T[o.table] || `Mesa ${o.table + 1}`) : 'Mesa ?'} · #${String(num).padStart(3, '0')}`, () => doSetStatus(num, status));
   } else {
-    await doSetStatus(num, status);
+    doSetStatus(num, status);
+  }
+}
+async function doSetStatus(num, status) {
+  if (!window._fbReady) { showToast('❌ Firebase não está ligado', true); return; }
+  try {
+    await MRC.withTimeout(firebase.database().ref('orders/' + num + '/status').set(status), NET_TIMEOUT_MS, 'Sem ligação ao servidor');
+    exportStatusToSheet(num, status);
+  } catch(e) {
+    const denied = e.code === 'PERMISSION_DENIED' || /permission/i.test(e.message || '');
+    showToast('❌ Não foi possível atualizar: ' + (denied ? (currentUser ? 'conta sem permissão' : 'inicia sessão') : MRC.friendlyError(e)), true);
+    if (denied && !currentUser) showLogin(true);
   }
 }
 
-async function doSetStatus(num, status) {
-  const cfg = getCfg();
-  try {
-    if (cfg.backendType === 'firebase') await patchFirebase(num, status);
-    else if (cfg.backendType === 'sheets') await patchSheets(num, status);
-    else { const o = orders.find(o => o.num === num); if (o) { o.status = status; renderOrders(); } }
-  } catch(e) { alert(e.message); }
+// ── ARQUIVO ──
+function archiveDelivered() {
+  const delivered = orders.filter(o => o.status === 'delivered');
+  if (!delivered.length) { showToast('Não há pedidos entregues para arquivar'); return; }
+  askConfirm('Arquivar entregues?', `${delivered.length} pedido${delivered.length > 1 ? 's' : ''} entregue${delivered.length > 1 ? 's' : ''} passa${delivered.length > 1 ? 'm' : ''} para archive/ e deixa${delivered.length > 1 ? 'm' : ''} de aparecer aqui.`, async () => {
+    const updates = {};
+    delivered.forEach(o => {
+      updates['orders/' + o.num] = null;
+      updates['archive/' + MRC.localDateKey(o.time) + '/' + o.num] = o._raw;
+    });
+    try {
+      await MRC.withTimeout(firebase.database().ref().update(updates), NET_TIMEOUT_MS * 2, 'Sem ligação ao servidor');
+      showToast(`✓ ${delivered.length} pedido${delivered.length > 1 ? 's' : ''} arquivado${delivered.length > 1 ? 's' : ''}`);
+    } catch(e) {
+      const denied = e.code === 'PERMISSION_DENIED' || /permission/i.test(e.message || '');
+      showToast('❌ Arquivo falhou: ' + (denied ? (currentUser ? 'conta sem permissão' : 'inicia sessão') : MRC.friendlyError(e)), true);
+      if (denied && !currentUser) showLogin(true);
+    }
+  });
 }
 
 // ── CONFIRM ──
 function askConfirm(title, sub, onYes) {
-  document.getElementById('confirmTitle').textContent = title;
-  document.getElementById('confirmSub').textContent = sub;
-  document.getElementById('confirmYes').onclick = () => { closeConfirm(); onYes(); };
-  document.getElementById('confirmOverlay').classList.add('open');
+  $('confirmTitle').textContent = title;
+  $('confirmSub').textContent = sub;
+  $('confirmYes').onclick = () => { closeConfirm(); onYes(); };
+  $('confirmOverlay').classList.add('open');
 }
-function closeConfirm() { document.getElementById('confirmOverlay').classList.remove('open'); }
+function closeConfirm() { $('confirmOverlay').classList.remove('open'); }
 
-// AudioContext criado na primeira interação do utilizador
+// ── NOTIFICAÇÃO ──
 let _audioCtx = null;
-
 function getAudioCtx() {
-  if (!_audioCtx) {
-    _audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-  }
+  if (!_audioCtx) _audioCtx = new (window.AudioContext || window.webkitAudioContext)();
   return _audioCtx;
 }
-
-// Inicializa o AudioContext na primeira interação (qualquer clique na página)
-document.addEventListener('click', () => {
-  try {
-    const ctx = getAudioCtx();
-    if (ctx.state === 'suspended') ctx.resume();
-  } catch(_) {}
-}, { once: false });
-
 function notifyNewOrder() {
-  showToast();
+  showToast('🔔 Novo pedido!');
   if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
   try {
     const ctx = getAudioCtx();
-    if (ctx.state === 'suspended') { ctx.resume(); return; } // não toca se ainda suspenso
-    const gain = ctx.createGain();
-    gain.gain.value = 0.3;
-    gain.connect(ctx.destination);
-    function beep(freq, when) {
-      const osc = ctx.createOscillator();
-      osc.connect(gain);
-      osc.frequency.value = freq;
-      osc.start(when);
-      osc.stop(when + 0.15);
-    }
-    beep(880,  ctx.currentTime);
-    beep(1100, ctx.currentTime + 0.25);
-  } catch(e) {}
+    if (ctx.state !== 'running') return;
+    const gain = ctx.createGain(); gain.gain.value = 0.3; gain.connect(ctx.destination);
+    const beep = (freq, when) => { const osc = ctx.createOscillator(); osc.connect(gain); osc.frequency.value = freq; osc.start(when); osc.stop(when + 0.15); };
+    beep(880, ctx.currentTime); beep(1100, ctx.currentTime + 0.25);
+  } catch(_) {}
 }
 
-// ── RENDER ──
+// ── RENDER (keyed: só muda os cartões que mudaram) ──
 function setFilter(f, btn) {
   barFilter = f;
   document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
@@ -556,106 +735,125 @@ function setFilter(f, btn) {
   renderOrders();
 }
 
+function cardHtml(o, T) {
+  const tableName = o.table >= 0 ? (T[o.table] || `Mesa ${o.table + 1}`) : 'Mesa ?';
+  const bC = { new: 'badge-new', preparing: 'badge-preparing', delivered: 'badge-delivered' }[o.status];
+  const bL = { new: '🔴 Novo', preparing: '🟡 Em preparação', delivered: '🟢 Entregue' }[o.status];
+  const numFmt = '#' + String(o.num).padStart(3, '0');
+  const ih = o.items.map(i => `<div class="order-item-line"><span class="order-item-name">${esc(i.name)}</span><span class="order-item-qty">×${i.qty}</span></div>`).join('')
+    || '<div class="order-item-line"><span class="order-item-name">(sem artigos)</span></div>';
+  const btn = (cls, status, label) => `<button type="button" class="act-btn ${cls}" data-act="status" data-num="${o.num}" data-status="${status}">${label}</button>`;
+  let a = '';
+  if (o.status === 'new')            a = btn('act-prepare', 'preparing', 'Em preparação') + btn('act-deliver', 'delivered', 'Entregue ✓');
+  else if (o.status === 'preparing') a = btn('act-deliver', 'delivered', 'Entregue ✓') + btn('act-undo', 'new', 'Repor');
+  else                               a = btn('act-undo', 'preparing', 'Repor');
+  return `
+    <div class="order-head">
+      <div><div class="order-num">${esc(tableName)} · ${numFmt}</div><div class="order-time">${MRC.timeHM(o.time)}</div></div>
+      <div class="badge ${bC}">${bL}</div>
+    </div>
+    <div class="order-items">${ih}</div>
+    ${o.note ? `<div class="order-note">📝 ${esc(o.note)}</div>` : ''}
+    <div class="order-foot"><div class="order-total">${fmt(o.total)}</div><div class="order-actions">${a}</div></div>`;
+}
+
 function renderOrders() {
   const T = tables();
-  const c = document.getElementById('ordersList');
-  const tableF = document.getElementById('tableFilter').value;
-  const today = new Date().toDateString();
-  const filtered = orders.filter(o => {
-    if (barFilter !== 'all' && o.status !== barFilter) return false;
-    if (tableF !== 'all' && o.table !== parseInt(tableF)) return false;
-    return true;
-  });
-  document.getElementById('statPending').textContent = orders.filter(o => o.status === 'new' || o.status === 'preparing').length;
-  document.getElementById('statToday').textContent = orders.filter(o => o.time instanceof Date && o.time.toDateString() === today).length;
-  c.innerHTML = '';
+  const list = $('ordersList');
+  const tableF = $('tableFilter').value;
+  const today = MRC.localDateKey(new Date());
+  const filtered = orders.filter(o =>
+    (barFilter === 'all' || o.status === barFilter) &&
+    (tableF === 'all' || o.table === parseInt(tableF, 10)));
+  $('statPending').textContent = orders.filter(o => o.status !== 'delivered').length;
+  $('statToday').textContent = orders.filter(o => o.time && MRC.localDateKey(o.time) === today).length;
+
   if (!filtered.length) {
-    c.innerHTML = `<div class="empty"><div class="empty-icon">☕</div>Sem pedidos${barFilter !== 'all' || tableF !== 'all' ? ' com este filtro' : ''}.</div>`;
+    list.innerHTML = `<div class="empty"><div class="empty-icon">☕</div>Sem pedidos${barFilter !== 'all' || tableF !== 'all' ? ' com este filtro' : ''}.</div>`;
     return;
   }
+  const empty = list.querySelector('.empty'); if (empty) empty.remove();
+  const existing = new Map();
+  list.querySelectorAll('.order-card').forEach(c => existing.set(c.dataset.num, c));
+  const wanted = new Set(filtered.map(o => String(o.num)));
+  existing.forEach((c, k) => { if (!wanted.has(k)) c.remove(); });
+
+  let cursor = list.firstChild;
   filtered.forEach(o => {
-    const card = document.createElement('div');
-    card.className = `order-card status-${o.status}`;
-    const bC = {new:'badge-new', preparing:'badge-preparing', delivered:'badge-delivered'}[o.status] || 'badge-new';
-    const bL = {new:'🔴 Novo', preparing:'🟡 Em preparação', delivered:'🟢 Entregue'}[o.status] || '🔴 Novo';
-    const t = o.time instanceof Date ? o.time.toLocaleTimeString('pt',{hour:'2-digit',minute:'2-digit'}) : String(o.time).slice(11,16);
-    const tableName = T[o.table] || `Mesa ${o.table + 1}`;
-    const numFmt = '#' + String(o.num).padStart(3,'0');
-    const ih = (o.items||[]).map(i => `<div class="order-item-line"><span class="order-item-name">${i.name}</span><span class="order-item-qty">×${i.qty}</span></div>`).join('');
-    let a = '';
-    if (o.status === 'new')
-      a = `<button class="act-btn act-prepare" onclick="setStatus(${o.num},'preparing')">Em preparação</button><button class="act-btn act-deliver" onclick="setStatus(${o.num},'delivered')">Entregue ✓</button>`;
-    else if (o.status === 'preparing')
-      a = `<button class="act-btn act-deliver" onclick="setStatus(${o.num},'delivered')">Entregue ✓</button><button class="act-btn act-undo" onclick="setStatus(${o.num},'new')">Repor</button>`;
-    else
-      a = `<button class="act-btn act-undo" onclick="setStatus(${o.num},'preparing')">Repor</button>`;
-    card.innerHTML = `
-      <div class="order-head">
-        <div><div class="order-num">${tableName} · ${numFmt}</div><div class="order-time">${t}</div></div>
-        <div class="badge ${bC}">${bL}</div>
-      </div>
-      <div class="order-items">${ih}</div>
-      ${o.note ? `<div class="order-note">📝 ${o.note}</div>` : ''}
-      <div class="order-foot"><div class="order-total">${fmt(o.total)}</div><div class="order-actions">${a}</div></div>`;
-    c.appendChild(card);
+    const key = String(o.num);
+    let card = existing.get(key);
+    const sig = [o.status, o.table, o.total, o.time ? o.time.getTime() : 0, o.note, JSON.stringify(o.items)].join('|');
+    if (!card) { card = document.createElement('div'); card.dataset.num = key; }
+    if (card.dataset.sig !== sig) {
+      card.className = `order-card status-${o.status}`;
+      card.innerHTML = cardHtml(o, T);
+      card.dataset.sig = sig;
+    }
+    if (card === cursor) cursor = cursor.nextSibling;
+    else list.insertBefore(card, cursor);
   });
 }
 
 // ── CONFIG MODAL ──
-function openCfg() {
+function fillCfgForm() {
   const cfg = getCfg();
-  selBackend(cfg.backendType || 'firebase');
-  document.getElementById('fbUrl').value = cfg.fbUrl || '';
-  document.getElementById('fbKey').value = cfg.fbKey || '';
-  document.getElementById('scriptUrl').value = cfg.scriptUrl || '';
-  document.getElementById('menuSheetId').value = cfg.sheetId || '';
-  document.getElementById('menuSheetName').value = cfg.sheetName || 'Menu';
-  document.getElementById('tableCount').value = liveTableCount;
-  document.getElementById('testResult').className = 'test-result';
-  document.getElementById('testResultSh').className = 'test-result';
-  document.getElementById('cfgModal').classList.add('open');
+  $('fbUrl').value = cfg.fbUrl;
+  $('fbKey').value = cfg.fbKey;
+  $('menuUrl').value = cfg.menuUrl;
+  $('tableCount').value = shared.tableCount;
+  $('menuSheetId').value = shared.menuSheetId;
+  $('menuSheetName').value = shared.menuSheetName;
+  $('scriptUrl').value = shared.scriptUrl;
+  renderTableLinks();
 }
-function closeCfg() { document.getElementById('cfgModal').classList.remove('open'); }
-function selBackend(type) {
-  selectedBackend = type;
-  document.getElementById('btnFb').classList.toggle('active', type === 'firebase');
-  document.getElementById('btnSh').classList.toggle('active', type === 'sheets');
-  document.getElementById('fbFields').style.display = type === 'firebase' ? 'block' : 'none';
-  document.getElementById('shFields').style.display = type === 'sheets' ? 'block' : 'none';
+function openCfg() {
+  fillCfgForm();
+  $('testResult').className = 'test-result';
+  $('testResultSh').className = 'test-result';
+  $('cfgModal').classList.add('open');
 }
-function toggleGuide() { document.getElementById('guideBody').classList.toggle('open'); }
+function closeCfg() { $('cfgModal').classList.remove('open'); }
+
+function extractSheetId(v) {
+  v = (v || '').trim();
+  const m = v.match(/\/spreadsheets\/d\/([a-zA-Z0-9_-]+)/);
+  return m ? m[1] : v;
+}
 
 async function saveCfg() {
-  if (selectedBackend === 'firebase' && (!document.getElementById('fbUrl').value.trim() || !document.getElementById('fbKey').value.trim())) {
-    alert('Preenche o URL e a API Key do Firebase.'); return;
-  }
-  if (selectedBackend === 'sheets' && !document.getElementById('scriptUrl').value.trim()) {
-    alert('Preenche o URL do Apps Script.'); return;
-  }
-  const newTableCount = parseInt(document.getElementById('tableCount').value) || TABLES_DEFAULT;
-  const cfg = {
-    backendType: selectedBackend,
-    fbUrl:       document.getElementById('fbUrl').value.trim(),
-    fbKey:       document.getElementById('fbKey').value.trim(),
-    scriptUrl:   document.getElementById('scriptUrl').value.trim(),
-    sheetId:     document.getElementById('menuSheetId').value.trim(),
-    sheetName:   document.getElementById('menuSheetName').value.trim() || 'Menu',
-    tableCount:  newTableCount,
-  };
-  setCfg(cfg);
+  const fbUrl = $('fbUrl').value.trim().replace(/\/+$/, '');
+  const fbKey = $('fbKey').value.trim();
+  if (!fbUrl || !fbKey) { alert('Preenche o URL e a API Key do Firebase.'); return; }
+  if (!/^https:\/\/[^/]+\.firebasedatabase\.app$|^https:\/\/[^/]+\.firebaseio\.com$/.test(fbUrl)) { alert('O URL da base de dados deve ser do tipo https://PROJETO-default-rtdb.REGIAO.firebasedatabase.app'); return; }
+  const menuUrl = $('menuUrl').value.trim();
+  if (menuUrl) { try { new URL(menuUrl, location.href); } catch(_) { alert('URL do menu inválido.'); return; } }
+
+  const newShared = normalizeShared({
+    tableCount:    MRC.clampTableCount(parseInt($('tableCount').value, 10), shared.tableCount),
+    menuSheetId:   extractSheetId($('menuSheetId').value),
+    menuSheetName: $('menuSheetName').value,
+    scriptUrl:     $('scriptUrl').value,
+  });
+  const old = getCfg();
+  const credsChanged = old.fbUrl !== fbUrl || old.fbKey !== fbKey;
+  const btn = $('btnCfgSave'); btn.disabled = true;
+  setCfg({ fbUrl, fbKey, menuUrl, cache: newShared });
   closeCfg();
-  liveTableCount = newTableCount;
-  populateTableFilter();
-  await startBackend(cfg);
-  // Firebase já está pronto — escreve tableCount agora
-  if (cfg.backendType === 'firebase' && window._fbReady) {
-    firebase.database().ref('config/tableCount').set(newTableCount).catch(e => console.warn('tableCount:', e.message));
-  }
+  const changed = !sameShared(newShared, shared);
+  applyShared(newShared);                 // efeito imediato neste dispositivo
+  if (changed || credsChanged) pendingShared = newShared;
+  try {
+    if (credsChanged) { await teardownFirebase(); connectFirebase(getCfg()); }   // a escrita acontece após o estado de auth
+    else await flushPendingShared();
+  } finally { btn.disabled = false; }
 }
 
 // ── UTILS ──
-function showToast() { const t = document.getElementById('toast'); t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 3500); }
-function fmt(n) { return (+n||0).toFixed(2).replace('.',',') + ' €'; }
+let _toastTimer = null;
+function showToast(msg, isErr) {
+  const t = $('toast'); t.textContent = msg; t.classList.toggle('err', !!isErr); t.classList.add('show');
+  clearTimeout(_toastTimer); _toastTimer = setTimeout(() => t.classList.remove('show'), isErr ? 6000 : 3500);
+}
 
 init();
 </script>

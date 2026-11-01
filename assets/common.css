@@ -1,0 +1,10 @@
+/* Tokens e reset partilhados pelo menu (clientes) e pelo painel de gestão (bar). */
+:root{
+  --green:#787B63;--green-d:#5a5c49;--green-l:#C4C8B0;--green-ll:#E8EAE0;
+  --dark:#2A2A2A;--sand:#D8D5C8;--cream:#F5F3EE;--gray:#8A8A8A;--text:#1F2937;
+  --red:#C0392B;--amber:#D97706;--ok:#3D7A45;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'DM Sans',sans-serif;}
+button,input,select,textarea{font-family:inherit;}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0;padding:0;}
